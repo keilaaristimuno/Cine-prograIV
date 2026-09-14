@@ -1,0 +1,68 @@
+:host {
+  display: block; //se comporta como un bloque
+  min-height: 100vh; 
+}
+
+.estructura-administrador {
+  display: grid; //divide en filas y columnas.
+  grid-template-columns: 260px 1fr; //1fr toma todo lo que queda después de reservar los 260 píxeles.
+  min-height: 100vh;
+  background-color: #090711;
+  color: #f7f5fa;
+}
+
+.barra-lateral {
+  padding: 2rem 1.25rem; //vertical horizontal;
+  background-color: #161221;
+  border-right: 1px solid rgba(139, 92, 246, 0.25);
+}
+
+//& representa el selector padre, en este caso .marca, y se utiliza para anidar selectores dentro de un bloque de estilo.
+.marca {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 2.5rem;
+
+  &__nombre {
+    color: #f5c451;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  &__area {
+    margin-top: 0.25rem;
+    color: #aaa4b5;
+    font-size: 0.875rem;
+  }
+}
+
+.navegacion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  &__enlace {
+    padding: 0.8rem 1rem;
+    border-radius: 0.5rem;
+    color: #aaa4b5;
+    text-decoration: none;
+    transition:
+      color 150ms ease,
+      background-color 150ms ease;
+
+      //activa el cursor cuando pasa por encima
+    &:hover {
+      color: #f7f5fa;
+      background-color: rgba(139, 92, 246, 0.12);
+    }
+    //es .navegacion__enlace--activo:
+    &--activo {
+      color: #f7f5fa;
+      background-color: #8b5cf6;
+    }
+  }
+}
+
+.contenido-administrador {
+  padding: 2rem;
+}

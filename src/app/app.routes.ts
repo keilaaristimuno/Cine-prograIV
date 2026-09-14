@@ -9,8 +9,28 @@ export const routes: Routes = [
   {
     path: 'admin',
     loadComponent: () =>
-      import('./features/admin/pages/dashboard-admin/dashboard-admin')
-        .then(m => m.DashboardAdmin)
+      import('./features/admin/layouts/admin-layout/admin-layout')
+        .then(m => m.AdminLayout),
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/admin/pages/dashboard-admin/dashboard-admin')
+            .then(m => m.DashboardAdmin)
+      },
+      {
+        path: 'peliculas',
+        loadComponent: () =>
+          import('./features/admin/pages/peliculas/listado-peliculas/listado-peliculas')
+            .then(m => m.ListadoPeliculas)
+      },
+      {
+        path: 'peliculas/nueva',
+        loadComponent: () =>
+          import('./features/admin/pages/peliculas/formulario-pelicula/formulario-pelicula')
+            .then(m => m.FormularioPelicula)
+      }
+    ]
   },
   {
     path: '**',

@@ -1,0 +1,31 @@
+<div class="estructura-administrador">
+  <aside class="barra-lateral">
+    <div class="marca">
+      <span class="marca__nombre">Pantalla Mágica</span>
+      <span class="marca__area">Administración</span>
+    </div>
+
+    <nav class="navegacion">
+      <a
+        routerLink="/admin"
+        routerLinkActive="navegacion__enlace--activo"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="navegacion__enlace"
+      >
+        Dashboard
+      </a>
+
+      <a
+        routerLink="/admin/peliculas"
+        routerLinkActive="navegacion__enlace--activo"
+        class="navegacion__enlace"
+      >
+        Películas
+      </a>
+    </nav>
+  </aside>
+
+  <main class="contenido-administrador">
+    <router-outlet />
+  </main>
+</div>
