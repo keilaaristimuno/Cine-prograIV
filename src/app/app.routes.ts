@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { InicioSesion } from './features/autenticacion/paginas/inicio-sesion/inicio-sesion';
 
 export const routes: Routes = [
   {
@@ -31,6 +32,13 @@ export const routes: Routes = [
             .then(m => m.FormularioPelicula)
       }
     ]
+  },
+  {
+    path: 'administracion/iniciar-sesion',
+    loadComponent: () =>
+      import(
+        './features/autenticacion/paginas/inicio-sesion/inicio-sesion')
+          .then(m => m.InicioSesion)
   },
   {
     path: '**',

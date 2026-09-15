@@ -1,0 +1,87 @@
+<main class="pagina-inicio-sesion">
+  <section class="tarjeta-inicio-sesion">
+    <h1>Administración</h1>
+
+    <p>Ingresá con tu cuenta para gestionar las películas.</p>
+
+    <form
+      [formGroup]="formularioInicioSesion"
+      (ngSubmit)="iniciarSesion()"
+    >
+      <div class="campo-formulario">
+        <label for="correo">Correo electrónico:</label>
+
+        <input
+          id="correo"
+          type="email"
+          formControlName="correo"
+          autocomplete="email"
+        />
+
+        @if (
+          formularioInicioSesion.controls.correo.touched &&
+          formularioInicioSesion.controls.correo.hasError('required')
+        ) {
+          <small class="mensaje-error">
+            El correo es obligatorio.
+          </small>
+        }
+
+        @if (
+          formularioInicioSesion.controls.correo.touched &&
+          formularioInicioSesion.controls.correo.hasError('email')
+        ) {
+          <small class="mensaje-error">
+            Ingresá un correo válido.
+          </small>
+        }
+      </div>
+
+      <div class="campo-formulario">
+        <label for="contrasenia">Contraseña:</label>
+
+        <input
+          id="contrasenia"
+          type="password"
+          formControlName="contrasenia"
+          autocomplete="current-password"
+        />
+
+        @if (
+          formularioInicioSesion.controls.contrasenia.touched &&
+          formularioInicioSesion.controls.contrasenia.hasError('required')
+        ) {
+          <small class="mensaje-error">
+            La contraseña es obligatoria.
+          </small>
+        }
+
+        @if (
+          formularioInicioSesion.controls.contrasenia.touched &&
+          formularioInicioSesion.controls.contrasenia.hasError('minlength')
+        ) {
+          <small class="mensaje-error">
+            La contraseña debe tener al menos 6 caracteres.
+          </small>
+        }
+      </div>
+
+      @if (mensajeError) {
+        <p class="mensaje-error" role="alert">
+          {{ mensajeError }}
+        </p>
+      }
+
+      <button
+        type="submit"
+        [disabled]="cargando"
+      >
+        @if (cargando) {
+          Ingresando...
+        } @else {
+          Iniciar sesión
+        }
+      </button>
+    </form>
+  </section>
+</main>

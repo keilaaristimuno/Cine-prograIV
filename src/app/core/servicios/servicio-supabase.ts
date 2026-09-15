@@ -15,6 +15,7 @@ export class ServicioSupabase {
         environment.supabasePublishableKey
     );
 
+    /* Inicia sesión con correo y contraseña */
     async iniciarSesion(
         correo: string,
         contrasenia: string
@@ -29,4 +30,22 @@ export class ServicioSupabase {
             throw error;
         }
     }
+    
+    /* Cierra la sesión del usuario */
+    async cerrarSesion(): Promise<void> {
+    const { error } = await this.cliente.auth.signOut();
+
+    if (error) {
+      throw error;
+    }
+  }
+
+
+/* Verifica si hay una sesión activa */
+  async haySesionActiva(): Promise<boolean> {
+    const { data } = await this.cliente.auth.getSession();
+
+    return data.session !== null;
+  }
 }
+

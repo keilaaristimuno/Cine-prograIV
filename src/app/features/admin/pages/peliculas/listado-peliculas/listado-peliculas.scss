@@ -1,0 +1,171 @@
+:host {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.pagina-listado {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.encabezado-pagina {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.encabezado-pagina__seccion {
+  margin: 0 0 0.5rem;
+  color: #aaa3bd;
+  font-size: 0.95rem;
+}
+
+.encabezado-pagina__titulo {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1;
+}
+
+.boton-primario {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem 1.15rem;
+  border-radius: 0.5rem;
+  background-color: #8457ee;
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    background-color 150ms ease,
+    transform 150ms ease;
+}
+
+.boton-primario:hover {
+  background-color: #966ff2;
+  transform: translateY(-1px);
+}
+
+.contenedor-tabla {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.tabla-peliculas {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.tabla-peliculas th:nth-child(1) {
+  width: 8%;
+}
+
+.tabla-peliculas th:nth-child(2) {
+  width: 19%;
+}
+
+.tabla-peliculas th:nth-child(3) {
+  width: 13%;
+}
+
+.tabla-peliculas th:nth-child(4) {
+  width: 13%;
+}
+
+.tabla-peliculas th:nth-child(5) {
+  width: 23%;
+}
+
+.tabla-peliculas th:nth-child(6) {
+  width: 12%;
+}
+
+.tabla-peliculas th:nth-child(7) {
+  width: 12%;
+}
+
+.poster-pelicula {
+  display: block;
+  width: 64px;
+  height: 92px;
+  border: 1px solid #413852;
+  border-radius: 0.4rem;
+  background-color: #211c2b;
+  object-fit: cover;
+}
+
+.etiqueta-genero {
+  display: inline-block;
+  margin: 0.15rem 0.3rem 0.15rem 0;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid #66558d;
+  border-radius: 999px;
+  background-color: #29213b;
+  color: #d8caf8;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.estado {
+  display: inline-flex;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.estado--activo {
+  border: 1px solid #3b9b62;
+  background-color: rgb(59 155 98 / 15%);
+  color: #77dda0;
+}
+
+.estado--inactivo {
+  border: 1px solid #a54d5b;
+  background-color: rgb(165 77 91 / 15%);
+  color: #f497a5;
+}
+
+.boton-accion {
+  padding: 0.55rem 0.85rem;
+  border: 1px solid #756c8d;
+  border-radius: 0.4rem;
+  background-color: transparent;
+  color: #eeeaf8;
+  font: inherit;
+  cursor: pointer;
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease;
+}
+
+.boton-accion:hover {
+  border-color: #9a79ef;
+  background-color: #2b2340;
+}
+
+.tabla-vacia {
+  padding: 2.5rem !important;
+  color: #aaa3bd !important;
+  text-align: center !important;
+}
+
+@media (max-width: 800px) {
+  .pagina-listado {
+    padding: 1.5rem;
+  }
+
+  .encabezado-pagina {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .boton-primario {
+    align-self: flex-start;
+  }
+}

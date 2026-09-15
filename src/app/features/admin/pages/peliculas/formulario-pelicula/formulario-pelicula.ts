@@ -1,6 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ClasificacionEdad } from '../../../../../core/modelos/pelicula';
+import  {ServicioPeliculas} from '../../../../../core/servicios/servicio-peliculas';
 
 @Component({
   imports: [ReactiveFormsModule],
@@ -12,6 +13,13 @@ import { ClasificacionEdad } from '../../../../../core/modelos/pelicula';
 export class FormularioPelicula {
   /* readonly: podes leerlo pero no puede ser modificado ni borrado, no reemplaza el formulario por otro */
   private readonly constructorFormularios = inject(FormBuilder);
+
+  private readonly servicioPeliculas =
+  inject(ServicioPeliculas);
+
+  readonly guardando = signal(false);
+  readonly mensajeGuardado = signal('');
+  readonly mensajeErrorGuardado = signal('');
   
   readonly generosDisponibles: string[] = [
     'Acción',
@@ -132,12 +140,63 @@ export class FormularioPelicula {
 
   
 /* Guarda los datos de la película */
-  guardarPelicula() : void {
-    if (this.formularioPelicula.invalid) {
+  async guardarPelicula() : Promise<void> {
+    if (this.formularioPelicula.invalid){
       this.formularioPelicula.markAllAsTouched();
       return;
     }
-    const datosPelicula = this.formularioPelicula.getRawValue();
-    console.log('Datos de la pelicula: ', datosPelicula);
+    this.guardando.set(true);
+    this.mensajeGuardado.set('');
+    this.mensajeErrorGuardado.set('');
+
+    const datosFormulario = this.formularioPelicula.getRawValue();
+
+    const imagen = datosFormulario.imagen;
+
+    if (!imagen) {
+      this.formularioPelicula.controls.imagen.setErrors({
+        required: true
+      });
+
+      this.formularioPelicula.controls.imagen.markAsTouched();
+      this.guardando.set(false);
+      return;
+    }
+    try {
+      await this.servicioPeliculas.guardarPelicula(
+        {
+          nombre: datosFormulario.nombre,
+          sinopsis: datosFormulario.sinopsis,
+          duracionMinutos:
+            datosFormulario.duracionMinutos,
+          fechaEstreno:
+            datosFormulario.fechaEstreno,
+          clasificacionEdad:
+            datosFormulario.clasificacionEdad,
+          estaActiva:
+            datosFormulario.estaActiva,
+          generos:
+            datosFormulario.generos
+        },
+        imagen
+      );
+
+      this.mensajeGuardado.set( 
+        'La película se guardó correctamente.'
+      );
+      console.log(
+        'Película guardada correctamente en Supabase.'
+      );
+    } catch (error) {
+      console.error(
+        'Error al guardar la película:',
+        error
+      );
+
+      this.mensajeErrorGuardado.set('No se pudo guardar la película.'
+      );
+    } finally {
+      this.guardando.set(false);
+    }
   }
 }

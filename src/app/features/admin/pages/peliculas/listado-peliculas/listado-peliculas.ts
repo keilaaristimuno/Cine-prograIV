@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
-import { Pelicula } from '../../../../../core/modelos/pelicula';
-import { RouterLink } from '@angular/router';
+import {Component, inject, OnInit, signal} from '@angular/core';
+import {RouterLink} from '@angular/router';
+
+import {Pelicula} from '../../../../../core/modelos/pelicula';
+import {ServicioPeliculas} from '../../../../../core/servicios/servicio-peliculas';
 
 @Component({
   selector: 'app-listado-peliculas',
@@ -8,40 +10,38 @@ import { RouterLink } from '@angular/router';
   templateUrl: './listado-peliculas.html',
   styleUrl: './listado-peliculas.scss'
 })
-export class ListadoPeliculas {
-  peliculas: Pelicula[] = [
-    {
-      id: '1',
-      nombre: 'Dune Parte Dos',
-      sinopsis: 'Paul Atreides se une a Chani y a los Fremen.',
-      duracionMinutos: 166,
-      imagenUrl: '',
-      fechaEstreno: '2026-09-20',
-      clasificacionEdad: '+13',
-      generos: ['Ciencia ficción', 'Aventura', 'Drama'],
-      estaActiva: true
-    },
-    {
-      id: '2',
-      nombre: 'Intensa Mente 2',
-      sinopsis: 'Nuevas emociones llegan a la mente de Riley.',
-      duracionMinutos: 96,
-      imagenUrl: '',
-      fechaEstreno: '2026-10-10',
-      clasificacionEdad: 'ATP',
-      generos: ['Animación', 'Comedia'],
-      estaActiva: true
-    },
-    {
-      id: '3',
-      nombre: 'Película archivada',
-      sinopsis: 'Ejemplo de una película que no está visible.',
-      duracionMinutos: 120,
-      imagenUrl: '',
-      fechaEstreno: '2025-05-15',
-      clasificacionEdad: '+18',
-      generos: ['Terror'],
-      estaActiva: false
+export class ListadoPeliculas implements OnInit {
+  private readonly servicioPeliculas =
+    inject(ServicioPeliculas);
+
+  readonly peliculas = signal<Pelicula[]>([]);
+  readonly cargando = signal(true);
+  readonly mensajeError = signal('');
+
+  ngOnInit(): void {
+    void this.cargarPeliculas();
+  }
+
+  private async cargarPeliculas(): Promise<void> {
+    this.cargando.set(true);
+    this.mensajeError.set('');
+
+    try {
+      const peliculas =
+        await this.servicioPeliculas.obtenerPeliculas();
+
+      this.peliculas.set(peliculas);
+    } catch (error) {
+      console.error(
+        'Error al obtener las películas:',
+        error
+      );
+
+      this.mensajeError.set(
+        'No se pudieron cargar las películas.'
+      );
+    } finally {
+      this.cargando.set(false);
     }
-  ];
+  }
 }

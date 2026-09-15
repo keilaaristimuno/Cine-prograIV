@@ -1,211 +1,237 @@
-<h1>Registrar película</h1>
-
-<form [formGroup] = "formularioPelicula" 
-      (ngSubmit)="guardarPelicula()">
-
-
-    <div class="campo-formulario">
-        <label for="nombre">Nombre:</label>
-    
-<!-- El valor de formControlName debe coincidir con el control de TypeScript -->
-        <input 
-        id="nombre" 
-        type="text" 
-        formControlName="nombre" 
-        placeholder="Ejemplo: Intensamente 2"
-        />
-
-        <!-- Validacion: -->
-         <!-- El usuario entró y salió del campo &&
-          Incumple al menos una validación -->
- @if (
-    formularioPelicula.controls.nombre.touched &&
-    formularioPelicula.controls.nombre.invalid
-) {
-  <div class="mensajes-error">
-        @if (formularioPelicula.controls.nombre.hasError('required')) {
-        <small>El nombre es obligatorio.</small>
-        }
-
-        @if (formularioPelicula.controls.nombre.hasError('minlength')) {
-        <small>El nombre debe tener al menos 2 caracteres.</small>
-        }
-
-        @if (formularioPelicula.controls.nombre.hasError('maxlength')) {
-        <small>El nombre no puede superar los 100 caracteres.</small>
-        }
-  </div>
-}
-
-    </div>
-    <div class="campo-formulario">
-        <label for="sinopsis">Sinopsis:</label>
-        <textarea
-        id="sinopsis"
-        formControlName="sinopsis"
-        rows="6"
-        placeholder="Ejemplo: La historia de una niña que se muda a otra ciudad y debe adaptarse a su nueva vida"
-        ></textarea>
-
-    @if (formularioPelicula.controls.sinopsis.touched &&
-    formularioPelicula.controls.sinopsis.invalid) 
-    {
-        <div class="mensajes-error">
-            @if (formularioPelicula.controls.sinopsis.hasError('required')) {
-                <small>La sinopsis es obligatoria.</small>
-            }
-            @if (formularioPelicula.controls.sinopsis.hasError('minlength')) {
-                <small>La sinopsis debe tener al menos 20 caracteres.</small>
-            }
-            @if (formularioPelicula.controls.sinopsis.hasError('maxlength')) {
-                <small>La sinopsis no puede superar los 1000 caracteres.</small>
-            }
-        </div>
-    }
-    </div>
-
-    <div class="campo-formulario">
-        <label for="duracionMinutos">Duración :</label>
-        <input
-        id="duracionMinutos"
-        type="number"
-        min="1"
-        max="600"
-        formControlName="duracionMinutos"
-        placeholder="(Minutos)"
-        />
-
-    @if (formularioPelicula.controls.duracionMinutos.touched &&
-    formularioPelicula.controls.duracionMinutos.invalid)
-    {
-        <div class="mensajes-error">
-            @if (formularioPelicula.controls.duracionMinutos.hasError('required')) {
-                <small>La duración es obligatoria.</small>
-            }
-            @if (formularioPelicula.controls.duracionMinutos.hasError('min'))           {
-                <small>La duración debe ser al menos 1 minuto.</small>
-            } 
-            @if (formularioPelicula.controls.duracionMinutos.hasError('max')) {
-                <small>La duración no puede superar los 600 minutos.</small>
-            }
-        </div>
-    }
-    </div>
+<main class="pagina-formulario">
+    <section class="tarjeta-formulario">
+        <h1>Registrar pelicula</h1>
+        <form 
+            class="formulario-pelicula"
+            [formGroup] = "formularioPelicula" 
+            (ngSubmit)="guardarPelicula()">
 
 
-    /* Campo de fecha de estreno */
-    <div class="campo-formulario">
-        <label for="fecha-estreno">Fecha de estreno:</label>
-
-        <input
-            id="fecha-estreno"
-            type="date"
-            formControlName="fechaEstreno"
-        />
-
-        @if (
-            formularioPelicula.controls.fechaEstreno.touched &&
-            formularioPelicula.controls.fechaEstreno.hasError('required')
-        ) {
-            <div class="mensajes-error">
-            <small>La fecha de estreno es obligatoria.</small>
-            </div>
-        }
-    </div>
-
-<!-- Campo de clasificación por edad -->
-    <div class="campo-formulario">
-        <label for="clasificacion-edad">
-            Clasificación por edad:
-        </label>
-
-        <select
-            id="clasificacion-edad"
-            formControlName="clasificacionEdad"
-        >
-            <option value="ATP">Apta para todo público</option>
-            <option value="+13">Mayores de 13 años</option>
-            <option value="+18">Mayores de 18 años</option>
-        </select>
-    </div>
-
-    <div class="campo-formulario">
-        <label class="campo-booleano">
-            <input
-            type="checkbox"
-            formControlName="estaActiva"
-            />
-
-            <span>Mostrar esta película en la página pública</span>
-        </label>
-    </div>
-
-    <fieldset class="campo-formulario">
-        <legend>Géneros:</legend>
-
-        <div class="opciones-generos">
-            @for (genero of generosDisponibles; track genero) {
-            <label class="opcion-genero">
-                <input
-                type="checkbox"
-                [checked]="
-                    formularioPelicula.controls.generos.value.includes(genero)
-                "
-                (change)="cambiarGenero(genero, $event)"
+            <div class="campo-formulario">
+                <label for="nombre">Nombre:</label>
+            
+        <!-- El valor de formControlName debe coincidir con el control de TypeScript -->
+                <input 
+                id="nombre" 
+                type="text" 
+                formControlName="nombre" 
+                placeholder="Ejemplo: Intensamente 2"
                 />
 
-                <span>{{ genero }}</span>
-            </label>
-            }
+                <!-- Validacion: -->
+                <!-- El usuario entró y salió del campo &&
+                Incumple al menos una validación -->
+        @if (
+            formularioPelicula.controls.nombre.touched &&
+            formularioPelicula.controls.nombre.invalid
+        ) {
+        <div class="mensajes-error">
+                @if (formularioPelicula.controls.nombre.hasError('required')) {
+                <small>El nombre es obligatorio.</small>
+                }
+
+                @if (formularioPelicula.controls.nombre.hasError('minlength')) {
+                <small>El nombre debe tener al menos 2 caracteres.</small>
+                }
+
+                @if (formularioPelicula.controls.nombre.hasError('maxlength')) {
+                <small>El nombre no puede superar los 100 caracteres.</small>
+                }
         </div>
-
-        @if (
-            formularioPelicula.controls.generos.touched &&
-            formularioPelicula.controls.generos.hasError('required')
-        ) {
-            <div class="mensajes-error">
-            <small>Seleccioná al menos un género.</small>
-            </div>
-        }
-    </fieldset>
-
-            <!-- Campo de imagen -->
-    <div class="campo-formulario">
-        <label for="imagen">Póster de la película:</label>
-
-        <input
-            id="imagen"
-            type="file"
-            /* el accept ayuda a filtrar el selector de archivos, pero no reemplaza la validación */
-            accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
-            (change)="seleccionarImagen($event)"
-        />
-
-        @if (
-            formularioPelicula.controls.imagen.touched &&
-            formularioPelicula.controls.imagen.hasError('required')
-        ) {
-            <div class="mensajes-error">
-            <small>Seleccioná una imagen.</small>
-            </div>
         }
 
-        @if (formularioPelicula.controls.imagen.hasError('tipoInvalido')) {
-            <div class="mensajes-error">
-            <small>La imagen debe ser JPG, PNG o WebP.</small>
             </div>
-        }
+            <div class="campo-formulario">
+                <label for="sinopsis">Sinopsis:</label>
+                <textarea
+                id="sinopsis"
+                formControlName="sinopsis"
+                rows="6"
+                placeholder="Ejemplo: La historia de una niña que se muda a otra ciudad y debe adaptarse a su nueva vida"
+                ></textarea>
 
-        @if (formularioPelicula.controls.imagen.hasError('tamanioExcedido')) {
-            <div class="mensajes-error">
-            <small>La imagen no puede superar los 5 MB.</small>
+            @if (formularioPelicula.controls.sinopsis.touched &&
+            formularioPelicula.controls.sinopsis.invalid) 
+            {
+                <div class="mensajes-error">
+                    @if (formularioPelicula.controls.sinopsis.hasError('required')) {
+                        <small>La sinopsis es obligatoria.</small>
+                    }
+                    @if (formularioPelicula.controls.sinopsis.hasError('minlength')) {
+                        <small>La sinopsis debe tener al menos 20 caracteres.</small>
+                    }
+                    @if (formularioPelicula.controls.sinopsis.hasError('maxlength')) {
+                        <small>La sinopsis no puede superar los 1000 caracteres.</small>
+                    }
+                </div>
+            }
             </div>
-        }
-    </div>
 
-        <!-- Botón de envío del formulario -->
-    <button type="submit" class="boton-primario">   
-        Guardar película
-    </button>
+            <div class="campo-formulario">
+                <label for="duracionMinutos">Duración :</label>
+                <input
+                id="duracionMinutos"
+                type="number"
+                min="1"
+                max="600"
+                formControlName="duracionMinutos"
+                placeholder="(Minutos)"
+                />
 
-</form>
+            @if (formularioPelicula.controls.duracionMinutos.touched &&
+            formularioPelicula.controls.duracionMinutos.invalid)
+            {
+                <div class="mensajes-error">
+                    @if (formularioPelicula.controls.duracionMinutos.hasError('required')) {
+                        <small>La duración es obligatoria.</small>
+                    }
+                    @if (formularioPelicula.controls.duracionMinutos.hasError('min'))           {
+                        <small>La duración debe ser al menos 1 minuto.</small>
+                    } 
+                    @if (formularioPelicula.controls.duracionMinutos.hasError('max')) {
+                        <small>La duración no puede superar los 600 minutos.</small>
+                    }
+                </div>
+            }
+            </div>
+
+        <!--     /* Campo de fecha de estreno */ -->
+            <div class="campo-formulario">
+                <label for="fecha-estreno">Fecha de estreno:</label>
+
+                <input
+                    id="fecha-estreno"
+                    type="date"
+                    formControlName="fechaEstreno"
+                />
+
+                @if (
+                    formularioPelicula.controls.fechaEstreno.touched &&
+                    formularioPelicula.controls.fechaEstreno.hasError('required')
+                ) {
+                    <div class="mensajes-error">
+                    <small>La fecha de estreno es obligatoria.</small>
+                    </div>
+                }
+            </div>
+
+        <!-- Campo de clasificación por edad -->
+            <div class="campo-formulario">
+                <label for="clasificacion-edad">
+                    Clasificación por edad:
+                </label>
+
+                <select
+                    id="clasificacion-edad"
+                    formControlName="clasificacionEdad"
+                >
+                    <option value="ATP">Apta para todo público</option>
+                    <option value="+13">Mayores de 13 años</option>
+                    <option value="+18">Mayores de 18 años</option>
+                </select>
+            </div>
+
+            <div class="campo-formulario">
+                <label class="campo-booleano">
+                    <input
+                    type="checkbox"
+                    formControlName="estaActiva"
+                    />
+
+                    <span>Mostrar esta película en la página pública</span>
+                </label>
+            </div>
+
+            <fieldset class="campo-formulario">
+                <legend>Géneros:</legend>
+
+                <div class="opciones-generos">
+                    @for (genero of generosDisponibles; track genero) {
+                    <label class="opcion-genero">
+                        <input
+                        type="checkbox"
+                        [checked]="
+                            formularioPelicula.controls.generos.value.includes(genero)
+                        "
+                        (change)="cambiarGenero(genero, $event)"
+                        />
+
+                        <span>{{ genero }}</span>
+                    </label>
+                    }
+                </div>
+
+                @if (
+                    formularioPelicula.controls.generos.touched &&
+                    formularioPelicula.controls.generos.hasError('required')
+                ) {
+                    <div class="mensajes-error">
+                    <small>Seleccioná al menos un género.</small>
+                    </div>
+                }
+            </fieldset>
+
+                    <!-- Campo de imagen -->
+            <div class="campo-formulario">
+                <label for="imagen">Póster de la película:</label>
+
+                <input
+                    id="imagen"
+                    type="file"
+                    /* el accept ayuda a filtrar el selector de archivos, pero no reemplaza la validación */
+                    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                    (change)="seleccionarImagen($event)"
+                />
+
+                @if (
+                    formularioPelicula.controls.imagen.touched &&
+                    formularioPelicula.controls.imagen.hasError('required')
+                ) {
+                    <div class="mensajes-error">
+                    <small>Seleccioná una imagen.</small>
+                    </div>
+                }
+
+                @if (formularioPelicula.controls.imagen.hasError('tipoInvalido')) {
+                    <div class="mensajes-error">
+                    <small>La imagen debe ser JPG, PNG o WebP.</small>
+                    </div>
+                }
+
+                @if (formularioPelicula.controls.imagen.hasError('tamanioExcedido')) {
+                    <div class="mensajes-error">
+                    <small>La imagen no puede superar los 5 MB.</small>
+                    </div>
+                }
+            </div>
+
+                <!-- Botón de envío del formulario -->
+            <button
+                type="submit"
+                class="boton-primario"
+                [disabled]=guardando()
+                >
+                @if (guardando()) {
+                    Guardando...
+                } @else {
+                    Guardar película
+                }
+            </button>
+
+            @if (mensajeGuardado()) {
+                <p class="mensaje-exito" role="status">
+                    {{ mensajeGuardado() }}
+                </p>
+            }
+
+            @if (mensajeErrorGuardado()) {
+                <p class="mensaje-error" role="alert">
+                    {{ mensajeErrorGuardado() }}
+                </p>
+            }
+
+        </form>
+    </section>
+</main>
+
+       

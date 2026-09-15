@@ -1,71 +1,80 @@
-<header class="encabezado-pagina">
-  <div>
-    <p class="encabezado-pagina__seccion">Contenido del cine</p>
-    <h1 class="encabezado-pagina__titulo">Películas</h1>
-  </div>
+<section class="pagina-listado">
+  <header class="encabezado-pagina">
+    <div>
+      <p class="encabezado-pagina__seccion">Contenido del cine</p>
+      <h1 class="encabezado-pagina__titulo">Películas</h1>
+    </div>
 
-    <a routerLink="/admin/peliculas/nueva"
-    class="boton-primario">
-      Nueva película
-    </a>
+      <a routerLink="/admin/peliculas/nueva"
+      class="boton-primario">
+      + Nueva película
+      </a>
+  </header>
 
-</header>
-
-<section class="contenedor-tabla">
-  <table class="tabla-peliculas">
-    <thead>
-      <tr>
-        <th>Nombre</th>
-        <th>Duración</th>
-        <th>Clasificación</th>
-        <th>Géneros</th>
-        <th>Estado</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-
-    <tbody>
- <!-- Por cada pelicula que exista dentro del arreglo peliculas, generá una fila 
-  track ayuda a identificar cada fila por el id-->
-      @for (pelicula of peliculas; track pelicula.id) {
+  <div class="contenedor-tabla">
+    <table class="tabla-peliculas">
+      <thead>
         <tr>
-          <td>{{ pelicula.nombre }}</td>
-          <td>{{ pelicula.duracionMinutos }} minutos</td>
-          <td>{{ pelicula.clasificacionEdad }}</td>
-          <td>
-            @for (genero of pelicula.generos; track genero) {
-              <span class="etiqueta-genero">
-                {{ genero }}
-              </span>
-            }
-          </td>
-
-          <td>
-            @if (pelicula.estaActiva) {
-              <span class="estado estado--activo">
-                Activa
-              </span>
-            } @else {
-              <span class="estado estado--inactivo">
-                Inactiva
-              </span>
-            }
-          </td>
-
-          <td>
-            <button type="button" class="boton-accion">
-              Editar
-            </button>
-          </td>
+          <th>Póster</th>
+          <th>Nombre</th>
+          <th>Duración</th>
+          <th>Clasificación</th>
+          <th>Géneros</th>
+          <th>Estado</th>
+          <th>Acciones</th>
         </tr>
-<!-- se usa el emppty desp de un bloque for para mostrar un mensaje cuando no hay películas -->
-      } @empty {
-        <tr>
-          <td colspan="6">
-            Todavía no hay películas registradas.
-          </td>
-        </tr>
-      }
-    </tbody>
-  </table>
+      </thead>
+
+      <tbody>
+  <!-- Por cada pelicula que exista dentro del arreglo peliculas, generá una fila 
+    track ayuda a identificar cada fila por el id-->
+        @for (pelicula of peliculas(); track pelicula.id) {
+          <tr>
+            <td>
+              <img
+                class="poster-pelicula"
+                [src]="pelicula.imagenUrl"
+                [alt]="'Póster de ' + pelicula.nombre"
+              />
+            </td>
+            <td>{{ pelicula.nombre }}</td>
+            <td>{{ pelicula.duracionMinutos }} minutos</td>
+            <td>{{ pelicula.clasificacionEdad }}</td>
+            <td>
+              @for (genero of pelicula.generos; track genero) {
+                <span class="etiqueta-genero">
+                  {{ genero }}
+                </span>
+              }
+            </td>
+
+            <td>
+              @if (pelicula.estaActiva) {
+                <span class="estado estado--activo">
+                  Activa
+                </span>
+              } @else {
+                <span class="estado estado--inactivo">
+                  Inactiva
+                </span>
+              }
+            </td>
+
+            <td>
+              <button type="button" class="boton-accion">
+                Editar
+              </button>
+            </td>
+          </tr>
+  <!-- se usa el emppty desp de un bloque for para mostrar un mensaje cuando no hay películas -->
+        } @empty {
+          <tr>
+            <td colspan="7" class="tabla-vacia">
+              Todavía no hay películas registradas.
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+</div>
 </section>

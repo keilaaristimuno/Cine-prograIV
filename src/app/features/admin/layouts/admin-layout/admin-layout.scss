@@ -4,17 +4,26 @@
 }
 
 .estructura-administrador {
-  display: grid; //divide en filas y columnas.
-  grid-template-columns: 260px 1fr; //1fr toma todo lo que queda después de reservar los 260 píxeles.
   min-height: 100vh;
   background-color: #090711;
   color: #f7f5fa;
 }
 
-.barra-lateral {
-  padding: 2rem 1.25rem; //vertical horizontal;
+.barra-superior {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+
+  min-height: 76px;
+  padding: 0.9rem 2.5rem;
+
+  border-bottom: 1px solid rgba(139, 92, 246, 0.3);
   background-color: #161221;
-  border-right: 1px solid rgba(139, 92, 246, 0.25);
 }
 
 //& representa el selector padre, en este caso .marca, y se utiliza para anidar selectores dentro de un bloque de estilo.
@@ -45,6 +54,7 @@
     padding: 0.8rem 1rem;
     border-radius: 0.5rem;
     color: #aaa4b5;
+    font-weight: 600;
     text-decoration: none;
     transition:
       color 150ms ease,
@@ -64,5 +74,26 @@
 }
 
 .contenido-administrador {
-  padding: 2rem;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+@media (max-width: 650px) {
+  .barra-superior {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+  }
+
+
+  .navegacion {
+    width: 100%;
+  }
+
+  .navegacion__enlace {
+    flex: 1;
+    text-align: center;
+  }
 }
