@@ -1,0 +1,168 @@
+.pagina-autenticacion {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background-color: #8b70f7;
+}
+
+.tarjeta-autenticacion {
+  width: min(100%, 420px);
+  padding: 2rem;
+  border-radius: 0.75rem;
+  background-color: #161221;
+  color: #f7f5fa;
+}
+
+.tarjeta-autenticacion h1 {
+  margin: 0 0 0.5rem;
+
+  color: #f5c451;
+  font-size: 2rem;
+  line-height: 1.2;
+}
+
+.tarjeta-autenticacion > p {
+  margin: 0 0 1.75rem;
+  color: #aaa4b5;
+  line-height: 1.5;
+}
+
+.campo-formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.campo-formulario label {
+  color: #e8e4f0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.campo-formulario input {
+  width: 100%;
+  padding: 0.8rem 0.9rem;
+  box-sizing: border-box;
+
+  border: 1px solid #4b435c;
+  border-radius: 0.5rem;
+  outline: none;
+
+  background-color: #0e0b16;
+  color: #f7f5fa;
+
+  font: inherit;
+
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    background-color 150ms ease;
+}
+
+.campo-formulario input::placeholder {
+  color: #716a7e;
+}
+
+.campo-formulario input:hover {
+  border-color: #6d6282;
+}
+
+.campo-formulario input:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+  background-color: #14101e;
+}
+
+.campo-formulario input.ng-invalid.ng-touched {
+  border-color: #e56878;
+}
+
+.boton-primario {
+  width: 100%;
+  padding: 0.85rem 1rem;
+
+  border: 0;
+  border-radius: 0.5rem;
+
+  background: linear-gradient(
+    135deg,
+    #8b5cf6,
+    #7143df
+  );
+
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    opacity 150ms ease;
+}
+
+.boton-primario:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(139, 92, 246, 0.3);
+}
+
+.boton-primario:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.boton-primario:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.mensaje-error {
+  margin: 0.4rem 0;
+  color: #ff929e;
+  font-size: 0.875rem;
+}
+
+.mensaje-exito {
+  margin: 0 0 1rem;
+  padding: 0.75rem;
+
+  border: 1px solid rgba(72, 199, 116, 0.5);
+  border-radius: 0.5rem;
+
+  background-color: rgba(72, 199, 116, 0.12);
+  color: #8ee3ac;
+}
+
+.enlace-autenticacion {
+  margin: 1.5rem 0 0 !important;
+  color: #aaa4b5;
+  text-align: center;
+}
+
+.enlace-autenticacion a {
+  margin-left: 0.25rem;
+  color: #b89cff;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.enlace-autenticacion a:hover {
+  color: #d0bfff;
+  text-decoration: underline;
+}
+
+@media (max-width: 500px) {
+  .pagina-autenticacion {
+    padding: 1rem;
+  }
+
+  .tarjeta-autenticacion {
+    padding: 1.5rem;
+  }
+
+  .tarjeta-autenticacion h1 {
+    font-size: 1.7rem;
+  }
+}
