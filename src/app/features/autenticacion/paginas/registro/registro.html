@@ -1,0 +1,103 @@
+<main class="pagina-autenticacion">
+  <section class="tarjeta-autenticacion">
+    <h1>Crear una cuenta</h1>
+
+    <p>
+      Completá tus datos para registrarte.
+    </p>
+
+    <form
+      [formGroup]="formularioRegistro"
+      (ngSubmit)="registrarse()"
+    >
+      <div class="campo-formulario">
+        <label for="correo-registro">
+          Correo electrónico
+        </label>
+
+        <input
+          id="correo-registro"
+          type="email"
+          formControlName="correo"
+          autocomplete="email"
+        />
+
+        @if (
+          formularioRegistro.controls.correo.touched &&
+          formularioRegistro.controls.correo.hasError('required')
+        ) {
+          <small class="mensaje-error">
+            El correo es obligatorio.
+          </small>
+        }
+
+        @if (
+          formularioRegistro.controls.correo.touched &&
+          formularioRegistro.controls.correo.hasError('email')
+        ) {
+          <small class="mensaje-error">
+            Ingresá un correo válido.
+          </small>
+        }
+      </div>
+
+      <div class="campo-formulario">
+        <label for="contrasenia-registro">
+          Contraseña
+        </label>
+
+        <input
+          id="contrasenia-registro"
+          type="password"
+          formControlName="contrasenia"
+          autocomplete="new-password"
+        />
+      </div>
+
+      <div class="campo-formulario">
+        <label for="repetir-contrasenia">
+          Repetir contraseña
+        </label>
+
+        <input
+          id="repetir-contrasenia"
+          type="password"
+          formControlName="repetirContrasenia"
+          autocomplete="new-password"
+        />
+      </div>
+
+      @if (mensajeError()) {
+        <p class="mensaje-error" role="alert">
+          {{ mensajeError() }}
+        </p>
+      }
+
+      @if (mensajeExito()) {
+        <p class="mensaje-exito" role="status">
+          {{ mensajeExito() }}
+        </p>
+      }
+
+      <button
+        type="submit"
+        class="boton-primario"
+        [disabled]="cargando()"
+      >
+        @if (cargando()) {
+          Creando cuenta...
+        } @else {
+          Registrarse
+        }
+      </button>
+    </form>
+
+    <p class="enlace-autenticacion">
+      ¿Ya tenés una cuenta?
+
+      <a routerLink="/iniciar-sesion">
+        Iniciar sesión
+      </a>
+    </p>
+  </section>
+</main>

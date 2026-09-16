@@ -1,10 +1,6 @@
 import { Component, inject } from '@angular/core';
-import {
-  FormBuilder,
-  ReactiveFormsModule,
-  Validators
-} from '@angular/forms';
-import { Router } from '@angular/router';
+import {FormBuilder, ReactiveFormsModule,Validators} from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 
 import {
   ServicioSupabase
@@ -12,7 +8,7 @@ import {
 
 @Component({
   selector: 'app-inicio-sesion',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './inicio-sesion.html',
   styleUrl: './inicio-sesion.scss'
 })
@@ -62,7 +58,7 @@ export class InicioSesion {
       );
 
       await this.enrutador.navigate([
-        '/admin/peliculas/nueva'
+        '/admin/peliculas'
       ]);
     } catch (error) {
       console.error('Error al iniciar sesión:', error);

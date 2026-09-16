@@ -4,8 +4,22 @@ import { InicioSesion } from './features/autenticacion/paginas/inicio-sesion/ini
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'admin',
+    redirectTo: 'iniciar-sesion',
     pathMatch: 'full'
+  },
+  {
+    path: 'iniciar-sesion',
+    loadComponent: () =>
+      import(
+        './features/autenticacion/paginas/inicio-sesion/inicio-sesion')
+          .then(m => m.InicioSesion)
+  },
+  {
+    path: 'registrarse',
+    loadComponent: () =>
+      import(
+        './features/autenticacion/paginas/registro/registro'
+      ).then(m => m.Registro)
   },
   {
     path: 'admin',
@@ -34,14 +48,7 @@ export const routes: Routes = [
     ]
   },
   {
-    path: 'administracion/iniciar-sesion',
-    loadComponent: () =>
-      import(
-        './features/autenticacion/paginas/inicio-sesion/inicio-sesion')
-          .then(m => m.InicioSesion)
-  },
-  {
     path: '**',
-    redirectTo: 'admin'
+    redirectTo: 'iniciar-sesion'
   }
 ];

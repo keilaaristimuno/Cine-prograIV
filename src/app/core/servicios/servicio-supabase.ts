@@ -39,6 +39,25 @@ export class ServicioSupabase {
       throw error;
     }
   }
+    /* Registro  */
+  async registrarUsuario(
+      correo: string,
+      contrasenia: string
+    ): Promise<boolean> {
+      const {
+        data,
+        error
+      } = await this.cliente.auth.signUp({
+        email: correo,
+        password: contrasenia
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      return data.session !== null;
+}
 
 
 /* Verifica si hay una sesión activa */
