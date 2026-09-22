@@ -11,9 +11,8 @@ import {ServicioPeliculas} from '../../../../../core/servicios/servicio-pelicula
   styleUrl: './listado-peliculas.scss'
 })
 export class ListadoPeliculas implements OnInit {
-  private readonly servicioPeliculas =
-    inject(ServicioPeliculas);
-
+  /* readonly: no puede reemplazarse por otro servicio después de inicializarse. */
+  private readonly servicioPeliculas = inject(ServicioPeliculas);
   readonly peliculas = signal<Pelicula[]>([]);
   readonly cargando = signal(true);
   readonly mensajeError = signal('');
@@ -27,9 +26,7 @@ export class ListadoPeliculas implements OnInit {
     this.mensajeError.set('');
 
     try {
-      const peliculas =
-        await this.servicioPeliculas.obtenerPeliculas();
-
+      const peliculas = await this.servicioPeliculas.obtenerPeliculas();
       this.peliculas.set(peliculas);
     } catch (error) {
       console.error(

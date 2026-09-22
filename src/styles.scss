@@ -1,1 +1,64 @@
-/* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+
+html {
+  height: 100%;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+}
+
+body {
+  color-scheme: light;
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+
+  // Reset the user agent margin.
+  margin: 0;
+  height: 100%;
+}
+
+/* ==================================
+Estilos para el desplegable abierto
+ en formulario peliculas 
+===================================== */
+.panel-generos.mat-mdc-select-panel {
+  background-color: #1a1625 !important;
+  border: 1px solid #37334a;
+  border-radius: 0.75rem !important;
+  padding: 0.35rem 0 !important;
+}
+
+.panel-generos .mat-mdc-option {
+  color: #f7f5fa !important;
+  min-height: 48px;
+}
+
+.panel-generos .mat-mdc-option:hover,
+.panel-generos .mat-mdc-option.mdc-list-item--focus {
+  background-color: rgba(139, 92, 246, 0.12) !important;
+}
+
+.panel-generos .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) {
+  background-color: rgba(139, 92, 246, 0.2) !important;
+}
+
+.panel-generos .mat-pseudo-checkbox {
+  border-color: #cbbcff !important;
+}
+
+.panel-generos .mat-pseudo-checkbox-checked,
+.panel-generos .mat-pseudo-checkbox-indeterminate {
+  background-color: #8b5cf6 !important;
+}
+
+.panel-generos .mat-pseudo-checkbox-checked::after {
+  color: white !important;
+}

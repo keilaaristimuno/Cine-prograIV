@@ -6,11 +6,11 @@
             [formGroup] = "formularioPelicula" 
             (ngSubmit)="guardarPelicula()">
 
-
             <div class="campo-formulario">
                 <label for="nombre">Nombre:</label>
             
-        <!-- El valor de formControlName debe coincidir con el control de TypeScript -->
+        <!-- El valor de formControlName debe
+          coincidir con el control de TypeScript -->
                 <input 
                 id="nombre" 
                 type="text" 
@@ -19,8 +19,7 @@
                 />
 
                 <!-- Validacion: -->
-                <!-- El usuario entró y salió del campo &&
-                Incumple al menos una validación -->
+<!-- El usuario entró y salió del campo && Incumple al menos una validación -->
         @if (
             formularioPelicula.controls.nombre.touched &&
             formularioPelicula.controls.nombre.invalid
@@ -98,13 +97,11 @@
         <!--     /* Campo de fecha de estreno */ -->
             <div class="campo-formulario">
                 <label for="fecha-estreno">Fecha de estreno:</label>
-
                 <input
                     id="fecha-estreno"
                     type="date"
                     formControlName="fechaEstreno"
                 />
-
                 @if (
                     formularioPelicula.controls.fechaEstreno.touched &&
                     formularioPelicula.controls.fechaEstreno.hasError('required')
@@ -120,7 +117,6 @@
                 <label for="clasificacion-edad">
                     Clasificación por edad:
                 </label>
-
                 <select
                     id="clasificacion-edad"
                     formControlName="clasificacionEdad"
@@ -131,35 +127,34 @@
                 </select>
             </div>
 
+            <!-- Esta ACTIVA O NO -->
             <div class="campo-formulario">
                 <label class="campo-booleano">
                     <input
                     type="checkbox"
                     formControlName="estaActiva"
                     />
-
                     <span>Mostrar esta película en la página pública</span>
                 </label>
             </div>
 
-            <fieldset class="campo-formulario">
-                <legend>Géneros:</legend>
+            <!-- GENEROS Select con mat para mejor visualizacion -->
+            <div class="campo-formulario">
+                <mat-form-field appearance="outline" class="selector-generos">
+                    <mat-label>Géneros</mat-label>
 
-                <div class="opciones-generos">
-                    @for (genero of generosDisponibles; track genero) {
-                    <label class="opcion-genero">
-                        <input
-                        type="checkbox"
-                        [checked]="
-                            formularioPelicula.controls.generos.value.includes(genero)
-                        "
-                        (change)="cambiarGenero(genero, $event)"
-                        />
-
-                        <span>{{ genero }}</span>
-                    </label>
-                    }
-                </div>
+                    <mat-select
+                        formControlName="generos"
+                        multiple
+                        panelClass="panel-generos"
+                    >
+                        @for (genero of generosDisponibles; track genero) {
+                        <mat-option [value]="genero">
+                            {{ genero }}
+                        </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
 
                 @if (
                     formularioPelicula.controls.generos.touched &&
@@ -169,7 +164,7 @@
                     <small>Seleccioná al menos un género.</small>
                     </div>
                 }
-            </fieldset>
+            </div>
 
                     <!-- Campo de imagen -->
             <div class="campo-formulario">

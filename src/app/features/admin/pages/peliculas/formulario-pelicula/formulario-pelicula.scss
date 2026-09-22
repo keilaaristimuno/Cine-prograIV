@@ -88,6 +88,43 @@ fieldset.campo-formulario {
   border-radius: 0.5rem;
 }
 
+.selector-generos {
+  width: 100%;
+
+  --mdc-outlined-text-field-outline-color: #37334a;
+  --mdc-outlined-text-field-hover-outline-color: #8b70ee;
+  --mdc-outlined-text-field-focus-outline-color: #9a83ff;
+  --mdc-outlined-text-field-label-text-color: #b9b3cc;
+  --mdc-outlined-text-field-focus-label-text-color: #cbbcff;
+
+  --mat-select-enabled-trigger-text-color: #f7f5fa;
+  --mat-select-focused-arrow-color: #9a83ff;
+  --mat-select-enabled-arrow-color: #cbbcff;
+}
+
+:host ::ng-deep .selector-generos .mat-mdc-text-field-wrapper {
+  background-color: #110f1a;
+  border-radius: 0.65rem;
+}
+
+:host ::ng-deep .selector-generos .mat-mdc-form-field-infix {
+  min-height: 56px;
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+:host ::ng-deep .selector-generos .mat-mdc-select-value-text {
+  color: #f7f5fa;
+}
+
+:host ::ng-deep .selector-generos .mat-mdc-floating-label {
+  color: #b9b3cc;
+}
+
+:host ::ng-deep .selector-generos.mat-focused .mat-mdc-floating-label {
+  color: #cbbcff;
+}
+
 .boton-primario {
   align-self: flex-start;
   min-width: 180px;

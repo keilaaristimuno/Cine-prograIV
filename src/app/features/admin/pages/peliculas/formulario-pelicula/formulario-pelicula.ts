@@ -1,10 +1,15 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { ClasificacionEdad } from '../../../../../core/modelos/pelicula';
 import  {ServicioPeliculas} from '../../../../../core/servicios/servicio-peliculas';
 
 @Component({
-  imports: [ReactiveFormsModule],
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatSelectModule],
   selector: 'app-formulario-pelicula',
   styleUrl: './formulario-pelicula.scss',
   templateUrl: './formulario-pelicula.html',
@@ -32,76 +37,55 @@ export class FormularioPelicula {
     'Terror'
   ];
 
-  readonly formularioPelicula = this.constructorFormularios.nonNullable.group({
+  readonly formularioPelicula =
+   this.constructorFormularios.nonNullable.group({
     /* no puede tener un valor nulo  */
-  nombre: [
-    '',
-    [
-      Validators.required,
-      Validators.minLength(2),
-      Validators.maxLength(100)
-    ]
-  ],
-  sinopsis: [
-    '',
-    [
-      Validators.required,
-      Validators.minLength(20),
-      Validators.maxLength(1000)
-    ]
-  ],
-  duracionMinutos: [
-    0,
-    [
-      Validators.required,
-      Validators.min(1),
-      Validators.max(600)
-    ]
-  ],
-  fechaEstreno: [
-        '',
-        Validators.required
-  ],
-  clasificacionEdad:
-    this.constructorFormularios.nonNullable.control<ClasificacionEdad>(
-          'ATP',
+    nombre: [
+      '',
+      [
+        Validators.required,
+        Validators.minLength(2),
+        Validators.maxLength(100)
+      ]
+    ],
+    sinopsis: [
+      '',
+      [
+        Validators.required,
+        Validators.minLength(20),
+        Validators.maxLength(1000)
+      ]
+    ],
+    duracionMinutos: [
+      0,
+      [
+        Validators.required,
+        Validators.min(1),
+        Validators.max(600)
+      ]
+    ],
+    fechaEstreno: [
+          '',
           Validators.required
-    ),
-    estaActiva: [true],
-      /* es  */
-    generos: this.constructorFormularios.nonNullable.control<string[]>(
-    [],
-    Validators.required    
-    ),
+    ],
+    clasificacionEdad:
+      this.constructorFormularios.nonNullable.control<ClasificacionEdad>(
+            'ATP',
+            Validators.required
+      ),
+      estaActiva: [true],
+        /* Representa los generos que el usuario selecciono:  */
+      generos: this.constructorFormularios.nonNullable.control<string[]>(
+      [],
+      Validators.required    
+      ),
 
-    /* Campo de imagen */
-    imagen: new FormControl<File | null>(
-    null,
-    Validators.required
-    )
-});
-
-      /* maneja los cambios en los géneros */
-
-  cambiarGenero(genero: string, evento: Event): void {
-    const checkbox = evento.target as HTMLInputElement;
-    const generosSeleccionados =
-      this.formularioPelicula.controls.generos.value;
-
-    if (checkbox.checked) {
-      this.formularioPelicula.controls.generos.setValue([
-        ...generosSeleccionados, genero
-      ]);
-    } else {
-      this.formularioPelicula.controls.generos.setValue(
-        generosSeleccionados.filter(
-          generoSeleccionado => generoSeleccionado !== genero
-        )
-      );
-    }
-
-    this.formularioPelicula.controls.generos.markAsTouched();
-  }
+      /* Campo de imagen */
+      imagen: new FormControl<File | null>(
+      null,
+      Validators.required
+      )
+  });
 
       /* Maneja la selección de imagen */
   seleccionarImagen(evento: Event): void {
@@ -137,7 +121,6 @@ export class FormularioPelicula {
     }
     controlImagen.setValue(archivo);
   }
-
   
 /* Guarda los datos de la película */
   async guardarPelicula() : Promise<void> {
@@ -150,7 +133,6 @@ export class FormularioPelicula {
     this.mensajeErrorGuardado.set('');
 
     const datosFormulario = this.formularioPelicula.getRawValue();
-
     const imagen = datosFormulario.imagen;
 
     if (!imagen) {
