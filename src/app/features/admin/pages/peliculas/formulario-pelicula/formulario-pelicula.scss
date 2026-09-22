@@ -160,3 +160,34 @@ fieldset.campo-formulario {
   background-color: rgb(76 165 108 / 15%);
   color: #89e3a9;
 }
+
+/* POSTER  */
+
+.poster-actual {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid #413852;
+  border-radius: 0.6rem;
+  background-color: #211c2b;
+}
+
+.poster-actual img {
+  width: 80px;
+  height: 115px;
+  border-radius: 0.4rem;
+  object-fit: cover;
+}
+
+.poster-actual p {
+  margin: 0;
+  color: #aaa3bd;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.mensaje-carga {
+  color: #cbb8fa;
+}

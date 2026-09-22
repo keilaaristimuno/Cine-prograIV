@@ -1,6 +1,17 @@
 <main class="pagina-formulario">
     <section class="tarjeta-formulario">
-        <h1>Registrar pelicula</h1>
+
+        <h1>{{ modoEdicion()
+            ? 'Editar película'
+            : 'Registrar película'
+        }}
+        </h1>
+        @if (cargandoPelicula()) {
+            <p class="mensaje-carga">
+                Cargando datos de la película...
+            </p>
+        }
+
         <form 
             class="formulario-pelicula"
             [formGroup] = "formularioPelicula" 
@@ -65,7 +76,7 @@
                 </div>
             }
             </div>
-
+            <!--     /* Campo de Duracion pelicula */ -->
             <div class="campo-formulario">
                 <label for="duracionMinutos">Duración :</label>
                 <input
@@ -168,7 +179,23 @@
 
                     <!-- Campo de imagen -->
             <div class="campo-formulario">
-                <label for="imagen">Póster de la película:</label>
+                <label for="imagen">
+                    @if (modoEdicion()) {
+                    Nuevo póster, opcional:
+                    } @else {
+                    Póster de la película:
+                    }</label>
+
+                @if (modoEdicion() && imagenActualUrl()) {
+                    <div class="poster-actual">
+                        <img [src]="imagenActualUrl()" alt="Póster actual de la película"
+                        />
+                        <p>
+                        Este es el póster actual. Si no seleccionás
+                        otra imagen, se conservará.
+                        </p>
+                    </div>
+                }
 
                 <input
                     id="imagen"
@@ -204,12 +231,19 @@
             <button
                 type="submit"
                 class="boton-primario"
-                [disabled]=guardando()
-                >
+                [disabled]= "guardando() || cargandoPelicula()">
                 @if (guardando()) {
-                    Guardando...
-                } @else {
-                    Guardar película
+                    @if (modoEdicion()) {
+                        Actualizando...
+                    } @else {
+                        Guardando...
+                    }
+                    } @else {
+                    @if (modoEdicion()) {
+                        Guardar cambios
+                    } @else {
+                        Guardar película
+                    }
                 }
             </button>
 

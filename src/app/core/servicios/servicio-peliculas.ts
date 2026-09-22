@@ -138,6 +138,184 @@ export class ServicioPeliculas {
     }));
   }
 
+  /*==============================
+    Obtener una pelicula por ID 
+  =============================== */
+  async obtenerPeliculaPorId(id: string): Promise<Pelicula> {
+    const cliente = this.servicioSupabase.cliente;
+
+    const {
+      data,
+      error
+    } = await cliente
+      .from('peliculas')
+      .select(`
+        id,
+        nombre,
+        sinopsis,
+        duracion_minutos,
+        imagen_url,
+        fecha_estreno,
+        clasificacion_edad,
+        generos,
+        esta_activa
+      `)
+      /* Busca la fila del id que coincida con el de URL */
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return {
+      id: data.id,
+      nombre: data.nombre,
+      sinopsis: data.sinopsis,
+      duracionMinutos: data.duracion_minutos,
+      imagenUrl: data.imagen_url,
+      fechaEstreno: data.fecha_estreno,
+      clasificacionEdad:
+        data.clasificacion_edad as Pelicula['clasificacionEdad'],
+      generos: data.generos,
+      estaActiva: data.esta_activa
+    };
+  }
+
+  /*==============================
+    ACTUALIZA pelicula existente
+  =============================== */
+  async actualizarPelicula(
+    id: string,
+    pelicula: DatosNuevaPelicula,
+    imagen: File | null
+  ): Promise<void> {
+    const cliente = this.servicioSupabase.cliente;
+
+    const datosActualizados: Record<string, unknown> = {
+      nombre: pelicula.nombre,
+      sinopsis: pelicula.sinopsis,
+      duracion_minutos: pelicula.duracionMinutos,
+      fecha_estreno: pelicula.fechaEstreno,
+      clasificacion_edad: pelicula.clasificacionEdad,
+      esta_activa: pelicula.estaActiva,
+      generos: pelicula.generos
+    };
+
+    let rutaImagenNueva: string | null = null;
+
+    /*
+    * Si el administrador seleccionó una imagen nueva,
+    * la subimos y reemplazamos imagen_url.
+    *
+    * Si no seleccionó una imagen, imagen_url no se incluye
+    * y Supabase conserva el póster anterior.
+    */
+    if (imagen) {
+      const {
+        data: datosUsuario,
+        error: errorUsuario
+      } = await cliente.auth.getUser();
+
+      if (errorUsuario || !datosUsuario.user) {
+        throw new Error(
+          'No existe una sesión de administrador activa.'
+        );
+      }
+      const extension = this.obtenerExtension(imagen);
+
+      const nombreArchivo =
+        `${crypto.randomUUID()}.${extension}`;
+
+      rutaImagenNueva =
+        `${datosUsuario.user.id}/${nombreArchivo}`;
+
+      const {
+        error: errorSubida
+      } = await cliente.storage
+        .from('posters')
+        .upload(rutaImagenNueva, imagen, {
+          contentType: imagen.type,
+          upsert: false
+        });
+
+      if (errorSubida) {
+        throw errorSubida;
+      }
+
+      const {
+        data: datosUrl
+      } = cliente.storage
+        .from('posters')
+        .getPublicUrl(rutaImagenNueva);
+
+      datosActualizados['imagen_url'] =
+        datosUrl.publicUrl;
+    }
+
+    /* const {
+      error: errorActualizacion
+    } = await cliente
+      .from('peliculas')
+      .update(datosActualizados)
+      .eq('id', id);
+
+    if (errorActualizacion) {
+      /*
+      * Si subimos una imagen nueva pero después falla
+      * la actualización, eliminamos esa nueva imagen
+      * para que no quede abandonada en Storage.
+      
+      if (rutaImagenNueva) {
+        await cliente.storage
+          .from('posters')
+          .remove([rutaImagenNueva]);
+      }
+      throw errorActualizacion;
+    } */
+
+      const {
+        data: peliculasActualizadas,
+        error: errorActualizacion
+      } = await cliente
+        .from('peliculas')
+        .update(datosActualizados)
+        .eq('id', id)
+        .select('id, nombre');
+
+      if (errorActualizacion) {
+        if (rutaImagenNueva) {
+          await cliente.storage
+            .from('posters')
+            .remove([rutaImagenNueva]);
+        }
+
+        throw errorActualizacion;
+      }
+
+      if (
+        !peliculasActualizadas ||
+        peliculasActualizadas.length === 0
+      ) {
+        if (rutaImagenNueva) {
+          await cliente.storage
+            .from('posters')
+            .remove([rutaImagenNueva]);
+        }
+
+        throw new Error(
+          'No se actualizó ninguna película. Revisá la política RLS de UPDATE.'
+        );
+      }
+
+      console.log(
+        'Fila actualizada por Supabase:',
+        peliculasActualizadas[0]
+      );
+
+
+  }
+
   private obtenerExtension(imagen: File): string {
     const extensiones: Record<string, string> = {
       'image/jpeg': 'jpg',

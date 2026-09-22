@@ -61,9 +61,11 @@
             </td>
 
             <td>
-              <button type="button" class="boton-accion">
+              <a
+                [routerLink]="['/admin/peliculas/editar', pelicula.id]"
+                class="boton-accion">
                 Editar
-              </button>
+              </a>
             </td>
           </tr>
   <!-- se usa el emppty desp de un bloque for para mostrar un mensaje cuando no hay películas -->

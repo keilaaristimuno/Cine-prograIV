@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-import { InicioSesion } from './features/autenticacion/paginas/inicio-sesion/inicio-sesion';
 
 export const routes: Routes = [
   {
@@ -44,6 +43,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/admin/pages/peliculas/formulario-pelicula/formulario-pelicula')
             .then(m => m.FormularioPelicula)
+      },
+      {
+        path: 'peliculas/editar/:id',
+        loadComponent: () =>
+          import(
+            './features/admin/pages/peliculas/formulario-pelicula/formulario-pelicula'
+          ).then(m => m.FormularioPelicula)
       }
     ]
   },
