@@ -129,6 +129,13 @@ export class FormularioPelicula implements OnInit{
     try {
       const pelicula = await this.servicioPeliculas.obtenerPeliculaPorId(id);
 
+      if (!pelicula) {
+        this.mensajeErrorGuardado.set(
+          'La película no existe o fue eliminada.'
+        );
+        return;
+      }
+
       this.formularioPelicula.patchValue({
         nombre: pelicula.nombre,
         sinopsis: pelicula.sinopsis,

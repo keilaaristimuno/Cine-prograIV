@@ -11,6 +11,19 @@
       </a>
   </header>
 
+  <!-- muestra mensajes -->
+  @if (mensajeExito()) {
+    <p class="mensaje-accion mensaje-accion--exito" role="status">
+      {{ mensajeExito() }}
+    </p>
+  }
+
+  @if (mensajeError()) {
+    <p class="mensaje-accion mensaje-accion--error" role="alert">
+      {{ mensajeError() }}
+    </p>
+  }
+
   <div class="contenedor-tabla">
     <table class="tabla-peliculas">
       <thead>
@@ -61,11 +74,24 @@
             </td>
 
             <td>
-              <a
-                [routerLink]="['/admin/peliculas/editar', pelicula.id]"
-                class="boton-accion">
-                Editar
-              </a>
+              <div class="acciones-pelicula">
+                <a
+                  class="boton-accion" [routerLink]="
+                  ['/admin/peliculas',
+                    pelicula.id,
+                    'editar']" >
+                  Editar
+                </a>
+
+                <button
+                  type="button"
+                  class="boton-accion boton-accion--peligro"
+                  [disabled]="eliminandoId() !== null"
+                  (click)="solicitarEliminacion(pelicula)"
+                >
+                    Eliminar
+                </button>
+              </div>
             </td>
           </tr>
   <!-- se usa el emppty desp de un bloque for para mostrar un mensaje cuando no hay películas -->
@@ -79,4 +105,76 @@
       </tbody>
     </table>
 </div>
+
+@if (
+  peliculaPendienteEliminacion();
+  as peliculaPendiente
+) {
+  <div
+    class="modal-fondo"
+    role="presentation"
+    (click)="cancelarEliminacion()"
+  >
+    <section
+      class="modal-confirmacion"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="titulo-modal-eliminacion"
+      aria-describedby="descripcion-modal-eliminacion"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-confirmacion__icono">
+        !
+      </div>
+
+      <h2
+        id="titulo-modal-eliminacion"
+        class="modal-confirmacion__titulo"
+      >
+        ¿Eliminar película?
+      </h2>
+
+      <p
+        id="descripcion-modal-eliminacion"
+        class="modal-confirmacion__descripcion"
+      >
+        Estás por eliminar
+        <strong>
+          “{{ peliculaPendiente.nombre }}”
+        </strong>.
+      </p>
+
+      <p class="modal-confirmacion__aclaracion">
+        La película dejará de aparecer en los listados,
+        pero sus datos se conservarán para auditoría.
+      </p>
+
+      <div class="modal-confirmacion__acciones">
+        <button
+          type="button"
+          class="boton-modal boton-modal--cancelar"
+          [disabled]="eliminandoId() !== null"
+          (click)="cancelarEliminacion()"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          class="boton-modal boton-modal--eliminar"
+          [disabled]="eliminandoId() !== null"
+          (click)="confirmarEliminacion()"
+        >
+          @if (
+            eliminandoId() === peliculaPendiente.id
+          ) {
+            Eliminando...
+          } @else {
+            Sí, eliminar
+          }
+        </button>
+      </div>
+    </section>
+  </div>
+}
 </section>

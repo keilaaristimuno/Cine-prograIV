@@ -16,11 +16,82 @@ export class ListadoPeliculas implements OnInit {
   readonly peliculas = signal<Pelicula[]>([]);
   readonly cargando = signal(true);
   readonly mensajeError = signal('');
+  readonly eliminandoId = signal<string | null>(null);
+  readonly mensajeExito = signal('');
+  readonly peliculaPendienteEliminacion = signal<Pelicula | null>(null);
 
   ngOnInit(): void {
     void this.cargarPeliculas();
   }
 
+  /* ==============================
+      ELIMINAR PELICULA
+      ============================ */
+  solicitarEliminacion(pelicula: Pelicula): void {
+    if (this.eliminandoId() !== null) {
+      return;
+    }
+
+    this.peliculaPendienteEliminacion.set(pelicula);
+  }
+
+  cancelarEliminacion(): void {
+    // No permitir cerrar el modal mientras Supabase está trabajando.
+    if (this.eliminandoId() !== null) {
+      return;
+    }
+    this.peliculaPendienteEliminacion.set(null);
+  }
+
+  async confirmarEliminacion(): Promise<void> {
+    const pelicula = this.peliculaPendienteEliminacion();
+
+    if (!pelicula || this.eliminandoId() !== null) {
+      return;
+    }
+
+    this.eliminandoId.set(pelicula.id);
+    this.mensajeError.set('');
+    this.mensajeExito.set('');
+
+    try {
+      await this.servicioPeliculas.eliminarPelicula(
+        pelicula.id
+      );
+
+      this.peliculas.update(peliculasActuales =>
+        peliculasActuales.filter(
+          peliculaActual => peliculaActual.id !== pelicula.id
+        )
+      );
+
+      const mensaje =
+        `La película "${pelicula.nombre}" se eliminó correctamente.`;
+
+      this.mensajeExito.set(mensaje);
+
+      window.setTimeout(() => {
+        if (this.mensajeExito() === mensaje) {
+          this.mensajeExito.set('');
+        }
+      }, 3500);
+    } catch (error) {
+      console.error(
+        'Error al eliminar la película:',
+        error
+      );
+
+      this.mensajeError.set(
+        `No se pudo eliminar "${pelicula.nombre}".`
+      );
+    } finally {
+      this.eliminandoId.set(null);
+      this.peliculaPendienteEliminacion.set(null);
+    }
+  }
+  /* ==============================
+      CARGAR PELICULA
+      ============================ */
   private async cargarPeliculas(): Promise<void> {
     this.cargando.set(true);
     this.mensajeError.set('');

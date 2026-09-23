@@ -96,7 +96,7 @@ export class ServicioPeliculas {
     }
   }
 
-  /* obtiene peliculas desde las cargadas a supabase */
+  /* obtiene peliculas que no fueron eliminadas logicamente */
   async obtenerPeliculas(): Promise<Pelicula[]> {
     const cliente = this.servicioSupabase.cliente;
 
@@ -116,6 +116,7 @@ export class ServicioPeliculas {
         generos,
         esta_activa
       `)
+      .is('eliminada_en', null)
       .order('creado_en', {
         ascending: false
       });
@@ -141,7 +142,7 @@ export class ServicioPeliculas {
   /*==============================
     Obtener una pelicula por ID 
   =============================== */
-  async obtenerPeliculaPorId(id: string): Promise<Pelicula> {
+  async obtenerPeliculaPorId(id: string): Promise<Pelicula | null> {
     const cliente = this.servicioSupabase.cliente;
 
     const {
@@ -162,11 +163,15 @@ export class ServicioPeliculas {
       `)
       /* Busca la fila del id que coincida con el de URL */
       .eq('id', id)
-      .single();
+      .is('eliminada_en', null)
+      .maybeSingle();
 
     if (error) {
       throw error;
     }
+    if (!data) {
+    return null;
+  }
 
     return {
       id: data.id,
@@ -253,37 +258,16 @@ export class ServicioPeliculas {
         datosUrl.publicUrl;
     }
 
-    /* const {
-      error: errorActualizacion
-    } = await cliente
-      .from('peliculas')
-      .update(datosActualizados)
-      .eq('id', id);
-
-    if (errorActualizacion) {
-      /*
-      * Si subimos una imagen nueva pero después falla
-      * la actualización, eliminamos esa nueva imagen
-      * para que no quede abandonada en Storage.
-      
-      if (rutaImagenNueva) {
-        await cliente.storage
-          .from('posters')
-          .remove([rutaImagenNueva]);
-      }
-      throw errorActualizacion;
-    } */
-
-      const {
-        data: peliculasActualizadas,
-        error: errorActualizacion
+      const {data: peliculaActualizada, error: errorActualizacion
       } = await cliente
         .from('peliculas')
         .update(datosActualizados)
         .eq('id', id)
-        .select('id, nombre');
+        .select('id, nombre')
+        .maybeSingle();
 
       if (errorActualizacion) {
+        // Evitar dejar una imagen nueva abandonada si falla la actualización.
         if (rutaImagenNueva) {
           await cliente.storage
             .from('posters')
@@ -293,28 +277,72 @@ export class ServicioPeliculas {
         throw errorActualizacion;
       }
 
-      if (
-        !peliculasActualizadas ||
-        peliculasActualizadas.length === 0
-      ) {
+      if (!peliculaActualizada) {
+        // También eliminamos la imagen si RLS impidió actualizar la fila.
         if (rutaImagenNueva) {
           await cliente.storage
             .from('posters')
             .remove([rutaImagenNueva]);
         }
-
         throw new Error(
-          'No se actualizó ninguna película. Revisá la política RLS de UPDATE.'
+          'No se actualizó la película. Puede que no exista o que no tengas permisos.'
         );
       }
-
-      console.log(
-        'Fila actualizada por Supabase:',
-        peliculasActualizadas[0]
-      );
-
-
   }
+
+  /**
+  ELIMINICACION LOGICA de una película.
+ 
+  No elimina el registro ni el póster.
+  Registra la fecha y el administrador responsable,
+  y además oculta la película de la página pública.
+ */
+async eliminarPelicula(id: string): Promise<void> {
+  const cliente = this.servicioSupabase.cliente;
+
+  // Obtener el administrador actualmente autenticado.
+  const {
+    data: datosUsuario,
+    error: errorUsuario
+  } = await cliente.auth.getUser();
+
+  if (errorUsuario || !datosUsuario.user) {
+    throw new Error(
+      'No existe una sesión de administrador activa.'
+    );
+  }
+
+  // Realizar la eliminación lógica mediante un UPDATE.
+  const {
+    data: peliculaEliminada,
+    error: errorEliminacion
+  } = await cliente
+    .from('peliculas')
+    .update({
+      esta_activa: false,
+      eliminada_en: new Date().toISOString(),
+      eliminada_por: datosUsuario.user.id
+    })
+    .eq('id', id)
+    .is('eliminada_en', null)
+    .select('id, nombre')
+    .maybeSingle();
+
+  if (errorEliminacion) {
+    throw errorEliminacion;
+  }
+
+  if (!peliculaEliminada) {
+    throw new Error(
+      'No se eliminó ninguna película. Puede que ya esté eliminada o que no tengas permisos.'
+    );
+  }
+
+  console.log(
+    'Película eliminada lógicamente:',
+    peliculaEliminada
+  );
+}
 
   private obtenerExtension(imagen: File): string {
     const extensiones: Record<string, string> = {
