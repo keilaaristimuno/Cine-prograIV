@@ -345,7 +345,7 @@ firebase deploy
 * [x] Listar películas.
 * [x] Editar películas.
 * [x] Publicar u ocultar películas.
-* [ ] Eliminar películas lógicamente.
+* [x] Eliminar películas lógicamente.
 
 ### Etapa 2 — Cartelera pública
 
