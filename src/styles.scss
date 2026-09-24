@@ -1,7 +1,15 @@
 @use '@angular/material' as mat;
 
+/* ==================================
+   CONFIGURACIÓN GLOBAL
+===================================== */
+
 html {
   height: 100%;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+
   @include mat.theme(
     (
       color: (
@@ -15,20 +23,59 @@ html {
 }
 
 body {
+  margin: 0;
+
+  width: 100%;
+  max-width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
   color-scheme: light;
   background-color: var(--mat-sys-surface);
   color: var(--mat-sys-on-surface);
   font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
-  margin: 0;
-  height: 100%;
 }
 
 /* ==================================
-Estilos para el desplegable abierto
- en formulario peliculas 
+   BOX-SIZING GLOBAL
 ===================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* ==================================
+   CONTENEDOR PRINCIPAL DE ANGULAR
+===================================== */
+
+app-root {
+  display: block;
+
+  width: 100%;
+  max-width: 100%;
+  min-height: 100%;
+
+  overflow-x: hidden;
+}
+
+/* ==================================
+   ELEMENTOS RESPONSIVE
+===================================== */
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ==================================
+   Estilos para el desplegable abierto
+   en formulario películas
+===================================== */
+
 .panel-generos.mat-mdc-select-panel {
   background-color: #1a1625 !important;
   border: 1px solid #37334a;
@@ -46,7 +93,8 @@ Estilos para el desplegable abierto
   background-color: rgba(139, 92, 246, 0.12) !important;
 }
 
-.panel-generos .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) {
+.panel-generos
+  .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) {
   background-color: rgba(139, 92, 246, 0.2) !important;
 }
 
