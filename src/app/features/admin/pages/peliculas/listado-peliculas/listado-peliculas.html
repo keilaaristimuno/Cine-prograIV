@@ -75,6 +75,7 @@
 
             <td>
               <div class="acciones-pelicula">
+                <!-- EDITAR -->
                 <a
                   class="boton-accion" 
                   [routerLink]="
@@ -83,13 +84,33 @@
                     ]" >
                   Editar
                 </a>
+                <!-- PUBLICAR U OCULTAR -->
+                <button
+                  type="button"
+                  class="boton-accion"
+                  [class.boton-accion--publicar]="!pelicula.estaActiva"
+                  [class.boton-accion--ocultar]="pelicula.estaActiva"
+                  [disabled]="
+                    eliminandoId() !== null ||
+                    cambiandoEstadoId() !== null"
 
+                  (click)="solicitarCambioEstado(pelicula)">
+
+                  @if (cambiandoEstadoId() === pelicula.id) {
+                    Guardando...
+                  } @else if (pelicula.estaActiva) {
+                    Ocultar
+                  } @else {
+                    Publicar
+                  }
+                </button>
+                <!-- ELIMINAR -->
                 <button
                   type="button"
                   class="boton-accion boton-accion--peligro"
-                  [disabled]="eliminandoId() !== null"
-                  (click)="solicitarEliminacion(pelicula)"
-                >
+                  [disabled]="eliminandoId() !== null || cambiandoEstadoId() !== null"
+                  (click)="solicitarEliminacion(pelicula)">
+
                     Eliminar
                 </button>
               </div>
@@ -177,5 +198,104 @@
       </div>
     </section>
   </div>
-}
+  }
+<!-- =======================
+          MODAL DE CONFIRMACION
+          ====================== -->
+  @if (
+    peliculaPendienteCambioEstado();
+    as peliculaPendiente
+  ) {
+    <div
+      class="modal-fondo"
+      role="presentation"
+      (click)="cancelarCambioEstado()">
+
+      <section
+        class="modal-confirmacion"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="titulo-modal-estado"
+        aria-describedby="descripcion-modal-estado"
+        (click)="$event.stopPropagation()">
+
+        <div
+          class="
+            modal-confirmacion__icono
+            modal-confirmacion__icono--estado">
+
+          @if (peliculaPendiente.estaActiva) {
+            −
+          } @else {
+            ✓
+          }
+        </div>
+
+        <h2
+          id="titulo-modal-estado"
+          class="modal-confirmacion__titulo">
+
+          @if (peliculaPendiente.estaActiva) {
+            ¿Ocultar película?
+          } @else {
+            ¿Publicar película?
+          }
+        </h2>
+
+        <p
+          id="descripcion-modal-estado"
+          class="modal-confirmacion__descripcion"
+        >
+          @if (peliculaPendiente.estaActiva) {
+            Estás por ocultar
+          } @else {
+            Estás por publicar
+          }
+
+          <strong>
+            “{{ peliculaPendiente.nombre }}”
+          </strong>.
+        </p>
+
+        <p class="modal-confirmacion__aclaracion">
+          @if (peliculaPendiente.estaActiva) {
+            La película dejará de mostrarse al público,
+            pero seguirá disponible en este panel para
+            que puedas publicarla nuevamente.
+          } @else {
+            La película quedará disponible para mostrarse
+            en los listados públicos del cine.
+          }
+        </p>
+
+        <div class="modal-confirmacion__acciones">
+          <button
+            type="button"
+            class="boton-modal boton-modal--cancelar"
+            [disabled]="cambiandoEstadoId() !== null"
+            (click)="cancelarCambioEstado()">
+
+            Cancelar
+          </button>
+
+          <button
+            type="button"
+            class="boton-modal boton-modal--estado"
+            [disabled]="cambiandoEstadoId() !== null"
+            (click)="confirmarCambioEstado()">
+
+            @if (
+              cambiandoEstadoId() === peliculaPendiente.id
+            ) {
+              Guardando...
+            } @else if (peliculaPendiente.estaActiva) {
+              Sí, ocultar
+            } @else {
+              Sí, publicar
+            }
+          </button>
+        </div>
+      </section>
+    </div>
+  }
 </section>

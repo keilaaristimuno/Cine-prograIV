@@ -56,10 +56,10 @@ El proyecto se encuentra actualmente en desarrollo. La primera etapa está enfoc
 * [x] Conservación del creador original mediante `creado_por`.
 * [x] Despliegue inicial en Firebase Hosting.
 * [x] Eliminación lógica de películas.
+* [x] Mensajes de confirmación antes de publicar, ocultar o eliminar.
 
 ### En desarrollo
 
-* [ ] Mensajes de confirmación antes de publicar, ocultar o eliminar.
 * [ ] Guards para proteger las rutas administrativas.
 * [ ] Cierre de sesión desde el panel administrativo.
 * [ ] Catálogo público de películas.

@@ -344,6 +344,43 @@ async eliminarPelicula(id: string): Promise<void> {
   );
 }
 
+/**
+  Publica u oculta una película sin eliminarla
+ 
+  @param id Identificador de la película
+  @param estaActiva Nuevo estado de publicación
+ */
+async cambiarEstadoPublicacion(
+  id: string,
+  estaActiva: boolean
+): Promise<void> {
+  const cliente = this.servicioSupabase.cliente;
+
+  const {
+    data: peliculaActualizada,
+    error
+  } = await cliente
+    .from('peliculas')
+    .update({
+      esta_activa: estaActiva
+    })
+    .eq('id', id)
+    .is('eliminada_en', null)
+    .select('id, esta_activa')
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  if (!peliculaActualizada) {
+    throw new Error(
+      'No se pudo cambiar el estado de publicación. ' +
+      'La película no existe, fue eliminada o no tenés permisos.'
+    );
+  }
+}
+
   private obtenerExtension(imagen: File): string {
     const extensiones: Record<string, string> = {
       'image/jpeg': 'jpg',

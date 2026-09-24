@@ -175,6 +175,43 @@
   opacity: 0.55;
 }
 
+.boton-accion--publicar {
+  border-color: #3b9b62;
+  color: #77dda0;
+}
+
+.boton-accion--publicar:hover:not(:disabled) {
+  border-color: #57bc7d;
+  background-color: rgb(59 155 98 / 16%);
+}
+
+.boton-accion--ocultar {
+  border-color: #b8903b;
+  color: #f5c451;
+}
+
+.boton-accion--ocultar:hover:not(:disabled) {
+  border-color: #d6ab4d;
+  background-color: rgb(184 144 59 / 16%);
+}
+
+.modal-confirmacion__icono--estado {
+  border-color: #9b76d6;
+  background-color: rgb(139 92 246 / 14%);
+  color: #cdb5f5;
+}
+
+.boton-modal--estado {
+  border-color: #7d58b8;
+  background-color: #68439d;
+  color: #fff;
+}
+
+.boton-modal--estado:hover:not(:disabled) {
+  border-color: #a37bdc;
+  background-color: #7d58b8;
+}
+
 .mensaje-accion {
   margin: 0 0 1.5rem;
   padding: 0.85rem 1rem;
