@@ -139,6 +139,53 @@ export class ServicioPeliculas {
     }));
   }
 
+  /**
+   * Obtiene exclusivamente las películas activas para la cartelera pública
+   * (no eliminadas lógicamente y con esta_activa = true).
+   */
+  async obtenerPeliculasCartelera(): Promise<Pelicula[]> {
+    const cliente = this.servicioSupabase.cliente;
+
+    const {
+      data,
+      error
+    } = await cliente
+      .from('peliculas')
+      .select(`
+        id,
+        nombre,
+        sinopsis,
+        duracion_minutos,
+        imagen_url,
+        fecha_estreno,
+        clasificacion_edad,
+        generos,
+        esta_activa
+      `)
+      .is('eliminada_en', null)
+      .eq('esta_activa', true)
+      .order('fecha_estreno', {
+        ascending: false
+      });
+
+    if (error) {
+      throw error;
+    }
+
+    return data.map(fila => ({
+      id: fila.id,
+      nombre: fila.nombre,
+      sinopsis: fila.sinopsis,
+      duracionMinutos: fila.duracion_minutos,
+      imagenUrl: fila.imagen_url,
+      fechaEstreno: fila.fecha_estreno,
+      clasificacionEdad:
+        fila.clasificacion_edad as Pelicula['clasificacionEdad'],
+      generos: fila.generos,
+      estaActiva: fila.esta_activa
+    }));
+  }
+
   /*==============================
     Obtener una pelicula por ID 
   =============================== */

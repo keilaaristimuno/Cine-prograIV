@@ -4,8 +4,19 @@ import { adminGuard } from './core/guards/admin.guard';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'iniciar-sesion',
-    pathMatch: 'full'
+    loadComponent: () =>
+      import(
+        './features/publico/layouts/public-layout/public-layout'
+      ).then(m => m.PublicLayout),
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import(
+            './features/publico/paginas/cartelera/cartelera'
+          ).then(m => m.Cartelera)
+      }
+    ]
   },
   {
     path: 'iniciar-sesion',
@@ -57,6 +68,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: 'iniciar-sesion'
+    redirectTo: ''
   }
 ];

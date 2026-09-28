@@ -1,0 +1,57 @@
+<article class="tarjeta-pelicula">
+  <!-- Contenedor de Póster con Badge de Edad -->
+  <div class="tarjeta-pelicula__poster-contenedor">
+    @if (pelicula().imagenUrl) {
+      <img
+        [src]="pelicula().imagenUrl"
+        [alt]="pelicula().nombre"
+        class="tarjeta-pelicula__poster"
+        loading="lazy"
+      />
+    } @else {
+      <div class="tarjeta-pelicula__poster-placeholder">
+        <span class="icono-placeholder">🎬</span>
+        <span class="texto-placeholder">Sin imagen</span>
+      </div>
+    }
+
+    <span
+      class="tarjeta-pelicula__badge-edad"
+      [class.tarjeta-pelicula__badge-edad--atp]="pelicula().clasificacionEdad === 'ATP'"
+      [class.tarjeta-pelicula__badge-edad--trece]="pelicula().clasificacionEdad === '+13'"
+      [class.tarjeta-pelicula__badge-edad--dieciocho]="pelicula().clasificacionEdad === '+18'"
+    >
+      {{ pelicula().clasificacionEdad }}
+    </span>
+  </div>
+
+  <!-- Cuerpo con Título y Metadatos -->
+  <div class="tarjeta-pelicula__cuerpo">
+    <div class="tarjeta-pelicula__metadatos">
+      <span class="tarjeta-pelicula__duracion">
+        ⏱ {{ formatearDuracion(pelicula().duracionMinutos) }}
+      </span>
+    </div>
+
+    <h3 class="tarjeta-pelicula__titulo" [title]="pelicula().nombre">
+      {{ pelicula().nombre }}
+    </h3>
+
+    <div class="tarjeta-pelicula__generos">
+      @for (genero of pelicula().generos; track genero) {
+        <span class="tarjeta-pelicula__chip-genero">{{ genero }}</span>
+      }
+    </div>
+
+    <div class="tarjeta-pelicula__acciones">
+      <button
+        type="button"
+        class="tarjeta-pelicula__boton-detalles"
+        disabled
+        title="La página de detalle se habilitará en el Paso 2.5"
+      >
+        Ver detalles
+      </button>
+    </div>
+  </div>
+</article>

@@ -82,10 +82,12 @@ export class InicioSesion implements OnInit {
         return;
       }
 
-      // Rol cliente o sin rol asignado aún
-      this.mensajeInfo.set(
-        `¡Bienvenido/a ${perfil?.nombre || 'a Pantalla Mágica'}! Tu sesión como cliente está activa.`
-      );
+      // Rol cliente: redirige a la cartelera pública
+      if (perfil?.rol === 'cliente') {
+        await this.enrutador.navigate(['/']);
+        return;
+      }
+
     } catch (error) {
       console.error('Error al iniciar sesión:', error);
       this.mensajeError.set(

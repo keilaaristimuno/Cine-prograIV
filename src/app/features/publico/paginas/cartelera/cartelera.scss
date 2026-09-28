@@ -1,0 +1,199 @@
+.cartelera-base {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  padding-bottom: 4rem;
+}
+
+/* ==================================
+   BANNER HERO BASE
+===================================== */
+.hero-presentacion {
+  position: relative;
+  min-height: 380px;
+  display: flex;
+  align-items: center;
+  padding: 4rem 1.5rem;
+  overflow: hidden;
+  background: radial-gradient(circle at 70% 30%, rgba(139, 92, 246, 0.25) 0%, rgba(9, 7, 17, 0.95) 70%),
+              linear-gradient(180deg, rgba(22, 18, 33, 0.8) 0%, #090711 100%);
+  border-bottom: 1px solid rgba(139, 92, 246, 0.15);
+
+  &__contenido {
+    max-width: 1280px;
+    margin: 0 auto;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  &__etiqueta {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: #8b5cf6;
+  }
+
+  &__titulo {
+    font-size: clamp(2rem, 5vw, 3.25rem);
+    font-weight: 800;
+    margin: 0;
+    color: #f7f5fa;
+    line-height: 1.15;
+    max-width: 700px;
+  }
+
+  &__descripcion {
+    font-size: 1.1rem;
+    color: #aaa4b5;
+    max-width: 600px;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  &__acciones {
+    margin-top: 0.5rem;
+  }
+
+  &__boton-explorar {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.65rem;
+    background: rgba(139, 92, 246, 0.2);
+    color: #f7f5fa;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border: 1px solid rgba(139, 92, 246, 0.4);
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(139, 92, 246, 0.35);
+      border-color: #8b5cf6;
+      transform: translateY(-2px);
+    }
+  }
+}
+
+/* ==================================
+   CONTENIDO CARTELERA
+===================================== */
+.cartelera-contenido {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  width: 100%;
+
+  &__cabecera {
+    margin-bottom: 2.5rem;
+  }
+
+  &__titulo {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #f7f5fa;
+    margin: 0 0 0.4rem;
+  }
+
+  &__subtitulo {
+    font-size: 0.95rem;
+    color: #aaa4b5;
+    margin: 0;
+  }
+}
+
+/* ==================================
+   GRILLA DE PELÍCULAS
+===================================== */
+.grilla-peliculas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.75rem;
+
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+  }
+}
+
+/* ==================================
+   ESTADOS DE LA CARTELERA (Carga, Error, Vacío)
+===================================== */
+.estado-cartelera {
+  background: rgba(22, 18, 33, 0.5);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 1rem;
+  padding: 3.5rem 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  max-width: 600px;
+  margin: 1rem auto;
+  grid-column: 1 / -1;
+
+  &__icono {
+    font-size: 2.5rem;
+  }
+
+  &__titulo {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #f7f5fa;
+    margin: 0;
+  }
+
+  &__texto {
+    font-size: 0.95rem;
+    color: #aaa4b5;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  &--error {
+    border-color: rgba(255, 107, 107, 0.4);
+    background: rgba(255, 107, 107, 0.05);
+
+    .estado-cartelera__texto {
+      color: #ffb4b4;
+    }
+  }
+
+  &__boton-reintentar {
+    margin-top: 0.5rem;
+    padding: 0.6rem 1.25rem;
+    border-radius: 0.55rem;
+    border: 1px solid #8b5cf6;
+    background: rgba(139, 92, 246, 0.2);
+    color: #f7f5fa;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #8b5cf6;
+    }
+  }
+}
+
+.spinner-cine {
+  width: 44px;
+  height: 44px;
+  border: 3px solid rgba(139, 92, 246, 0.2);
+  border-top-color: #8b5cf6;
+  border-radius: 50%;
+  animation: girar 0.9s linear infinite;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}

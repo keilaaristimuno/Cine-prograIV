@@ -1,0 +1,100 @@
+<div class="estructura-publica">
+  <header class="navbar-publico">
+    <div class="navbar-publico__contenedor">
+      <div class="navbar-publico__seccion-marca">
+        <a routerLink="/" class="marca">
+          <span class="marca__nombre">Pantalla Mágica</span>
+          <span class="marca__subtitulo">Cinema</span>
+        </a>
+
+        <nav class="navegacion-publica">
+          <a
+            routerLink="/"
+            routerLinkActive="navegacion-publica__enlace--activo"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="navegacion-publica__enlace"
+          >
+            Inicio
+          </a>
+          <a
+            routerLink="/"
+            routerLinkActive="navegacion-publica__enlace--activo"
+            class="navegacion-publica__enlace"
+          >
+            Cartelera
+          </a>
+        </nav>
+      </div>
+
+      <div class="navbar-publico__seccion-usuario">
+        @if (!estaAutenticado()) {
+          <div class="acciones-anonimo">
+            <a routerLink="/iniciar-sesion" class="boton-login">
+              Iniciar sesión
+            </a>
+            <a routerLink="/registrarse" class="boton-registro">
+              Registrarse
+            </a>
+          </div>
+        } @else {
+          <div class="bloque-autenticado">
+            @if (esAdmin()) {
+              <a routerLink="/admin/peliculas" class="boton-panel-admin">
+                <span class="icono-admin">⚙</span>
+                Panel Admin
+              </a>
+            }
+
+            <div class="datos-perfil">
+              <span class="datos-perfil__nombre">
+                {{ perfil()?.nombre ? (perfil()?.nombre + ' ' + perfil()?.apellido) : (usuario()?.email ?? 'Usuario') }}
+              </span>
+              <span
+                class="datos-perfil__badge"
+                [class.datos-perfil__badge--admin]="esAdmin()"
+              >
+                {{ perfil()?.rol ?? 'cliente' }}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              class="boton-cerrar-sesion"
+              (click)="cerrarSesion()"
+              title="Cerrar sesión"
+            >
+              Cerrar sesión
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </header>
+
+  <main class="contenido-publico">
+    <router-outlet />
+  </main>
+
+  <footer class="footer-publico">
+    <div class="footer-publico__contenedor">
+      <div class="footer-publico__columna-marca">
+        <div class="marca marca--footer">
+          <span class="marca__nombre">Pantalla Mágica</span>
+          <span class="marca__subtitulo">Cinema</span>
+        </div>
+        <p class="footer-publico__eslogan">
+          "La magia empieza antes de que se apaguen las luces."
+        </p>
+      </div>
+
+      <div class="footer-publico__columna-info">
+        <p class="footer-publico__materia">
+          Programación IV — Tecnicatura Universitaria en Programación (UTN)
+        </p>
+        <p class="footer-publico__copyright">
+          © 2026 Pantalla Mágica Cinema. Todos los derechos reservados.
+        </p>
+      </div>
+    </div>
+  </footer>
+</div>

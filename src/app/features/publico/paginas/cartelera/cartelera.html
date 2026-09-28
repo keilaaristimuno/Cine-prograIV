@@ -1,0 +1,70 @@
+<div class="cartelera-base">
+  <!-- Banner Hero Base -->
+  <section class="hero-presentacion">
+    <div class="hero-presentacion__fondo"></div>
+    <div class="hero-presentacion__contenido">
+      <span class="hero-presentacion__etiqueta">Ahora en pantalla</span>
+      <h1 class="hero-presentacion__titulo">La magia del cine en tus manos</h1>
+      <p class="hero-presentacion__descripcion">
+        Descubrí los mejores estrenos, promociones exclusivas y la cartelera completa de Pantalla Mágica Cinema.
+      </p>
+      <div class="hero-presentacion__acciones">
+        <a href="#cartelera-seccion" class="hero-presentacion__boton-explorar">
+          Explorar cartelera ↓
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contenedor Principal de la Cartelera -->
+  <section id="cartelera-seccion" class="cartelera-contenido">
+    <div class="cartelera-contenido__cabecera">
+      <div class="cartelera-contenido__titulos">
+        <h2 class="cartelera-contenido__titulo">Películas en Cartelera</h2>
+        <p class="cartelera-contenido__subtitulo">
+          Consultá los títulos actualmente disponibles en nuestras salas.
+        </p>
+      </div>
+    </div>
+
+    <!-- 1. Estado: Cargando -->
+    @if (cargando()) {
+      <div class="estado-cartelera estado-cartelera--cargando">
+        <div class="spinner-cine"></div>
+        <p class="estado-cartelera__texto">Cargando cartelera de películas...</p>
+      </div>
+    }
+
+    <!-- 2. Estado: Error de consulta -->
+    @else if (mensajeError()) {
+      <div class="estado-cartelera estado-cartelera--error">
+        <span class="estado-cartelera__icono">⚠️</span>
+        <p class="estado-cartelera__texto">{{ mensajeError() }}</p>
+        <button
+          type="button"
+          class="estado-cartelera__boton-reintentar"
+          (click)="cargarCartelera()"
+        >
+          Reintentar carga
+        </button>
+      </div>
+    }
+
+    <!-- 3 y 4. Estado: Catálogo con Películas o Vacío (@empty) -->
+    @else {
+      <div class="grilla-peliculas">
+        @for (pelicula of peliculas(); track pelicula.id) {
+          <app-tarjeta-pelicula [pelicula]="pelicula" />
+        } @empty {
+          <div class="estado-cartelera estado-cartelera--vacio">
+            <span class="estado-cartelera__icono">🎬</span>
+            <h3 class="estado-cartelera__titulo">No hay películas en cartelera</h3>
+            <p class="estado-cartelera__texto">
+              En este momento no disponemos de títulos publicados para el público.
+            </p>
+          </div>
+        }
+      </div>
+    }
+  </section>
+</div>

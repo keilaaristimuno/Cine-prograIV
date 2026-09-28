@@ -1,0 +1,167 @@
+.tarjeta-pelicula {
+  background: #161221;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 1rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+
+  &:hover {
+    transform: translateY(-6px);
+    border-color: rgba(139, 92, 246, 0.55);
+    box-shadow: 0 12px 30px rgba(139, 92, 246, 0.25);
+  }
+
+  /* ==================================
+     PÓSTER Y BADGE
+  ===================================== */
+  &__poster-contenedor {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    background: #090711;
+    overflow: hidden;
+  }
+
+  &__poster {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+
+    .tarjeta-pelicula:hover & {
+      transform: scale(1.05);
+    }
+  }
+
+  &__poster-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: #6d677d;
+
+    .icono-placeholder {
+      font-size: 2.5rem;
+    }
+
+    .texto-placeholder {
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+  }
+
+  &__badge-edad {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.55rem;
+    border-radius: 0.4rem;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+
+    &--atp {
+      background: rgba(16, 185, 129, 0.85);
+      color: #ffffff;
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    &--trece {
+      background: rgba(245, 196, 81, 0.9);
+      color: #161221;
+      border-color: rgba(245, 196, 81, 0.5);
+    }
+
+    &--dieciocho {
+      background: rgba(244, 63, 94, 0.9);
+      color: #ffffff;
+      border-color: rgba(244, 63, 94, 0.5);
+    }
+  }
+
+  /* ==================================
+     CUERPO Y METADATOS
+  ===================================== */
+  &__cuerpo {
+    padding: 1.15rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 0.65rem;
+  }
+
+  &__metadatos {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__duracion {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #c4b5fd;
+  }
+
+  &__titulo {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #f7f5fa;
+    margin: 0;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.6rem;
+  }
+
+  &__generos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    min-height: 1.8rem;
+  }
+
+  &__chip-genero {
+    font-size: 0.72rem;
+    font-weight: 500;
+    padding: 0.15rem 0.5rem;
+    border-radius: 1rem;
+    background: rgba(139, 92, 246, 0.15);
+    color: #c4b5fd;
+    border: 1px solid rgba(139, 92, 246, 0.25);
+  }
+
+  /* ==================================
+     ACCIONES
+  ===================================== */
+  &__acciones {
+    margin-top: auto;
+    padding-top: 0.5rem;
+  }
+
+  &__boton-detalles {
+    width: 100%;
+    padding: 0.6rem 1rem;
+    border-radius: 0.55rem;
+    border: 1px solid rgba(139, 92, 246, 0.35);
+    background: rgba(139, 92, 246, 0.1);
+    color: #c4b5fd;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: not-allowed;
+    opacity: 0.85;
+    transition: all 0.2s ease;
+  }
+}
