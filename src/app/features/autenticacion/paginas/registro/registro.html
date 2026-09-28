@@ -3,72 +3,171 @@
     <h1>Crear una cuenta</h1>
 
     <p>
-      Completá tus datos para registrarte.
+      Completá tus datos para registrarte como cliente en Pantalla Mágica.
     </p>
 
     <form
       [formGroup]="formularioRegistro"
       (ngSubmit)="registrarse()"
     >
-      <div class="campo-formulario">
-        <label for="correo-registro">
-          Correo electrónico
-        </label>
+      <div class="fila-campos">
+        <div class="campo-formulario">
+          <label for="nombre-registro">Nombre</label>
+          <input
+            id="nombre-registro"
+            type="text"
+            formControlName="nombre"
+            placeholder="Ej: Laura"
+            autocomplete="given-name" 
+          /> <!-- datos completados por el navegador, sabe que esperar-->
+          @if (
+            formularioRegistro.controls.nombre.touched &&
+            formularioRegistro.controls.nombre.invalid
+          ) {
+            <small class="mensaje-error">El nombre es obligatorio.</small>
+          }
+        </div>
 
+        <div class="campo-formulario">
+          <label for="apellido-registro">Apellido</label>
+          <input
+            id="apellido-registro"
+            type="text"
+            formControlName="apellido"
+            placeholder="Ej: Gómez"
+            autocomplete="family-name"
+          />
+          @if (
+            formularioRegistro.controls.apellido.touched &&
+            formularioRegistro.controls.apellido.invalid
+          ) {
+            <small class="mensaje-error">El apellido es obligatorio.</small>
+          }
+        </div>
+      </div>
+
+      <div class="campo-formulario">
+        <label for="correo-registro">Correo electrónico</label>
         <input
           id="correo-registro"
           type="email"
           formControlName="correo"
+          placeholder="ejemplo@correo.com"
           autocomplete="email"
         />
-
         @if (
           formularioRegistro.controls.correo.touched &&
           formularioRegistro.controls.correo.hasError('required')
         ) {
-          <small class="mensaje-error">
-            El correo es obligatorio.
-          </small>
+          <small class="mensaje-error">El correo es obligatorio.</small>
         }
-
         @if (
           formularioRegistro.controls.correo.touched &&
           formularioRegistro.controls.correo.hasError('email')
         ) {
-          <small class="mensaje-error">
-            Ingresá un correo válido.
-          </small>
+          <small class="mensaje-error">Ingresá un correo válido.</small>
         }
       </div>
 
-      <div class="campo-formulario">
-        <label for="contrasenia-registro">
-          Contraseña
-        </label>
+      <div class="fila-campos">
+        <div class="campo-formulario">
+          <label for="contrasenia-registro">Contraseña</label>
+          <input
+            id="contrasenia-registro"
+            type="password"
+            formControlName="contrasenia"
+            placeholder="Mínimo 6 caracteres"
+            autocomplete="new-password"
+          />
+          @if (
+            formularioRegistro.controls.contrasenia.touched &&
+            formularioRegistro.controls.contrasenia.invalid
+          ) {
+            <small class="mensaje-error">Mínimo 6 caracteres.</small>
+          }
+        </div>
 
-        <input
-          id="contrasenia-registro"
-          type="password"
-          formControlName="contrasenia"
-          autocomplete="new-password"
-        />
+        <div class="campo-formulario">
+          <label for="repetir-contrasenia">Repetir contraseña</label>
+          <input
+            id="repetir-contrasenia"
+            type="password"
+            formControlName="repetirContrasenia"
+            placeholder="Reescribí tu contraseña"
+            autocomplete="new-password"
+          />
+          @if (
+            formularioRegistro.controls.repetirContrasenia.touched &&
+            formularioRegistro.controls.repetirContrasenia.invalid
+          ) {
+            <small class="mensaje-error">Repetí tu contraseña.</small>
+          }
+        </div>
       </div>
 
-      <div class="campo-formulario">
-        <label for="repetir-contrasenia">
-          Repetir contraseña
-        </label>
+      <div class="fila-campos">
+        <div class="campo-formulario">
+          <label for="fecha-nacimiento">Fecha de nacimiento</label>
+          <input
+            id="fecha-nacimiento"
+            type="date"
+            formControlName="fechaNacimiento"
+            [max]="fechaMaxima"
+          />
+          @if (
+            formularioRegistro.controls.fechaNacimiento.touched &&
+            formularioRegistro.controls.fechaNacimiento.hasError('required')
+          ) {
+            <small class="mensaje-error">La fecha de nacimiento es obligatoria.</small>
+          }
+          @if (
+            formularioRegistro.controls.fechaNacimiento.touched &&
+            formularioRegistro.controls.fechaNacimiento.hasError('fechaFutura')
+          ) {
+            <small class="mensaje-error">La fecha de nacimiento no puede ser posterior a hoy.</small>
+          }
+        </div>
 
-        <input
-          id="repetir-contrasenia"
-          type="password"
-          formControlName="repetirContrasenia"
-          autocomplete="new-password"
-        />
+        <div class="campo-formulario">
+          <label for="tipo-sangre">Tipo de sangre</label>
+          <select id="tipo-sangre" formControlName="tipoSangre">
+            @for (tipo of tiposSangre; track tipo) {
+              <option [value]="tipo">{{ tipo }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="fila-campos">
+        <div class="campo-formulario">
+          <label for="color-ojos">Color de ojos</label>
+          <select id="color-ojos" formControlName="colorOjos">
+            @for (color of coloresOjos; track color) {
+              <option [value]="color">{{ color }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="campo-formulario">
+          <label for="dias-vacaciones">Días de vacaciones / año</label>
+          <input
+            id="dias-vacaciones"
+            type="number"
+            min="0"
+            max="365"
+            formControlName="diasVacaciones"
+          />
+          @if (
+            formularioRegistro.controls.diasVacaciones.touched &&
+            formularioRegistro.controls.diasVacaciones.invalid
+          ) {
+            <small class="mensaje-error">Ingresá un valor válido (&ge; 0).</small>
+          }
+        </div>
       </div>
 
       @if (mensajeError()) {
-        <p class="mensaje-error" role="alert">
+        <p class="mensaje-error-alerta" role="alert">
           {{ mensajeError() }}
         </p>
       }
@@ -94,10 +193,7 @@
 
     <p class="enlace-autenticacion">
       ¿Ya tenés una cuenta?
-
-      <a routerLink="/iniciar-sesion">
-        Iniciar sesión
-      </a>
+      <a routerLink="/iniciar-sesion">Iniciar sesión</a>
     </p>
   </section>
 </main>

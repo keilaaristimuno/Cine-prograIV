@@ -73,18 +73,24 @@
         </a>
       </p>
 
-      @if (mensajeError) {
+      @if (mensajeError()) {
         <p class="mensaje-error" role="alert">
-          {{ mensajeError }}
+          {{ mensajeError() }}
+        </p>
+      }
+
+      @if (mensajeInfo()) {
+        <p class="mensaje-info" role="status">
+          {{ mensajeInfo() }}
         </p>
       }
 
       <button
         type="submit"
         class="boton-primario"
-        [disabled]="cargando"
+        [disabled]="cargando()"
       >
-        @if (cargando) {
+        @if (cargando()) {
           Ingresando...
         } @else {
           Iniciar sesión

@@ -1,33 +1,53 @@
 <div class="estructura-administrador">
   <header class="barra-superior">
-    <div class="marca">
-      <span class="marca__nombre">
-        Pantalla Mágica
-      </span>
-      
-      <span class="marca__area">
-        Administración
-      </span>
+    <div class="barra-superior__seccion-marca">
+      <div class="marca">
+        <span class="marca__nombre">
+          Pantalla Mágica
+        </span>
+        <span class="marca__area">
+          Administración
+        </span>
+      </div>
+
+      <nav class="navegacion">
+        <a
+          routerLink="/admin"
+          routerLinkActive="navegacion__enlace--activo"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="navegacion__enlace"
+        >
+          Dashboard
+        </a>
+
+        <a
+          routerLink="/admin/peliculas"
+          routerLinkActive="navegacion__enlace--activo"
+          class="navegacion__enlace"
+        >
+          Películas
+        </a>
+      </nav>
     </div>
 
-    <nav class="navegacion">
-      <a
-        routerLink="/admin"
-        routerLinkActive="navegacion__enlace--activo"
-        [routerLinkActiveOptions]="{ exact: true }"
-        class="navegacion__enlace"
-      >
-        Dashboard
-      </a>
+    <div class="barra-superior__seccion-usuario">
+      <div class="datos-usuario">
+        <span class="datos-usuario__nombre">
+          {{ perfil()?.nombre ? (perfil()?.nombre + ' ' + perfil()?.apellido) : (usuario()?.email ?? 'Administrador') }}
+        </span>
+        <span class="datos-usuario__etiqueta-rol">
+          {{ perfil()?.rol ?? 'admin' }}
+        </span>
+      </div>
 
-      <a
-        routerLink="/admin/peliculas"
-        routerLinkActive="navegacion__enlace--activo"
-        class="navegacion__enlace"
+      <button
+        type="button"
+        class="boton-cerrar-sesion"
+        (click)="cerrarSesion()"
       >
-        Películas
-      </a>
-    </nav>
+        Cerrar sesión
+      </button>
+    </div>
   </header>
 
   <main class="contenido-administrador">

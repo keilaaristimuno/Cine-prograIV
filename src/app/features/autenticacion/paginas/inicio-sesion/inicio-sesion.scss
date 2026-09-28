@@ -122,4 +122,16 @@ button:disabled {
 
 .mensaje-error {
   color: #ff8a8a;
+  margin: 0.5rem 0 1rem;
+}
+
+.mensaje-info {
+  margin: 0.5rem 0 1rem;
+  padding: 0.75rem;
+  border: 1px solid rgba(139, 92, 246, 0.5);
+  border-radius: 0.5rem;
+  background-color: rgba(139, 92, 246, 0.15);
+  color: #cbbcff;
+  line-height: 1.4;
+  font-size: 0.9rem;
 }

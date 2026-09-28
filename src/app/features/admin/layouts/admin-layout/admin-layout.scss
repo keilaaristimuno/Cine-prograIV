@@ -1,6 +1,6 @@
 :host {
-  display: block; //se comporta como un bloque
-  min-height: 100vh; 
+  display: block;
+  min-height: 100vh;
 }
 
 .estructura-administrador {
@@ -17,55 +17,69 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 2rem;
+  flex-wrap: wrap;
+  gap: 1.5rem;
 
   min-height: 76px;
   padding: 0.9rem 2.5rem;
 
   border-bottom: 1px solid rgba(139, 92, 246, 0.3);
   background-color: #161221;
+
+  &__seccion-marca {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  &__seccion-usuario {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
 }
 
-//& representa el selector padre, en este caso .marca, y se utiliza para anidar selectores dentro de un bloque de estilo.
 .marca {
   display: flex;
   flex-direction: column;
-  margin-bottom: 2.5rem;
 
   &__nombre {
     color: #f5c451;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     font-weight: 700;
+    line-height: 1.2;
   }
 
   &__area {
-    margin-top: 0.25rem;
     color: #aaa4b5;
-    font-size: 0.875rem;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 }
 
 .navegacion {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 0.5rem;
 
   &__enlace {
-    padding: 0.8rem 1rem;
+    padding: 0.65rem 1rem;
     border-radius: 0.5rem;
     color: #aaa4b5;
     font-weight: 600;
+    font-size: 0.95rem;
     text-decoration: none;
     transition:
       color 150ms ease,
       background-color 150ms ease;
 
-      //activa el cursor cuando pasa por encima
     &:hover {
       color: #f7f5fa;
       background-color: rgba(139, 92, 246, 0.12);
     }
-    //es .navegacion__enlace--activo:
+
     &--activo {
       color: #f7f5fa;
       background-color: #8b5cf6;
@@ -73,20 +87,89 @@
   }
 }
 
+.datos-usuario {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+
+  &__nombre {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #f7f5fa;
+  }
+
+  &__etiqueta-rol {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    border: 1px solid rgba(245, 196, 81, 0.35);
+    background-color: rgba(245, 196, 81, 0.15);
+    color: #f5c451;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+}
+
+.boton-cerrar-sesion {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 0.95rem;
+  border: 1px solid rgba(220, 102, 121, 0.6);
+  border-radius: 0.45rem;
+  background-color: transparent;
+  color: #f497a5;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease,
+    transform 150ms ease;
+
+  &:hover {
+    border-color: #dc6679;
+    background-color: rgba(220, 102, 121, 0.18);
+    color: #fff;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
 .contenido-administrador {
   width: 100%;
   min-width: 0;
   max-width: 100%;
+  padding: 2rem 2.5rem;
 }
 
-@media (max-width: 650px) {
+@media (max-width: 768px) {
   .barra-superior {
     align-items: stretch;
     flex-direction: column;
     gap: 1rem;
     padding: 1rem 1.25rem;
-  }
 
+    &__seccion-marca {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    &__seccion-usuario {
+      justify-content: space-between;
+      border-top: 1px solid rgba(139, 92, 246, 0.2);
+      padding-top: 0.75rem;
+    }
+  }
 
   .navegacion {
     width: 100%;
@@ -95,5 +178,13 @@
   .navegacion__enlace {
     flex: 1;
     text-align: center;
+  }
+
+  .datos-usuario {
+    align-items: flex-start;
+  }
+
+  .contenido-administrador {
+    padding: 1.5rem 1rem;
   }
 }
