@@ -15,6 +15,13 @@ export const routes: Routes = [
           import(
             './features/publico/paginas/cartelera/cartelera'
           ).then(m => m.Cartelera)
+      },
+      {
+        path: 'pelicula/:id',
+        loadComponent: () =>
+          import(
+            './features/publico/paginas/detalle-pelicula/detalle-pelicula'
+          ).then(m => m.DetallePelicula)
       }
     ]
   },

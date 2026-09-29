@@ -1,0 +1,164 @@
+<div class="detalle-base">
+  <!-- ESTADO 1: CARGANDO -->
+  @if (cargando()) {
+    <div class="estado-detalle estado-detalle--cargando">
+      <div class="spinner-cine"></div>
+      <p class="estado-detalle__texto">Cargando detalles de la película...</p>
+    </div>
+  }
+
+  <!-- ESTADO 2: ERROR DE CONSULTA -->
+  @else if (mensajeError()) {
+    <div class="estado-detalle estado-detalle--error">
+      <span class="estado-detalle__icono">⚠️</span>
+      <h2 class="estado-detalle__titulo">No pudimos cargar la película</h2>
+      <p class="estado-detalle__texto">{{ mensajeError() }}</p>
+      <div class="estado-detalle__acciones">
+        <button
+          type="button"
+          class="estado-detalle__boton-reintentar"
+          (click)="reintentar()"
+        >
+          Reintentar carga
+        </button>
+        <a routerLink="/" class="estado-detalle__boton-volver">
+          ← Volver a la cartelera
+        </a>
+      </div>
+    </div>
+  }
+
+  <!-- ESTADO 3: PELÍCULA NO ENCONTRADA O NO DISPONIBLE -->
+  @else if (!pelicula()) {
+    <div class="estado-detalle estado-detalle--no-encontrada">
+      <span class="estado-detalle__icono">🎬</span>
+      <h2 class="estado-detalle__titulo">Película no disponible</h2>
+      <p class="estado-detalle__texto">
+        La película que estás buscando no existe o ya no se encuentra publicada en cartelera.
+      </p>
+      <div class="estado-detalle__acciones">
+        <a routerLink="/" class="estado-detalle__boton-volver">
+          ← Volver a la cartelera
+        </a>
+      </div>
+    </div>
+  }
+
+  <!-- ESTADO 4: PELÍCULA ENCONTRADA -->
+  @else if (pelicula(); as p) {
+    <section class="detalle-pelicula">
+      <!-- Navegación superior -->
+      <nav class="detalle-pelicula__navegacion" aria-label="Navegación de retorno">
+        <a routerLink="/" class="detalle-pelicula__enlace-volver">
+          ← Volver a la cartelera
+        </a>
+      </nav>
+
+      <!-- Ficha de la Película -->
+      <article class="detalle-pelicula__tarjeta">
+        <!-- Columna Izquierda: Póster con Badge de Edad -->
+        <div class="detalle-pelicula__columna-poster">
+          <div class="detalle-pelicula__poster-contenedor">
+            @if (p.imagenUrl) {
+              <img
+                [src]="p.imagenUrl"
+                [alt]="p.nombre"
+                class="detalle-pelicula__poster"
+              />
+            } @else {
+              <div class="detalle-pelicula__poster-placeholder">
+                <span class="icono-placeholder">🎬</span>
+                <span class="texto-placeholder">Sin imagen</span>
+              </div>
+            }
+
+            <span
+              class="detalle-pelicula__badge-edad"
+              [class.detalle-pelicula__badge-edad--atp]="p.clasificacionEdad === 'ATP'"
+              [class.detalle-pelicula__badge-edad--trece]="p.clasificacionEdad === '+13'"
+              [class.detalle-pelicula__badge-edad--dieciocho]="p.clasificacionEdad === '+18'"
+            >
+              {{ p.clasificacionEdad }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Columna Derecha: Información Completa -->
+        <div class="detalle-pelicula__columna-info">
+          <!-- Indicador de Estado: Cartelera vs Próximamente -->
+          <div class="detalle-pelicula__estado-estreno">
+            @if (esProximamente()) {
+              <span class="badge-estreno badge-estreno--proximamente">
+                ✦ Próximo estreno
+              </span>
+            } @else {
+              <span class="badge-estreno badge-estreno--cartelera">
+                ● En cartelera
+              </span>
+            }
+          </div>
+
+          <h1 class="detalle-pelicula__titulo">{{ p.nombre }}</h1>
+
+          <!-- Metadatos de la Película -->
+          <div class="detalle-pelicula__metadatos">
+            <span class="detalle-pelicula__dato">
+              ⏱ <strong>{{ formatearDuracion(p.duracionMinutos) }}</strong>
+            </span>
+            <span class="detalle-pelicula__separador">•</span>
+            <span class="detalle-pelicula__dato">
+              📅 Estreno: <strong>{{ formatearFecha(p.fechaEstreno) }}</strong>
+            </span>
+            <span class="detalle-pelicula__separador">•</span>
+            <span class="detalle-pelicula__dato">
+              Clasificación: <strong>{{ p.clasificacionEdad }}</strong>
+            </span>
+          </div>
+
+          <!-- Géneros -->
+          @if (p.generos.length > 0) {
+            <div class="detalle-pelicula__generos">
+              @for (genero of p.generos; track genero) {
+                <span class="detalle-pelicula__chip-genero">{{ genero }}</span>
+              }
+            </div>
+          }
+
+          <!-- Sinopsis -->
+          <div class="detalle-pelicula__bloque-sinopsis">
+            <h2 class="detalle-pelicula__subtitulo">Sinopsis</h2>
+            <p class="detalle-pelicula__sinopsis">
+              {{ p.sinopsis || 'Sin sinopsis disponible actualmente.' }}
+            </p>
+          </div>
+
+          <!-- Mensaje Informativo según estado -->
+          @if (esProximamente()) {
+            <div class="detalle-pelicula__aviso detalle-pelicula__aviso--proximamente">
+              <span class="aviso-icono">📅</span>
+              <div class="aviso-contenido">
+                <strong>Estreno programado para el {{ formatearFecha(p.fechaEstreno) }}</strong>
+                <p>Muy pronto vas a poder disfrutar de este título en las salas de Pantalla Mágica.</p>
+              </div>
+            </div>
+          } @else {
+            <div class="detalle-pelicula__aviso detalle-pelicula__aviso--cartelera">
+              <span class="aviso-icono">🎟</span>
+              <div class="aviso-contenido">
+                <strong>Título actualmente en cartelera</strong>
+                <p>La consulta de horarios, salas y compra de entradas estará disponible próximamente.</p>
+              </div>
+            </div>
+          }
+
+          <!-- Botón de retorno inferior -->
+          <div class="detalle-pelicula__acciones">
+            <a routerLink="/" class="detalle-pelicula__boton-volver">
+              ← Volver a la cartelera
+            </a>
+          </div>
+        </div>
+      </article>
+    </section>
+  }
+</div>

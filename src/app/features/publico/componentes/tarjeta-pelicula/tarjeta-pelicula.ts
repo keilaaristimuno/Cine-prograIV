@@ -1,17 +1,21 @@
 import { Component, input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { Pelicula } from '../../../../core/modelos/pelicula';
 
 @Component({
   selector: 'app-tarjeta-pelicula',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './tarjeta-pelicula.html',
   styleUrl: './tarjeta-pelicula.scss'
 })
 export class TarjetaPelicula {
-  /** Película individual recibida desde el componente contenedor (Cartelera)*/
+  /** Película individual recibida desde el componente contenedor (Cartelera) */
   readonly pelicula = input.required<Pelicula>();
 
-  /** Helper para formatear la duración en horas y minutos (ej. 148 -> "2h 28m")*/
+  /** Indica si la tarjeta se renderiza en la sección de próximos estrenos */
+  readonly esProximamente = input<boolean>(false);
+
+  /** Helper para formatear la duración en horas y minutos (ej. 148 -> "2h 28m") */
   formatearDuracion(minutos: number): string {
     if (!minutos || minutos <= 0) {
       return 'N/D';
@@ -22,5 +26,17 @@ export class TarjetaPelicula {
       return `${minRestantes}m`;
     }
     return minRestantes > 0 ? `${horas}h ${minRestantes}m` : `${horas}h`;
+  }
+
+  /** Helper para formatear fecha AAAA-MM-DD a DD/MM/AAAA */
+  formatearFecha(fechaIso: string): string {
+    if (!fechaIso) {
+      return 'Próximamente';
+    }
+    const partes = fechaIso.split('-');
+    if (partes.length === 3) {
+      return `${partes[2]}/${partes[1]}/${partes[0]}`;
+    }
+    return fechaIso;
   }
 }

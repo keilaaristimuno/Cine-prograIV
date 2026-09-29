@@ -234,6 +234,56 @@ export class ServicioPeliculas {
     };
   }
 
+  /*======================================================
+    Obtener una película por ID para la vista pública.
+    La vista pública utiliza una consulta específica que
+    solamente recupera películas publicadas y no eliminadas.
+  =======================================================*/
+  async obtenerPeliculaPublicaPorId(id: string): Promise<Pelicula | null> {
+    const cliente = this.servicioSupabase.cliente;
+
+    const {
+      data,
+      error
+    } = await cliente
+      .from('peliculas')
+      .select(`
+        id,
+        nombre,
+        sinopsis,
+        duracion_minutos,
+        imagen_url,
+        fecha_estreno,
+        clasificacion_edad,
+        generos,
+        esta_activa
+      `)
+      .eq('id', id)
+      .is('eliminada_en', null)
+      .eq('esta_activa', true)
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+    if (!data) {
+      return null;
+    }
+
+    return {
+      id: data.id,
+      nombre: data.nombre,
+      sinopsis: data.sinopsis,
+      duracionMinutos: data.duracion_minutos,
+      imagenUrl: data.imagen_url,
+      fechaEstreno: data.fecha_estreno,
+      clasificacionEdad:
+        data.clasificacion_edad as Pelicula['clasificacionEdad'],
+      generos: data.generos,
+      estaActiva: data.esta_activa
+    };
+  }
+
   /*==============================
     ACTUALIZA pelicula existente
   =============================== */

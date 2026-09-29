@@ -1,22 +1,88 @@
 <div class="cartelera-base">
-  <!-- Banner Hero Base -->
-  <section class="hero-presentacion">
-    <div class="hero-presentacion__fondo"></div>
-    <div class="hero-presentacion__contenido">
-      <span class="hero-presentacion__etiqueta">Ahora en pantalla</span>
-      <h1 class="hero-presentacion__titulo">La magia del cine en tus manos</h1>
-      <p class="hero-presentacion__descripcion">
-        Descubrí los mejores estrenos, promociones exclusivas y la cartelera completa de Pantalla Mágica Cinema.
-      </p>
-      <div class="hero-presentacion__acciones">
-        <a href="#cartelera-seccion" class="hero-presentacion__boton-explorar">
-          Explorar cartelera ↓
-        </a>
-      </div>
-    </div>
-  </section>
+  <!-- 1. Banner Hero Dinámico con Fallback -->
+  @if (peliculaHero(); as hero) {
+    <section class="hero-presentacion hero-presentacion--dinamico">
+      @if (hero.imagenUrl) {
+        <div
+          class="hero-presentacion__fondo-imagen"
+          [style.background-image]="'url(' + hero.imagenUrl + ')'"
+        ></div>
+      }
+      <div class="hero-presentacion__degradado"></div>
 
-  <!-- Contenedor Principal de la Cartelera -->
+      <div class="hero-presentacion__contenido">
+        <span class="hero-presentacion__etiqueta">Película destacada en cartelera</span>
+        <h1 class="hero-presentacion__titulo">{{ hero.nombre }}</h1>
+
+        <div class="hero-presentacion__metadatos">
+          <span
+            class="hero-presentacion__badge-edad"
+            [class.hero-presentacion__badge-edad--atp]="hero.clasificacionEdad === 'ATP'"
+            [class.hero-presentacion__badge-edad--trece]="hero.clasificacionEdad === '+13'"
+            [class.hero-presentacion__badge-edad--dieciocho]="hero.clasificacionEdad === '+18'"
+          >
+            {{ hero.clasificacionEdad }}
+          </span>
+          <span class="hero-presentacion__duracion">
+            ⏱ {{ formatearDuracion(hero.duracionMinutos) }}
+          </span>
+          @if (hero.generos.length > 0) {
+            <span class="hero-presentacion__generos">
+              {{ hero.generos.join(' · ') }}
+            </span>
+          }
+        </div>
+
+        <p class="hero-presentacion__descripcion">
+          {{ hero.sinopsis }}
+        </p>
+
+        <div class="hero-presentacion__acciones">
+          <a href="#destacadas-seccion" class="hero-presentacion__boton-explorar">
+            Explorar cartelera ↓
+          </a>
+        </div>
+      </div>
+    </section>
+  } @else {
+    <!-- Fallback institucional (si no hay películas en cartelera o durante la carga inicial) -->
+    <section class="hero-presentacion">
+      <div class="hero-presentacion__contenido">
+        <span class="hero-presentacion__etiqueta">Pantalla Mágica Cinema</span>
+        <h1 class="hero-presentacion__titulo">La magia del cine en tus manos</h1>
+        <p class="hero-presentacion__descripcion">
+          Descubrí los mejores estrenos, promociones exclusivas y la cartelera completa de Pantalla Mágica Cinema.
+        </p>
+        <div class="hero-presentacion__acciones">
+          <a href="#cartelera-seccion" class="hero-presentacion__boton-explorar">
+            Explorar cartelera ↓
+          </a>
+        </div>
+      </div>
+    </section>
+  }
+
+  <!-- 2. Sección: Películas Destacadas (hasta 3 títulos de la cartelera actual) -->
+  @if (!cargando() && !mensajeError() && peliculasDestacadas().length > 0) {
+    <section id="destacadas-seccion" class="cartelera-contenido seccion-destacadas">
+      <div class="cartelera-contenido__cabecera">
+        <div class="cartelera-contenido__titulos">
+          <h2 class="cartelera-contenido__titulo">Películas destacadas</h2>
+          <p class="cartelera-contenido__subtitulo">
+            Algunos títulos disponibles en nuestra cartelera.
+          </p>
+        </div>
+      </div>
+
+      <div class="grilla-peliculas grilla-peliculas--destacadas">
+        @for (pelicula of peliculasDestacadas(); track pelicula.id) {
+          <app-tarjeta-pelicula [pelicula]="pelicula" />
+        }
+      </div>
+    </section>
+  }
+
+  <!-- 3. Sección: Películas en Cartelera (con Buscador y Filtros por Género) -->
   <section id="cartelera-seccion" class="cartelera-contenido">
     <div class="cartelera-contenido__cabecera">
       <div class="cartelera-contenido__titulos">
@@ -25,18 +91,62 @@
           Consultá los títulos actualmente disponibles en nuestras salas.
         </p>
       </div>
+
+      <!-- Barra de Búsqueda y Filtros de Género -->
+      <div class="barra-filtros">
+        <!-- Input de búsqueda por nombre -->
+        <div class="buscador">
+          <span class="buscador__icono">🔍</span>
+          <input
+            type="text"
+            [value]="textoBusqueda()"
+            (input)="actualizarBusqueda($any($event.target).value)"
+            placeholder="Buscar películas por nombre..."
+            class="buscador__input"
+          />
+          @if (textoBusqueda()) {
+            <button
+              type="button"
+              class="buscador__boton-limpiar"
+              (click)="actualizarBusqueda('')"
+              title="Limpiar búsqueda"
+            >
+              ✕
+            </button>
+          }
+        </div>
+
+        <!-- Chips de selección multigénero -->
+        <div class="chips-generos">
+          <button
+            type="button"
+            class="chip-genero"
+            [class.chip-genero--activo]="generosSeleccionados().length === 0"
+            (click)="limpiarGeneros()"
+          >
+            Todos
+          </button>
+          @for (genero of generosDisponibles; track genero) {
+            <button
+              type="button"
+              class="chip-genero"
+              [class.chip-genero--activo]="generosSeleccionados().includes(genero)"
+              (click)="alternarGenero(genero)"
+            >
+              {{ genero }}
+            </button>
+          }
+        </div>
+      </div>
     </div>
 
-    <!-- 1. Estado: Cargando -->
+    <!-- Estados de la Cartelera -->
     @if (cargando()) {
       <div class="estado-cartelera estado-cartelera--cargando">
         <div class="spinner-cine"></div>
         <p class="estado-cartelera__texto">Cargando cartelera de películas...</p>
       </div>
-    }
-
-    <!-- 2. Estado: Error de consulta -->
-    @else if (mensajeError()) {
+    } @else if (mensajeError()) {
       <div class="estado-cartelera estado-cartelera--error">
         <span class="estado-cartelera__icono">⚠️</span>
         <p class="estado-cartelera__texto">{{ mensajeError() }}</p>
@@ -48,23 +158,53 @@
           Reintentar carga
         </button>
       </div>
-    }
-
-    <!-- 3 y 4. Estado: Catálogo con Películas o Vacío (@empty) -->
-    @else {
+    } @else {
       <div class="grilla-peliculas">
-        @for (pelicula of peliculas(); track pelicula.id) {
+        @for (pelicula of peliculasFiltradas(); track pelicula.id) {
           <app-tarjeta-pelicula [pelicula]="pelicula" />
         } @empty {
           <div class="estado-cartelera estado-cartelera--vacio">
             <span class="estado-cartelera__icono">🎬</span>
-            <h3 class="estado-cartelera__titulo">No hay películas en cartelera</h3>
-            <p class="estado-cartelera__texto">
-              En este momento no disponemos de títulos publicados para el público.
-            </p>
+            <h3 class="estado-cartelera__titulo">No se encontraron películas</h3>
+            @if (textoBusqueda() || generosSeleccionados().length > 0) {
+              <p class="estado-cartelera__texto">
+                No hay títulos en cartelera que coincidan con los filtros aplicados.
+              </p>
+              <button
+                type="button"
+                class="estado-cartelera__boton-reintentar"
+                (click)="limpiarFiltros()"
+              >
+                Limpiar filtros
+              </button>
+            } @else {
+              <p class="estado-cartelera__texto">
+                En este momento no disponemos de títulos publicados en cartelera.
+              </p>
+            }
           </div>
         }
       </div>
     }
   </section>
+
+  <!-- 4. Sección: Próximamente (independiente, películas con fecha futura) -->
+  @if (!cargando() && !mensajeError() && peliculasProximamente().length > 0) {
+    <section id="proximamente-seccion" class="cartelera-contenido seccion-proximamente">
+      <div class="cartelera-contenido__cabecera">
+        <div class="cartelera-contenido__titulos">
+          <h2 class="cartelera-contenido__titulo">Próximamente</h2>
+          <p class="cartelera-contenido__subtitulo">
+            Títulos que se estrenarán en nuestras salas en las próximas semanas.
+          </p>
+        </div>
+      </div>
+
+      <div class="grilla-peliculas">
+        @for (pelicula of peliculasProximamente(); track pelicula.id) {
+          <app-tarjeta-pelicula [pelicula]="pelicula" [esProximamente]="true" />
+        }
+      </div>
+    </section>
+  }
 </div>

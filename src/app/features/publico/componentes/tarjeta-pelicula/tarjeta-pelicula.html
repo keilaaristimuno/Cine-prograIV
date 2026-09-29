@@ -1,4 +1,4 @@
-<article class="tarjeta-pelicula">
+<article class="tarjeta-pelicula" [class.tarjeta-pelicula--proximamente]="esProximamente()">
   <!-- Contenedor de Póster con Badge de Edad -->
   <div class="tarjeta-pelicula__poster-contenedor">
     @if (pelicula().imagenUrl) {
@@ -28,9 +28,15 @@
   <!-- Cuerpo con Título y Metadatos -->
   <div class="tarjeta-pelicula__cuerpo">
     <div class="tarjeta-pelicula__metadatos">
-      <span class="tarjeta-pelicula__duracion">
-        ⏱ {{ formatearDuracion(pelicula().duracionMinutos) }}
-      </span>
+      @if (esProximamente()) {
+        <span class="tarjeta-pelicula__fecha-estreno">
+          📅 Estreno: {{ formatearFecha(pelicula().fechaEstreno) }}
+        </span>
+      } @else {
+        <span class="tarjeta-pelicula__duracion">
+          ⏱ {{ formatearDuracion(pelicula().duracionMinutos) }}
+        </span>
+      }
     </div>
 
     <h3 class="tarjeta-pelicula__titulo" [title]="pelicula().nombre">
@@ -44,14 +50,13 @@
     </div>
 
     <div class="tarjeta-pelicula__acciones">
-      <button
-        type="button"
+      <a
+        [routerLink]="['/pelicula', pelicula().id]"
         class="tarjeta-pelicula__boton-detalles"
-        disabled
-        title="La página de detalle se habilitará en el Paso 2.5"
+        [class.tarjeta-pelicula__boton-detalles--proximamente]="esProximamente()"
       >
-        Ver detalles
-      </button>
+        {{ esProximamente() ? 'Ver información' : 'Ver detalle' }}
+      </a>
     </div>
   </div>
 </article>

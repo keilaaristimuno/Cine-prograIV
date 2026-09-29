@@ -2,6 +2,7 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { ServicioAuth } from '../servicios/servicio-auth';
 
+/* adminGuard es una función que cumple con el guard CanActivate funcional */
 export const adminGuard: CanActivateFn = async (_route, _state) => {
   const servicioAuth = inject(ServicioAuth);
   const router = inject(Router);

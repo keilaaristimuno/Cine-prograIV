@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Pelicula } from '../../../../core/modelos/pelicula';
 import { ServicioPeliculas } from '../../../../core/servicios/servicio-peliculas';
 import { TarjetaPelicula } from '../../componentes/tarjeta-pelicula/tarjeta-pelicula';
@@ -12,16 +12,74 @@ import { TarjetaPelicula } from '../../componentes/tarjeta-pelicula/tarjeta-peli
 export class Cartelera implements OnInit {
   private readonly servicioPeliculas = inject(ServicioPeliculas);
 
+  /** Lista predefinida de géneros del sistema */
+  readonly generosDisponibles: string[] = [
+    'Acción',
+    'Animación',
+    'Aventura',
+    'Ciencia ficción',
+    'Comedia',
+    'Drama',
+    'Fantasía',
+    'Terror'
+  ];
+
+  // 1. Estado principal (única fuente de la verdad desde Supabase)
   readonly peliculas = signal<Pelicula[]>([]);
   readonly cargando = signal(true);
   readonly mensajeError = signal('');
+
+  // 2. Filtros locales en memoria
+  readonly textoBusqueda = signal('');
+  readonly generosSeleccionados = signal<string[]>([]);
+
+  // 3. Separación cronológica basada en el día LOCAL del usuario (AAAA-MM-DD)
+  readonly peliculasEnCartelera = computed<Pelicula[]>(() => {
+    const hoy = this.obtenerFechaHoyLocal();
+    return this.peliculas().filter(p => p.fechaEstreno <= hoy);
+  });
+
+  readonly peliculasProximamente = computed<Pelicula[]>(() => {
+    const hoy = this.obtenerFechaHoyLocal();
+    return this.peliculas().filter(p => p.fechaEstreno > hoy);
+  });
+
+  // 4. Hero y Destacadas: derivados exclusivamente de las películas actualmente en cartelera
+  readonly peliculaHero = computed<Pelicula | null>(
+    () => this.peliculasEnCartelera()[0] ?? null
+  );
+
+  readonly peliculasDestacadas = computed<Pelicula[]>(
+    () => this.peliculasEnCartelera().slice(0, 3)
+  );
+
+  // 5. Catálogo filtrado por buscador (nombre) y multigénero (semántica OR)
+  readonly peliculasFiltradas = computed<Pelicula[]>(() => {
+    const query = this.textoBusqueda().trim().toLowerCase();
+    const generos = this.generosSeleccionados();
+    const catalogo = this.peliculasEnCartelera();
+
+    return catalogo.filter(pelicula => {
+      // Coincidencia por nombre (case-insensitive)
+      const coincideTexto =
+        !query || pelicula.nombre.toLowerCase().includes(query);
+
+      // Coincidencia multigénero (OR: coincide con al menos uno si hay filtros activos)
+      const coincideGenero =
+        generos.length === 0 ||
+        pelicula.generos.some(g => generos.includes(g));
+
+      // Se combinan mediante AND
+      return coincideTexto && coincideGenero;
+    });
+  });
 
   ngOnInit(): void {
     void this.cargarCartelera();
   }
 
   /**
-   * Consulta a Supabase las películas activas y actualiza los Signals de estado
+   * Consulta única a Supabase para obtener todas las películas activas
    */
   async cargarCartelera(): Promise<void> {
     this.cargando.set(true);
@@ -39,5 +97,65 @@ export class Cartelera implements OnInit {
     } finally {
       this.cargando.set(false);
     }
+  }
+
+  /**
+   * Obtiene la fecha actual en formato local AAAA-MM-DD sin desfase UTC
+   */
+  private obtenerFechaHoyLocal(): string {
+    const ahora = new Date();
+    const anio = ahora.getFullYear();
+    const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+    const dia = String(ahora.getDate()).padStart(2, '0');
+    return `${anio}-${mes}-${dia}`;
+  }
+
+  /**
+   * Actualiza el signal de búsqueda por texto
+   */
+  actualizarBusqueda(valor: string): void {
+    this.textoBusqueda.set(valor);
+  }
+
+  /**
+   * Alterna la selección de un género (agrega o remueve)
+   */
+  alternarGenero(genero: string): void {
+    this.generosSeleccionados.update(actuales => {
+      if (actuales.includes(genero)) {
+        return actuales.filter(g => g !== genero);
+      }
+      return [...actuales, genero];
+    });
+  }
+
+  /**
+   * Limpia la selección de géneros (equivale a "Todos")
+   */
+  limpiarGeneros(): void {
+    this.generosSeleccionados.set([]);
+  }
+
+  /**
+   * Limpia tanto el buscador como los géneros
+   */
+  limpiarFiltros(): void {
+    this.textoBusqueda.set('');
+    this.generosSeleccionados.set([]);
+  }
+
+  /**
+   * Formatea la duración en horas y minutos para el Hero (ej. 148 -> "2h 28m")
+   */
+  formatearDuracion(minutos: number): string {
+    if (!minutos || minutos <= 0) {
+      return 'N/D';
+    }
+    const horas = Math.floor(minutos / 60);
+    const minRestantes = minutos % 60;
+    if (horas === 0) {
+      return `${minRestantes}m`;
+    }
+    return minRestantes > 0 ? `${horas}h ${minRestantes}m` : `${horas}h`;
   }
 }
