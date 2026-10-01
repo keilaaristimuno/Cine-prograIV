@@ -12,7 +12,7 @@ Aplicación desarrollada con Angular y Supabase que centraliza la gestión de pe
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-Backend-3FCF8E?logo=supabase&logoColor=white)
 ![Firebase](https://img.shields.io/badge/Firebase-Hosting-FFCA28?logo=firebase&logoColor=black)
-![Estado](https://img.shields.io/badge/Estado-Módulo%202%20Completado-8B5CF6)
+![Estado](https://img.shields.io/badge/Estado-Módulo%203%20Completado-8B5CF6)
 
 </div>
 
@@ -24,12 +24,12 @@ Aplicación desarrollada con Angular y Supabase que centraliza la gestión de pe
 
 El sistema contempla diferentes experiencias según el tipo de usuario:
 
-* **Visitantes / Anónimos:** Consultan la cartelera pública, buscan por título, filtran por género, revisan próximos estrenos y acceden a las fichas técnicas detalladas de las películas.
-* **Clientes:** Usuarios registrados con perfil propio que acceden a la cartelera y detalles con sesión activa. Próximamente podrán adquirir entradas, acumular crédito y gestionar sus operaciones.
+* **Visitantes / Anónimos:** Consultan la cartelera pública, buscan por título, filtran por género, revisan próximos estrenos, acceden a las fichas técnicas y consultan las funciones y horarios disponibles por película.
+* **Clientes:** Usuarios registrados con perfil propio que acceden a la cartelera, detalles y horarios con sesión activa. Próximamente podrán adquirir entradas, seleccionar butacas y gestionar sus operaciones.
 * **Empleados:** Operadores del cine que validarán entradas y entregas de Candy mediante códigos QR *(módulo futuro)*.
-* **Administradores:** Gestión integral de películas, y a futuro salas, funciones, promociones y reportes del cine.
+* **Administradores:** Gestión integral de películas, administración de salas (2D, 3D, 4D, 5D), programación automática de funciones con control de solapamiento y tiempos de limpieza, y a futuro promociones y reportes del cine.
 
-El proyecto se desarrolla de forma modular y progresiva. Al finalizar el **Módulo 2**, se encuentran plenamente operativas la autenticación, la gestión de perfiles con roles, la seguridad de rutas, el panel administrativo de películas, la cartelera pública con filtros reactivos y la página de detalle individual de películas.
+El proyecto se desarrolla de forma modular y progresiva. Al finalizar el **Módulo 3**, se encuentran plenamente operativas la autenticación, la gestión de perfiles con roles, la seguridad de rutas, el panel administrativo de películas, salas y funciones (con asignación automática de sala), la cartelera pública con filtros reactivos y la visualización pública de funciones disponibles por película.
 
 ---
 
@@ -86,12 +86,50 @@ El proyecto se desarrolla de forma modular y progresiva. Al finalizar el **Módu
   * Cobertura de estados: carga, error con reintento y pantalla informativa cuando la película no existe o no está disponible.
   * Navegación declarativa mediante `RouterLink` para volver a la cartelera (`/`).
 
+#### Módulo 3: Salas, Formatos y Programación de Funciones
+* [x] **Modelo y formatos de proyección:**
+  * Formatos soportados estrictamente tipados: `'2D' | '3D' | '4D' | '5D'`.
+  * Estructura de sala simplificada y extensible (`id`, `numero`, `nombre`, `formato`, `estaActiva`).
+  * Capacidad fija establecida para la distribución requerida del cine (560 butacas, 20 filas en tres bloques 4-20-4).
+* [x] **Panel administrativo de salas (`/admin/salas`):**
+  * Listado completo de salas ordenadas por número ascendente (`ServicioSalas.obtenerSalas`).
+  * Formulario reactivo (`/admin/salas/nueva` y `/admin/salas/editar/:id`) con validación de número positivo único y nombre.
+  * Habilitación e inhabilitación operativa de salas (`cambiarEstadoSala`) con actualización reactiva instantánea.
+* [x] **Persistencia y RLS para salas:**
+  * Tabla `public.salas` con restricciones de integridad (`numero > 0`, `numero UNIQUE`, `formato IN ('2D','3D','4D','5D')`).
+  * Función `public.es_administrador()` y política RLS `salas_admin_all` para gestión administrativa.
+  * Política RLS pública `salas_public_select` (`esta_activa = true`) para permitir el JOIN en consultas públicas de funciones.
+* [x] **Validación horaria y margen obligatorio de limpieza:**
+  * Cálculo estricto de finalización: `fechaHoraFin = fechaHoraInicio + duracionMinutos` (fuente única de verdad).
+  * Regla de ocupación operativa de sala: intervalo semiabierto `[inicio, fechaHoraFin + 30 min)`.
+  * Período de 30 minutos obligatorio de limpieza y desinfección entre funciones que no altera la `fechaHoraFin` almacenada.
+  * Detección simétrica de solapamientos (`existeConflictoHorario`: `inicioB < limiteA AND inicioA < limiteB`).
+  * Liberación inmediata de sala al cancelar funciones (las funciones canceladas no bloquean horarios).
+* [x] **Asignación automática de salas:**
+  * Programación de funciones sin selección manual de sala (`/admin/funciones/nueva`).
+  * Algoritmo de asignación inteligente (`ServicioFunciones.programarFuncion`):
+    1. Obtiene la duración real y estado de la película seleccionada desde `ServicioPeliculas`.
+    2. Filtra salas activas compatibles con el formato solicitado (`2D`, `3D`, `4D`, `5D`).
+    3. Ordena las salas candidatas por número ascendente (`numero ASC`).
+    4. Evalúa disponibilidad horaria considerando la duración de la película y los 30 minutos de limpieza.
+    5. Asigna automáticamente la primera sala disponible.
+  * Manejo amigable de excepciones: si no hay salas disponibles, informa claramente la causa y evita la persistencia.
+* [x] **Panel administrativo de funciones (`/admin/funciones`):**
+  * Listado cronológico de funciones con datos asociados de película (título, duración, póster) y sala (número, nombre, formato).
+  * Badges visuales de formato (`2D`, `3D`, `4D`, `5D`) y estado (`Programada` / `Cancelada`).
+  * Cancelación de funciones con modal de confirmación en UI (actualiza estado a `'cancelada'` sin eliminación física, liberando el slot).
+* [x] **Visualización pública de funciones disponibles:**
+  * Sección "Funciones disponibles" integrada en el detalle de película (`/pelicula/:id`).
+  * Consulta pública específica (`obtenerFuncionesDisponiblesPorPelicula`) filtrando en Supabase por película, `estado = 'programada'` y funciones futuras (`fecha_hora_inicio >= now()`).
+  * Agrupación visual por día (`Hoy`, `Mañana`, día de la semana) con horarios en 24hs (`HH:MM`) sin desfasajes de zona horaria, badges de formato y sala asignada.
+  * Cobertura de estados: carga, error con reintento, estado vacío amigable (*"No hay funciones disponibles para esta película por el momento"*) y listado de horarios.
+
 ### Próximos pasos y funcionalidades en desarrollo
 
-* [ ] **Módulo 3 (Próximo):** Gestión de salas (2D, 3D, 4D, 5D), mapa interactivo de asientos y programación de funciones con horarios y tiempos de limpieza.
-* [ ] **Páginas específicas de cliente:** Panel de mi cuenta, historial de compras y consulta de crédito *(aún no implementadas)*.
-* [ ] **Páginas específicas de empleado:** Escáner e interfaz de validación de entradas por código QR *(aún no implementadas)*.
-* [ ] **Módulo de compra y reservas:** Selección de función, butacas, productos de Candy y validación de restricción de edad (+13/+18 para registrados).
+* [ ] **Módulo de Butacas:** Generación de la distribución física de asientos (20 filas con bloques 4-20-4 = 560 butacas por sala), mapa interactivo y selección de ubicaciones.
+* [ ] **Módulo de Compra y Reservas:** Definición del modelo de precios según formato (2D, 3D, 4D, 5D), reserva temporal de butacas y pasarela de pago.
+* [ ] **Páginas específicas de cliente:** Panel de mi cuenta, historial de compras y consulta de crédito.
+* [ ] **Páginas específicas de empleado:** Escáner e interfaz de validación de entradas por código QR.
 * [ ] **Generación de entradas:** Emisión de entradas con código QR único para ingreso a sala y retiro en Candy.
 * [ ] **Fidelización y promociones:** Sistema de puntos, cupones y crédito por cancelaciones.
 * [ ] **Reportes y métricas:** Estadísticas de venta y ocupación, incluyendo el cálculo real de Top 3 de películas más vistas/vendidas basado en transacciones.
@@ -102,10 +140,10 @@ El proyecto se desarrolla de forma modular y progresiva. Al finalizar el **Módu
 
 | Rol | Estado en la aplicación | Permisos y accesos |
 | :--- | :--- | :--- |
-| `administrador` | **Activo e implementado** | Acceso irrestricto al panel `/admin`. Crea, edita, publica, oculta y elimina películas. Próximamente gestionará salas, funciones y reportes. |
+| `administrador` | **Activo e implementado** | Acceso irrestricto al panel `/admin`. Crea, edita, publica, oculta y elimina películas; administra salas (2D, 3D, 4D, 5D); programa funciones con asignación automática de sala y cancela funciones liberando slots. Próximamente gestionará promociones y reportes. |
 | `empleado` | **Modelo definido en BD** *(vista operativa en desarrollo)* | Diseñado para la validación de accesos a sala y retiro de Candy mediante escaneo de QR. |
-| `cliente` | **Activo e implementado** | Rol por defecto al registrarse. Dispone de sesión activa, Navbar personalizado y acceso a la cartelera y detalles de películas. La compra de entradas, historial y crédito se implementarán en módulos posteriores. |
-| **Anónimo** | **Activo e implementado** | Visitante sin autenticar. Puede explorar la cartelera pública, buscar películas, filtrar por géneros, consultar próximos estrenos y ver fichas de detalle. |
+| `cliente` | **Activo e implementado** | Rol por defecto al registrarse. Dispone de sesión activa, Navbar personalizado, acceso a la cartelera, detalles de películas y consulta de funciones y horarios disponibles. La compra de entradas, selección de butacas y crédito se implementarán en módulos posteriores. |
+| **Anónimo** | **Activo e implementado** | Visitante sin autenticar. Puede explorar la cartelera pública, buscar películas, filtrar por géneros, consultar próximos estrenos, ver fichas de detalle y consultar funciones y horarios disponibles por película. |
 
 ---
 
@@ -114,7 +152,7 @@ El proyecto se desarrolla de forma modular y progresiva. Al finalizar el **Módu
 ### Frontend
 * **Angular 22:** Componentes Standalone, nuevo sistema de flujo de control (`@if`, `@for`), Signals y Computed Signals.
 * **TypeScript 5:** Tipado estricto e interfaces de dominio.
-* **Angular Router:** Carga perezosa (*lazy loading*), rutas dinámicas con parámetros (`:id`) y guards funcionales (`CanActivateFn`).
+* **Angular Router:** Carga *lazy loading*, rutas dinámicas con parámetros (`:id`) y guards funcionales (`CanActivateFn`).
 * **Angular Reactive Forms:** Formularios con validadores sincronizados y tipados.
 * **SCSS:** Estilos modulares con paleta cinematográfica personalizada.
 
@@ -142,11 +180,15 @@ src/
     │   ├── guards/
     │   │   └── admin.guard.ts         # Protección funcional de rutas administrativas
     │   ├── modelos/
+    │   │   ├── funcion.ts             # Entidad Función, DTOs de programación y detalle
     │   │   ├── pelicula.ts            # Interfaces y tipos del catálogo de películas
+    │   │   ├── sala.ts                # Modelo Sala, formatos (2D, 3D, 4D, 5D) y DTOs
     │   │   └── usuario.ts             # Roles, tipos y modelo de perfil de usuario
     │   └── servicios/
     │       ├── servicio-auth.ts       # Gestión de sesión, signals y autenticación
+    │       ├── servicio-funciones.ts  # Lógica horaria, margen de limpieza y asignación automática
     │       ├── servicio-peliculas.ts  # CRUD de películas, consultas públicas y Storage
+    │       ├── servicio-salas.ts      # CRUD de salas y gestión de estado activa/inactiva
     │       └── servicio-supabase.ts   # Conexión cliente con Supabase
     │
     ├── features/
@@ -162,17 +204,23 @@ src/
     │   │   │   └── public-layout/     # Layout público con Navbar reactivo y Footer
     │   │   └── paginas/
     │   │       ├── cartelera/         # Cartelera, hero, filtros multigénero y próximos estrenos
-    │   │       └── detalle-pelicula/  # Ficha técnica pública por ID (/pelicula/:id)
+    │   │       └── detalle-pelicula/  # Ficha técnica pública y funciones disponibles agrupadas por día
     │   │
     │   └── admin/
     │       ├── layouts/
-    │       │   └── admin-layout/      # Layout del panel con usuario y botón de logout
+    │       │   └── admin-layout/      # Layout del panel con usuario y navegación
     │       │
     │       └── pages/
     │           ├── dashboard-admin/   # Vista de resumen administrativo
-    │           └── peliculas/
-    │               ├── listado-peliculas/    # Grilla/tabla de administración
-    │               └── formulario-pelicula/  # Alta y edición con upload de póster
+    │           ├── peliculas/
+    │           │   ├── listado-peliculas/    # Grilla de administración de películas
+    │           │   └── formulario-pelicula/  # Alta y edición con upload de póster
+    │           ├── salas/
+    │           │   ├── listado-salas/        # Gestión de salas y habilitación/inhabilitación
+    │           │   └── formulario-sala/      # Alta y edición de salas
+    │           └── funciones/
+    │               ├── listado-funciones/    # Grilla de funciones y cancelación con modal
+    │               └── formulario-funcion/   # Programación con asignación automática de sala
     │
     ├── app.config.ts                  # Configuración global e inyección de dependencias
     └── app.routes.ts                  # Enrutamiento con lazy loading y guards
@@ -218,6 +266,32 @@ Catálogo de películas administrado por los usuarios autorizados:
 | `creado_por` | `UUID` (FK) | Referencia al usuario administrador creador. |
 | `creado_en` | `timestamptz` | Fecha de creación del registro. |
 
+### `public.salas`
+Salas del cine donde se proyectan las funciones:
+
+| Campo | Tipo | Descripción |
+| :--- | :--- | :--- |
+| `id` | `UUID` (PK) | Identificador único de la sala (`gen_random_uuid()`). |
+| `numero` | `integer` (UNIQUE) | Número identificatorio de la sala (`numero > 0`). |
+| `nombre` | `text` | Nombre de la sala (ej. *"Sala Principal"*, *"Sala Atmos"*). |
+| `formato` | `text` | Formato de proyección (`'2D'`, `'3D'`, `'4D'`, `'5D'`). |
+| `esta_activa` | `boolean` | Estado operativo de la sala (habilitada/inhabilitada). |
+| `creado_en` | `timestamptz` | Fecha de creación del registro. |
+
+### `public.funciones`
+Funciones programadas asociadas a películas y salas:
+
+| Campo | Tipo | Descripción |
+| :--- | :--- | :--- |
+| `id` | `UUID` (PK) | Identificador único de la función (`gen_random_uuid()`). |
+| `pelicula_id` | `UUID` (FK) | Referencia a `public.peliculas(id)` (`ON DELETE RESTRICT`). |
+| `sala_id` | `UUID` (FK) | Referencia a `public.salas(id)` (`ON DELETE RESTRICT`). |
+| `fecha_hora_inicio` | `timestamptz` | Fecha y hora exacta de inicio de la función. |
+| `fecha_hora_fin` | `timestamptz` | Fecha y hora de finalización (calculada como inicio + duración). |
+| `formato` | `text` | Formato de la función (`'2D'`, `'3D'`, `'4D'`, `'5D'`). |
+| `estado` | `text` | Estado de la función (`'programada'`, `'cancelada'`). |
+| `creado_en` | `timestamptz` | Fecha de registro de la función. |
+
 ---
 
 ## Decisiones técnicas destacadas
@@ -236,6 +310,14 @@ Catálogo de películas administrado por los usuarios autorizados:
    Al recargar una ruta administrativa (`/admin`) con F5, la lectura de la sesión en el almacenamiento local es asíncrona. El `adminGuard` espera a que dicha lectura finalice antes de decidir si redirige, evitando falsos rechazos de acceso.
 7. **Borrado lógico:**
    Las películas no se eliminan físicamente de la base de datos, garantizando que el historial de funciones y futuras ventas mantenga su integridad referencial.
+8. **Algoritmo de asignación automática de salas:**
+   Para prevenir errores de solapamiento y agilizar la programación, el administrador no elige una sala de forma manual. El sistema consulta las salas activas compatibles con el formato de proyección (`2D`, `3D`, `4D`, `5D`), las ordena por `numero ASC` y selecciona automáticamente la primera sala con disponibilidad horaria completa.
+9. **Intervalos semiabiertos y margen obligatorio de 30 minutos de limpieza:**
+   La ocupación operativa de la sala se modela como el intervalo semiabierto `[fecha_hora_inicio, fechaHoraFin + 30 min)`. La fórmula matemática de solapamiento simétrico (`inicioB < limiteA AND inicioA < limiteB`) garantiza que no existan conflictos independientemente del orden temporal en que se creen las funciones. Además, la cancelación de funciones desocupa el slot de la sala de forma instantánea.
+10. **Tratamiento de huso horario local vs. TIMESTAMPTZ:**
+    Para evitar desfases entre lo ingresado por el administrador y lo visualizado en la cartelera, el selector `<input type="datetime-local">` se descompone en sus partes numéricas locales y se almacena en Supabase en formato UTC ISO 8601 (`TIMESTAMPTZ`). En las vistas públicas y administrativas, se formatea utilizando la hora local del navegador (`toLocaleTimeString`, `toLocaleDateString`) en formato de 24 horas, asegurando coherencia visual exacta.
+11. **Políticas de Row Level Security (RLS) granulares para funciones y salas:**
+    Para proteger la base de datos sin impedir el funcionamiento de la cartelera pública, se definieron políticas `FOR SELECT` para roles `anon` y `authenticated` que filtran en la base de datos funciones exclusivamente en estado `'programada'` y salas con `esta_activa = true`. De este modo, los usuarios no autenticados pueden ver la grilla de horarios sin comprometer funciones canceladas ni salas fuera de servicio.
 
 ---
 
