@@ -1,0 +1,221 @@
+<section class="pagina-listado">
+  <header class="encabezado-pagina">
+    <div>
+      <p class="encabezado-pagina__seccion">Programación del cine</p>
+      <h1 class="encabezado-pagina__titulo">Funciones</h1>
+    </div>
+
+    <a routerLink="/admin/funciones/nueva" class="boton-primario">
+      + Nueva función
+    </a>
+  </header>
+
+  <!-- Mensajes de estado -->
+  @if (mensajeExito()) {
+    <p class="mensaje-accion mensaje-accion--exito" role="status">
+      {{ mensajeExito() }}
+    </p>
+  }
+
+  @if (mensajeError()) {
+    <p class="mensaje-accion mensaje-accion--error" role="alert">
+      {{ mensajeError() }}
+    </p>
+  }
+
+  @if (cargando()) {
+    <div class="contenedor-carga">
+      <div class="spinner-cine"></div>
+      <p class="texto-carga">Cargando funciones...</p>
+    </div>
+  } @else {
+    <div class="contenedor-tabla">
+      <table class="tabla-funciones">
+        <thead>
+          <tr>
+            <th>Película</th>
+            <th>Fecha</th>
+            <th>Horario</th>
+            <th>Formato</th>
+            <th>Sala asignada</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (funcion of funciones(); track funcion.id) {
+            <tr [class.fila-cancelada]="funcion.estado === 'cancelada'">
+              <!-- Columna Película -->
+              <td class="columna-pelicula">
+                <div class="info-pelicula">
+                  @if (funcion.pelicula?.imagenUrl) {
+                    <img
+                      [src]="funcion.pelicula?.imagenUrl"
+                      [alt]="funcion.pelicula?.nombre ?? 'Película'"
+                      class="miniatura-poster"
+                      loading="lazy"
+                    />
+                  }
+                  <div class="datos-pelicula">
+                    <strong class="titulo-pelicula">
+                      {{ funcion.pelicula?.nombre ?? 'Película no disponible' }}
+                    </strong>
+                    <span class="duracion-pelicula">
+                      {{ funcion.pelicula?.duracionMinutos ?? '?' }} min
+                    </span>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Columna Fecha -->
+              <td class="columna-fecha">
+                {{ formatearFecha(funcion.fechaHoraInicio) }}
+              </td>
+
+              <!-- Columna Horario -->
+              <td class="columna-horario">
+                <span class="badge-horario">
+                  {{ formatearHorario(funcion.fechaHoraInicio, funcion.fechaHoraFin) }}
+                </span>
+              </td>
+
+              <!-- Columna Formato -->
+              <td>
+                <span
+                  class="badge-formato"
+                  [class.badge-formato--2d]="funcion.formato === '2D'"
+                  [class.badge-formato--3d]="funcion.formato === '3D'"
+                  [class.badge-formato--4d]="funcion.formato === '4D'"
+                  [class.badge-formato--5d]="funcion.formato === '5D'"
+                >
+                  {{ funcion.formato }}
+                </span>
+              </td>
+
+              <!-- Columna Sala -->
+              <td class="columna-sala">
+                @if (funcion.sala) {
+                  <span class="badge-sala">#{{ funcion.sala.numero }}</span>
+                  <span class="nombre-sala">{{ funcion.sala.nombre }}</span>
+                } @else {
+                  <span class="sala-desconocida">Sala #{{ funcion.salaId }}</span>
+                }
+              </td>
+
+              <!-- Columna Estado -->
+              <td>
+                @if (funcion.estado === 'programada') {
+                  <span class="estado estado--programada">
+                    Programada
+                  </span>
+                } @else {
+                  <span class="estado estado--cancelada">
+                    Cancelada
+                  </span>
+                }
+              </td>
+
+              <!-- Columna Acciones -->
+              <td>
+                <div class="acciones-funcion">
+                  @if (funcion.estado === 'programada') {
+                    <button
+                      type="button"
+                      class="boton-accion boton-accion--cancelar"
+                      (click)="abrirModalCancelar(funcion)"
+                    >
+                      Cancelar
+                    </button>
+                  } @else {
+                    <span class="sin-acciones">—</span>
+                  }
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="tabla-vacia">
+                <p>Todavía no hay funciones programadas en el cine.</p>
+                <a routerLink="/admin/funciones/nueva" class="boton-accion boton-accion--activar">
+                  Programar primera función
+                </a>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <!-- Modal de confirmación de cancelación -->
+  @if (funcionACancelar(); as seleccionada) {
+    <div class="modal-backdrop" (click)="cerrarModalCancelar()">
+      <div class="modal-dialog" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+        <header class="modal-header">
+          <h2 class="modal-titulo">¿Cancelar esta función?</h2>
+          <button
+            type="button"
+            class="modal-cerrar"
+            [disabled]="cancelando()"
+            (click)="cerrarModalCancelar()"
+            aria-label="Cerrar modal"
+          >
+            ×
+          </button>
+        </header>
+
+        <div class="modal-cuerpo">
+          <div class="resumen-funcion-modal">
+            <p>
+              <strong>Película:</strong>
+              {{ seleccionada.pelicula?.nombre ?? 'Película' }}
+            </p>
+            <p>
+              <strong>Fecha:</strong>
+              {{ formatearFecha(seleccionada.fechaHoraInicio) }}
+            </p>
+            <p>
+              <strong>Horario:</strong>
+              {{ formatearHorario(seleccionada.fechaHoraInicio, seleccionada.fechaHoraFin) }}
+            </p>
+            <p>
+              <strong>Sala asignada:</strong>
+              Sala #{{ seleccionada.sala?.numero }} - {{ seleccionada.sala?.nombre }} ({{ seleccionada.formato }})
+            </p>
+          </div>
+
+          <div class="aviso-cancelacion">
+            <p>
+              La función cambiará su estado a <strong>Cancelada</strong>.
+              La sala quedará liberada para permitir nuevas programaciones en ese intervalo de horario.
+            </p>
+          </div>
+        </div>
+
+        <footer class="modal-footer">
+          <button
+            type="button"
+            class="boton-secundario"
+            [disabled]="cancelando()"
+            (click)="cerrarModalCancelar()"
+          >
+            No, conservar
+          </button>
+          <button
+            type="button"
+            class="boton-peligro"
+            [disabled]="cancelando()"
+            (click)="confirmarCancelacion()"
+          >
+            @if (cancelando()) {
+              Cancelando...
+            } @else {
+              Sí, cancelar función
+            }
+          </button>
+        </footer>
+      </div>
+    </div>
+  }
+</section>

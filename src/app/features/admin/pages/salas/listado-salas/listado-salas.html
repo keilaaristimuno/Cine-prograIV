@@ -1,0 +1,123 @@
+<section class="pagina-listado">
+  <header class="encabezado-pagina">
+    <div>
+      <p class="encabezado-pagina__seccion">Configuración del cine</p>
+      <h1 class="encabezado-pagina__titulo">Salas</h1>
+    </div>
+
+    <a routerLink="/admin/salas/nueva" class="boton-primario">
+      + Nueva sala
+    </a>
+  </header>
+
+  <!-- Mensajes de respuesta -->
+  @if (mensajeExito()) {
+    <p class="mensaje-accion mensaje-accion--exito" role="status">
+      {{ mensajeExito() }}
+    </p>
+  }
+
+  @if (mensajeError()) {
+    <p class="mensaje-accion mensaje-accion--error" role="alert">
+      {{ mensajeError() }}
+    </p>
+  }
+
+  @if (cargando()) {
+    <div class="contenedor-carga">
+      <div class="spinner-cine"></div>
+      <p class="texto-carga">Cargando salas...</p>
+    </div>
+  } @else {
+    <div class="contenedor-tabla">
+      <table class="tabla-salas">
+        <thead>
+          <tr>
+            <th>Número</th>
+            <th>Nombre</th>
+            <th>Formato</th>
+            <th>Capacidad</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (sala of salas(); track sala.id) {
+            <tr>
+              <td class="columna-numero">
+                <span class="badge-numero">#{{ sala.numero }}</span>
+              </td>
+              <td class="columna-nombre">
+                <strong>{{ sala.nombre }}</strong>
+              </td>
+              <td>
+                <span
+                  class="badge-formato"
+                  [class.badge-formato--2d]="sala.formato === '2D'"
+                  [class.badge-formato--3d]="sala.formato === '3D'"
+                  [class.badge-formato--4d]="sala.formato === '4D'"
+                  [class.badge-formato--5d]="sala.formato === '5D'"
+                >
+                  {{ sala.formato }}
+                </span>
+              </td>
+              <td class="columna-capacidad">
+                560 butacas <span class="detalle-capacidad">(20 filas)</span>
+              </td>
+              <td>
+                @if (sala.estaActiva) {
+                  <span class="estado estado--activo">
+                    Habilitada
+                  </span>
+                } @else {
+                  <span class="estado estado--inactivo">
+                    Inhabilitada
+                  </span>
+                }
+              </td>
+              <td>
+                <div class="acciones-sala">
+                  <!-- EDITAR -->
+                  <a
+                    class="boton-accion"
+                    [routerLink]="['/admin/salas/editar', sala.id]"
+                  >
+                    Editar
+                  </a>
+
+                  <!-- HABILITAR U INHABILITAR -->
+                  <button
+                    type="button"
+                    class="boton-accion"
+                    [class.boton-accion--activar]="!sala.estaActiva"
+                    [class.boton-accion--desactivar]="sala.estaActiva"
+                    [disabled]="cambiandoEstadoId() !== null"
+                    (click)="alternarEstado(sala)"
+                  >
+                    @if (cambiandoEstadoId() === sala.id) {
+                      Guardando...
+                    } @else if (sala.estaActiva) {
+                      Inhabilitar
+                    } @else {
+                      Habilitar
+                    }
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="tabla-vacia">
+                <p>Todavía no hay salas registradas en el cine.</p>
+                <a routerLink="/admin/salas/nueva" class="boton-accion boton-accion--activar">
+                  Registrar la primera sala
+                </a>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

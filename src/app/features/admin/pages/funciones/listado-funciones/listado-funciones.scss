@@ -1,0 +1,503 @@
+:host {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.pagina-listado {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.encabezado-pagina {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+
+  &__seccion {
+    margin: 0 0 0.5rem;
+    color: #aaa3bd;
+    font-size: 0.95rem;
+  }
+
+  &__titulo {
+    margin: 0;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1;
+    color: #f7f5fa;
+  }
+}
+
+.boton-primario {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem 1.15rem;
+  border-radius: 0.5rem;
+  background-color: #8457ee;
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    background-color 150ms ease,
+    transform 150ms ease;
+
+  &:hover {
+    background-color: #966ff2;
+    transform: translateY(-1px);
+  }
+}
+
+/* Mensajes de acción */
+.mensaje-accion {
+  margin: 0 0 1.5rem;
+  padding: 0.9rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+
+  &--exito {
+    border: 1px solid rgba(76, 165, 108, 0.4);
+    background-color: rgba(76, 165, 108, 0.15);
+    color: #89e3a9;
+  }
+
+  &--error {
+    border: 1px solid rgba(244, 63, 94, 0.4);
+    background-color: rgba(244, 63, 94, 0.15);
+    color: #fda4af;
+  }
+}
+
+/* Carga */
+.contenedor-carga {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 3rem;
+  color: #cbb8fa;
+
+  .spinner-cine {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(139, 92, 246, 0.2);
+    border-top-color: #8b5cf6;
+    border-radius: 50%;
+    animation: girar 0.9s linear infinite;
+  }
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Contenedor de Tabla */
+.contenedor-tabla {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid #37334a;
+  border-radius: 0.75rem;
+  background-color: #15131f;
+}
+
+.tabla-funciones {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.95rem;
+
+  th,
+  td {
+    padding: 1rem;
+    border-bottom: 1px solid #282436;
+    vertical-align: middle;
+  }
+
+  th {
+    background-color: #1a1727;
+    color: #aaa3bd;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+  }
+
+  tbody tr:hover {
+    background-color: rgba(139, 92, 246, 0.04);
+  }
+
+  .fila-cancelada {
+    opacity: 0.65;
+    background-color: rgba(0, 0, 0, 0.15);
+
+    &:hover {
+      opacity: 0.85;
+    }
+  }
+
+  .columna-pelicula {
+    min-width: 200px;
+  }
+
+  .info-pelicula {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+  }
+
+  .miniatura-poster {
+    width: 36px;
+    height: 52px;
+    object-fit: cover;
+    border-radius: 0.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: #211c2b;
+    flex-shrink: 0;
+  }
+
+  .datos-pelicula {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .titulo-pelicula {
+    color: #f7f5fa;
+    font-size: 0.95rem;
+  }
+
+  .duracion-pelicula {
+    color: #a79fc2;
+    font-size: 0.8rem;
+  }
+
+  .columna-fecha {
+    color: #ded9eb;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .columna-horario {
+    white-space: nowrap;
+  }
+
+  .badge-horario {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background-color: #1f1a2d;
+    border: 1px solid #3d3550;
+    border-radius: 0.35rem;
+    color: #c4b5fd;
+    font-family: monospace;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  .columna-sala {
+    white-space: nowrap;
+
+    .badge-sala {
+      display: inline-block;
+      margin-right: 0.45rem;
+      padding: 0.2rem 0.5rem;
+      background: rgba(139, 92, 246, 0.15);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      border-radius: 0.35rem;
+      color: #c4b5fd;
+      font-weight: 700;
+      font-size: 0.8rem;
+    }
+
+    .nombre-sala {
+      color: #f7f5fa;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .sala-desconocida {
+      color: #7b738e;
+      font-size: 0.85rem;
+    }
+  }
+
+  .tabla-vacia {
+    text-align: center;
+    padding: 3.5rem 1rem;
+    color: #aaa3bd;
+
+    p {
+      margin: 0 0 1rem;
+      font-size: 1rem;
+    }
+  }
+}
+
+/* Badges de Formato */
+.badge-formato {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  border-radius: 0.35rem;
+  font-weight: 800;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+
+  &--2d {
+    background: rgba(139, 92, 246, 0.15);
+    color: #c4b5fd;
+    border: 1px solid rgba(139, 92, 246, 0.35);
+  }
+
+  &--3d {
+    background: rgba(6, 182, 212, 0.15);
+    color: #67e8f9;
+    border: 1px solid rgba(6, 182, 212, 0.35);
+  }
+
+  &--4d {
+    background: rgba(245, 196, 81, 0.15);
+    color: #f5c451;
+    border: 1px solid rgba(245, 196, 81, 0.4);
+  }
+
+  &--5d {
+    background: rgba(236, 72, 153, 0.15);
+    color: #f472b6;
+    border: 1px solid rgba(236, 72, 153, 0.35);
+  }
+}
+
+/* Estados */
+.estado {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.65rem;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+
+  &--programada {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+  }
+
+  &--cancelada {
+    background: rgba(244, 63, 94, 0.15);
+    color: #fda4af;
+    border: 1px solid rgba(244, 63, 94, 0.35);
+  }
+}
+
+/* Acciones */
+.acciones-funcion {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .sin-acciones {
+    color: #554e69;
+    font-weight: 700;
+    padding-left: 0.5rem;
+  }
+}
+
+.boton-accion {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.85rem;
+  border-radius: 0.375rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid #413852;
+  background-color: #211c2b;
+  color: #f7f5fa;
+  transition: all 150ms ease;
+
+  &:hover:not(:disabled) {
+    background-color: #2f273e;
+    border-color: #5d5175;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: wait;
+  }
+
+  &--activar {
+    border-color: rgba(16, 185, 129, 0.4);
+    background-color: rgba(16, 185, 129, 0.12);
+    color: #34d399;
+
+    &:hover:not(:disabled) {
+      background-color: rgba(16, 185, 129, 0.22);
+    }
+  }
+
+  &--cancelar {
+    border-color: rgba(244, 63, 94, 0.4);
+    background-color: rgba(244, 63, 94, 0.1);
+    color: #fda4af;
+
+    &:hover:not(:disabled) {
+      background-color: rgba(244, 63, 94, 0.22);
+      border-color: #f43f5e;
+    }
+  }
+}
+
+/* Modal de Confirmación */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(9, 7, 17, 0.8);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 1000;
+}
+
+.modal-dialog {
+  background-color: #1a1626;
+  border: 1px solid #3e3650;
+  border-radius: 0.85rem;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  animation: modalEntrada 200ms ease-out;
+}
+
+@keyframes modalEntrada {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #2e273d;
+
+  .modal-titulo {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #f7f5fa;
+  }
+
+  .modal-cerrar {
+    background: none;
+    border: none;
+    color: #aaa3bd;
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    transition: color 150ms ease;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+}
+
+.modal-cuerpo {
+  padding: 1.5rem;
+
+  .resumen-funcion-modal {
+    background-color: #120f1b;
+    border: 1px solid #2e273d;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1.25rem;
+
+    p {
+      margin: 0 0 0.5rem;
+      font-size: 0.9rem;
+      color: #ded9eb;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      strong {
+        color: #f7f5fa;
+        margin-right: 0.35rem;
+      }
+    }
+  }
+
+  .aviso-cancelacion {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: #aaa3bd;
+
+    strong {
+      color: #fda4af;
+    }
+  }
+}
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  background-color: #151220;
+  border-top: 1px solid #2e273d;
+
+  .boton-secundario {
+    padding: 0.6rem 1rem;
+    border-radius: 0.4rem;
+    background-color: #272135;
+    border: 1px solid #413757;
+    color: #ded9eb;
+    font-weight: 600;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: all 150ms ease;
+
+    &:hover:not(:disabled) {
+      background-color: #332b45;
+      color: #fff;
+    }
+  }
+
+  .boton-peligro {
+    padding: 0.6rem 1.15rem;
+    border-radius: 0.4rem;
+    background-color: #dc2626;
+    border: 1px solid #ef4444;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: all 150ms ease;
+
+    &:hover:not(:disabled) {
+      background-color: #b91c1c;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: wait;
+    }
+  }
+}

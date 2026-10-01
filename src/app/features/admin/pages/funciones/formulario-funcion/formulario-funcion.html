@@ -1,0 +1,188 @@
+<section class="pagina-formulario">
+  <header class="encabezado-formulario">
+    <a routerLink="/admin/funciones" class="enlace-volver">
+      ← Volver al listado de funciones
+    </a>
+    <p class="encabezado-formulario__seccion">Programación del cine</p>
+    <h1 class="encabezado-formulario__titulo">Programar nueva función</h1>
+    <p class="encabezado-formulario__descripcion">
+      Ingresá los datos de la proyección. El sistema buscará entre las salas activas
+      del formato seleccionado y asignará automáticamente la primera disponible.
+    </p>
+  </header>
+
+  <!-- Mensajes de respuesta -->
+  @if (mensajeExito()) {
+    <div class="mensaje-accion mensaje-accion--exito" role="status">
+      <div class="icono-exito">✓</div>
+      <div>
+        <p class="texto-principal-exito">{{ mensajeExito() }}</p>
+        <p class="texto-secundario-exito">Redirigiendo a la cartelera de funciones...</p>
+      </div>
+    </div>
+  }
+
+  @if (mensajeError()) {
+    <p class="mensaje-accion mensaje-accion--error" role="alert">
+      {{ mensajeError() }}
+    </p>
+  }
+
+  @if (cargandoPeliculas()) {
+    <div class="contenedor-carga">
+      <div class="spinner-cine"></div>
+      <p class="texto-carga">Cargando películas activas...</p>
+    </div>
+  } @else {
+    <form
+      [formGroup]="formularioFuncion"
+      (ngSubmit)="guardar()"
+      class="formulario-tarjeta"
+      novalidate
+    >
+      <!-- Campo Película -->
+      <div class="campo-formulario">
+        <label for="campo-pelicula" class="etiqueta-campo">
+          Película <span class="campo-obligatorio">*</span>
+        </label>
+        <select
+          id="campo-pelicula"
+          formControlName="peliculaId"
+          (change)="onPeliculaChange()"
+          class="control-formulario control-formulario--select"
+          [class.control-formulario--invalido]="
+            formularioFuncion.controls.peliculaId.invalid &&
+            formularioFuncion.controls.peliculaId.touched
+          "
+        >
+          <option value="" disabled>-- Seleccioná una película activa --</option>
+          @for (pelicula of peliculas(); track pelicula.id) {
+            <option [value]="pelicula.id">
+              {{ pelicula.nombre }} ({{ pelicula.duracionMinutos }} min)
+            </option>
+          }
+        </select>
+
+        @if (
+          formularioFuncion.controls.peliculaId.invalid &&
+          formularioFuncion.controls.peliculaId.touched
+        ) {
+          <span class="error-campo">
+            Tenés que seleccionar una película para la función.
+          </span>
+        }
+
+        <!-- Previsualización de película seleccionada -->
+        @if (peliculaSeleccionada(); as seleccionada) {
+          <div class="preview-pelicula">
+            @if (seleccionada.imagenUrl) {
+              <img
+                [src]="seleccionada.imagenUrl"
+                [alt]="seleccionada.nombre"
+                class="preview-pelicula__poster"
+              />
+            }
+            <div class="preview-pelicula__info">
+              <strong class="preview-pelicula__titulo">{{ seleccionada.nombre }}</strong>
+              <div class="preview-pelicula__metadatos">
+                <span class="badge-meta">Duración: {{ seleccionada.duracionMinutos }} min</span>
+                <span class="badge-meta">Clasificación: {{ seleccionada.clasificacionEdad }}</span>
+                <span class="badge-meta">Géneros: {{ seleccionada.generos.join(', ') }}</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Campo Fecha y Hora de Inicio -->
+      <div class="campo-formulario">
+        <label for="campo-fecha-inicio" class="etiqueta-campo">
+          Fecha y hora de inicio <span class="campo-obligatorio">*</span>
+        </label>
+        <input
+          id="campo-fecha-inicio"
+          type="datetime-local"
+          formControlName="fechaHoraInicio"
+          [min]="fechaMinima"
+          class="control-formulario"
+          [class.control-formulario--invalido]="
+            formularioFuncion.controls.fechaHoraInicio.invalid &&
+            formularioFuncion.controls.fechaHoraInicio.touched
+          "
+        />
+        <span class="ayuda-campo">
+          La hora de finalización se calculará automáticamente según la duración de la película.
+        </span>
+
+        @if (
+          formularioFuncion.controls.fechaHoraInicio.invalid &&
+          formularioFuncion.controls.fechaHoraInicio.touched
+        ) {
+          <span class="error-campo">
+            Ingresá una fecha y hora de inicio válida para la función.
+          </span>
+        }
+      </div>
+
+      <!-- Campo Formato de Proyección -->
+      <div class="campo-formulario">
+        <label for="campo-formato" class="etiqueta-campo">
+          Formato de proyección <span class="campo-obligatorio">*</span>
+        </label>
+        <select
+          id="campo-formato"
+          formControlName="formato"
+          class="control-formulario control-formulario--select"
+          [class.control-formulario--invalido]="
+            formularioFuncion.controls.formato.invalid &&
+            formularioFuncion.controls.formato.touched
+          "
+        >
+          @for (formato of formatosDisponibles; track formato) {
+            <option [value]="formato">
+              Formato {{ formato }}
+            </option>
+          }
+        </select>
+        <span class="ayuda-campo">
+          El sistema solo considerará salas activas preparadas para proyectar en este formato.
+        </span>
+      </div>
+
+      <!-- Bloque explicativo de Asignación Automática de Sala -->
+      <div class="tarjeta-asignacion-automatica">
+        <div class="tarjeta-asignacion-automatica__icono">ℹ</div>
+        <div class="tarjeta-asignacion-automatica__contenido">
+          <strong class="tarjeta-asignacion-automatica__titulo">
+            Asignación automática de sala
+          </strong>
+          <p class="tarjeta-asignacion-automatica__texto">
+            No necesitás seleccionar una sala. Al presionar <strong>Programar función</strong>,
+            el sistema buscará automáticamente entre las salas activas de formato
+            <strong>{{ formularioFuncion.controls.formato.value }}</strong>,
+            ordenadas por número, y reservará la primera disponible verificando que no se
+            superponga con otra función y respetando el margen obligatorio de 30 minutos de limpieza posterior.
+          </p>
+        </div>
+      </div>
+
+      <!-- Botones de Acción -->
+      <div class="acciones-formulario">
+        <a routerLink="/admin/funciones" class="boton-secundario">
+          Cancelar
+        </a>
+        <button
+          type="submit"
+          class="boton-primario"
+          [disabled]="guardando() || cargandoPeliculas() || peliculas().length === 0"
+        >
+          @if (guardando()) {
+            Buscando sala y programando...
+          } @else {
+            Programar función
+          }
+        </button>
+      </div>
+    </form>
+  }
+</section>

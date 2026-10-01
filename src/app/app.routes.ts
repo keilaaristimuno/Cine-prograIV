@@ -70,6 +70,36 @@ export const routes: Routes = [
           import(
             './features/admin/pages/peliculas/formulario-pelicula/formulario-pelicula'
           ).then(m => m.FormularioPelicula)
+      },
+      {
+        path: 'salas',
+        loadComponent: () =>
+          import('./features/admin/pages/salas/listado-salas/listado-salas')
+            .then(m => m.ListadoSalas)
+      },
+      {
+        path: 'salas/nueva',
+        loadComponent: () =>
+          import('./features/admin/pages/salas/formulario-sala/formulario-sala')
+            .then(m => m.FormularioSala)
+      },
+      {
+        path: 'salas/editar/:id',
+        loadComponent: () =>
+          import('./features/admin/pages/salas/formulario-sala/formulario-sala')
+            .then(m => m.FormularioSala)
+      },
+      {
+        path: 'funciones',
+        loadComponent: () =>
+          import('./features/admin/pages/funciones/listado-funciones/listado-funciones')
+            .then(m => m.ListadoFunciones)
+      },
+      {
+        path: 'funciones/nueva',
+        loadComponent: () =>
+          import('./features/admin/pages/funciones/formulario-funcion/formulario-funcion')
+            .then(m => m.FormularioFuncion)
       }
     ]
   },

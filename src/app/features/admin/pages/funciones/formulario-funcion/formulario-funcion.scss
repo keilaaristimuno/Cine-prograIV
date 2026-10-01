@@ -1,0 +1,352 @@
+:host {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.pagina-formulario {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.encabezado-formulario {
+  margin-bottom: 2rem;
+
+  .enlace-volver {
+    display: inline-block;
+    margin-bottom: 1rem;
+    color: #c4b5fd;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: color 150ms ease;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+
+  &__seccion {
+    margin: 0 0 0.5rem;
+    color: #aaa3bd;
+    font-size: 0.95rem;
+  }
+
+  &__titulo {
+    margin: 0 0 0.5rem;
+    font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+    line-height: 1.1;
+    color: #f7f5fa;
+  }
+
+  &__descripcion {
+    margin: 0;
+    color: #aaa3bd;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+}
+
+/* Mensajes de respuesta */
+.mensaje-accion {
+  margin: 0 0 1.5rem;
+  padding: 1rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+
+  &--exito {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid rgba(76, 165, 108, 0.4);
+    background-color: rgba(76, 165, 108, 0.15);
+    color: #89e3a9;
+
+    .icono-exito {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background-color: rgba(76, 165, 108, 0.25);
+      border-radius: 50%;
+      font-size: 1.1rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .texto-principal-exito {
+      margin: 0 0 0.25rem;
+      font-size: 0.95rem;
+      color: #d1fae5;
+    }
+
+    .texto-secundario-exito {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #a7f3d0;
+      font-weight: 400;
+    }
+  }
+
+  &--error {
+    border: 1px solid rgba(244, 63, 94, 0.4);
+    background-color: rgba(244, 63, 94, 0.15);
+    color: #fda4af;
+  }
+}
+
+/* Carga */
+.contenedor-carga {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 3rem;
+  color: #cbb8fa;
+
+  .spinner-cine {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(139, 92, 246, 0.2);
+    border-top-color: #8b5cf6;
+    border-radius: 50%;
+    animation: girar 0.9s linear infinite;
+  }
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Tarjeta Formulario */
+.formulario-tarjeta {
+  background-color: #15131f;
+  border: 1px solid #37334a;
+  border-radius: 0.75rem;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.campo-formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  .etiqueta-campo {
+    color: #f7f5fa;
+    font-size: 0.95rem;
+    font-weight: 600;
+
+    .campo-obligatorio {
+      color: #fda4af;
+    }
+  }
+
+  .ayuda-campo {
+    color: #8d85a0;
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
+
+  .error-campo {
+    color: #fda4af;
+    font-size: 0.82rem;
+    font-weight: 500;
+  }
+}
+
+.control-formulario {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border-radius: 0.5rem;
+  background-color: #1e1b2b;
+  border: 1px solid #453c5a;
+  color: #f7f5fa;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: all 150ms ease;
+  box-sizing: border-box;
+
+  &:focus {
+    outline: none;
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+  }
+
+  &--select {
+    cursor: pointer;
+
+    option {
+      background-color: #1e1b2b;
+      color: #f7f5fa;
+    }
+  }
+
+  &--invalido {
+    border-color: #f43f5e;
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.2);
+    }
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+/* Previsualización de película */
+.preview-pelicula {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  padding: 0.85rem 1rem;
+  background-color: #1e1b2b;
+  border: 1px solid #3e3650;
+  border-radius: 0.5rem;
+
+  &__poster {
+    width: 48px;
+    height: 72px;
+    object-fit: cover;
+    border-radius: 0.35rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  &__titulo {
+    color: #f7f5fa;
+    font-size: 1rem;
+  }
+
+  &__metadatos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .badge-meta {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    background-color: #29243a;
+    border: 1px solid #43395c;
+    border-radius: 0.25rem;
+    font-size: 0.78rem;
+    color: #ded9eb;
+  }
+}
+
+/* Tarjeta informativa de asignación automática */
+.tarjeta-asignacion-automatica {
+  display: flex;
+  gap: 1rem;
+  padding: 1.15rem 1.25rem;
+  background-color: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  border-radius: 0.5rem;
+
+  &__icono {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: rgba(139, 92, 246, 0.2);
+    color: #c4b5fd;
+    font-size: 1rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  &__contenido {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  &__titulo {
+    color: #c4b5fd;
+    font-size: 0.95rem;
+  }
+
+  &__texto {
+    margin: 0;
+    color: #ded9eb;
+    font-size: 0.85rem;
+    line-height: 1.5;
+
+    strong {
+      color: #fff;
+    }
+  }
+}
+
+/* Botones de Acción */
+.acciones-formulario {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #282436;
+
+  .boton-secundario {
+    padding: 0.8rem 1.25rem;
+    border-radius: 0.5rem;
+    background-color: #211c2b;
+    border: 1px solid #413852;
+    color: #ded9eb;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 150ms ease;
+
+    &:hover {
+      background-color: #2f273e;
+      color: #fff;
+    }
+  }
+
+  .boton-primario {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.8rem 1.5rem;
+    border-radius: 0.5rem;
+    background-color: #8457ee;
+    border: none;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition:
+      background-color 150ms ease,
+      transform 150ms ease;
+
+    &:hover:not(:disabled) {
+      background-color: #966ff2;
+      transform: translateY(-1px);
+    }
+
+    &:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+  }
+}

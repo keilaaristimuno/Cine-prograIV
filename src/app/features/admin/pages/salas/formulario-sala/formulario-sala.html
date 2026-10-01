@@ -1,0 +1,137 @@
+<main class="pagina-formulario">
+  <section class="tarjeta-formulario">
+    <header class="tarjeta-formulario__encabezado">
+      <p class="seccion-texto">Configuración del cine</p>
+      <h1>{{ modoEdicion() ? 'Editar sala' : 'Nueva sala' }}</h1>
+    </header>
+
+    @if (cargando()) {
+      <div class="contenedor-carga">
+        <p class="mensaje-carga">Cargando información de la sala...</p>
+      </div>
+    } @else {
+      <!-- Mensajes -->
+      @if (mensajeExito()) {
+        <p class="mensaje-exito" role="status">
+          {{ mensajeExito() }}
+        </p>
+      }
+
+      @if (mensajeError()) {
+        <p class="mensaje-error" role="alert">
+          {{ mensajeError() }}
+        </p>
+      }
+
+      <form
+        class="formulario-sala"
+        [formGroup]="formularioSala"
+        (ngSubmit)="guardar()"
+      >
+        <!-- Campo Número -->
+        <div class="campo-formulario">
+          <label for="numero">Número de sala:</label>
+          <input
+            id="numero"
+            type="number"
+            min="1"
+            step="1"
+            formControlName="numero"
+            placeholder="Ejemplo: 1"
+          />
+          @if (
+            formularioSala.controls.numero.touched &&
+            formularioSala.controls.numero.invalid
+          ) {
+            <div class="mensajes-error">
+              @if (formularioSala.controls.numero.hasError('required')) {
+                <small>El número de sala es obligatorio.</small>
+              }
+              @if (formularioSala.controls.numero.hasError('min')) {
+                <small>El número de sala debe ser mayor a 0.</small>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Campo Nombre -->
+        <div class="campo-formulario">
+          <label for="nombre">Nombre descriptivo:</label>
+          <input
+            id="nombre"
+            type="text"
+            formControlName="nombre"
+            placeholder="Ejemplo: Sala 1"
+          />
+          @if (
+            formularioSala.controls.nombre.touched &&
+            formularioSala.controls.nombre.invalid
+          ) {
+            <div class="mensajes-error">
+              @if (formularioSala.controls.nombre.hasError('required')) {
+                <small>El nombre de la sala es obligatorio.</small>
+              }
+              @if (formularioSala.controls.nombre.hasError('minlength')) {
+                <small>El nombre debe tener al menos 2 caracteres.</small>
+              }
+              @if (formularioSala.controls.nombre.hasError('maxlength')) {
+                <small>El nombre no puede superar los 50 caracteres.</small>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Campo Formato -->
+        <div class="campo-formulario">
+          <label for="formato">Formato de proyección:</label>
+          <select id="formato" formControlName="formato">
+            @for (f of formatosDisponibles; track f) {
+              <option [value]="f">{{ f }}</option>
+            }
+          </select>
+          @if (
+            formularioSala.controls.formato.touched &&
+            formularioSala.controls.formato.invalid
+          ) {
+            <div class="mensajes-error">
+              <small>Debe seleccionar un formato de proyección válido.</small>
+            </div>
+          }
+        </div>
+
+        <!-- Campo Estado de Activación -->
+        <div class="campo-formulario">
+          <label for="estaActiva">Estado operativo:</label>
+          <select id="estaActiva" formControlName="estaActiva">
+            <option [ngValue]="true">Habilitada (disponible para programar funciones)</option>
+            <option [ngValue]="false">Inhabilitada (en mantenimiento o fuera de servicio)</option>
+          </select>
+        </div>
+
+        <!-- Aviso de capacidad estándar -->
+        <div class="aviso-distribucion">
+          <span class="icono-aviso">ℹ️</span>
+          <div class="texto-aviso">
+            <strong>Capacidad estándar del cine</strong>
+            <p>Esta sala contará con la distribución oficial de 20 filas en 3 bloques (4 - 20 - 4), con una capacidad total de 560 butacas.</p>
+          </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="acciones-formulario">
+          <button
+            type="submit"
+            class="boton-primario"
+            [disabled]="guardando()"
+          >
+            {{ guardando() ? 'Guardando...' : (modoEdicion() ? 'Guardar cambios' : 'Registrar sala') }}
+          </button>
+
+          <a routerLink="/admin/salas" class="boton-secundario">
+            Cancelar
+          </a>
+        </div>
+      </form>
+    }
+  </section>
+</main>
