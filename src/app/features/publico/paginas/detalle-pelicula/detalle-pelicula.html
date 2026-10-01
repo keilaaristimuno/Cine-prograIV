@@ -132,7 +132,7 @@
             </p>
           </div>
 
-          <!-- Mensaje Informativo según estado -->
+          <!-- Mensaje Informativo de Próximo Estreno -->
           @if (esProximamente()) {
             <div class="detalle-pelicula__aviso detalle-pelicula__aviso--proximamente">
               <span class="aviso-icono">📅</span>
@@ -141,15 +141,86 @@
                 <p>Muy pronto vas a poder disfrutar de este título en las salas de Pantalla Mágica.</p>
               </div>
             </div>
-          } @else {
-            <div class="detalle-pelicula__aviso detalle-pelicula__aviso--cartelera">
-              <span class="aviso-icono">🎟</span>
-              <div class="aviso-contenido">
-                <strong>Título actualmente en cartelera</strong>
-                <p>La consulta de horarios, salas y compra de entradas estará disponible próximamente.</p>
-              </div>
-            </div>
           }
+
+          <!-- Sección: Funciones disponibles (informativo) -->
+          <section class="seccion-funciones" aria-labelledby="titulo-seccion-funciones">
+            <h2 id="titulo-seccion-funciones" class="seccion-funciones__titulo">
+              Funciones disponibles
+            </h2>
+
+            <!-- Estado 1: Cargando funciones -->
+            @if (cargandoFunciones()) {
+              <div class="funciones-estado funciones-estado--cargando">
+                <div class="spinner-cine spinner-cine--pequeno"></div>
+                <p>Buscando horarios y funciones disponibles...</p>
+              </div>
+            }
+
+            <!-- Estado 2: Error al cargar funciones -->
+            @else if (errorFunciones()) {
+              <div class="funciones-estado funciones-estado--error">
+                <p>{{ errorFunciones() }}</p>
+                <button
+                  type="button"
+                  class="boton-reintentar-funciones"
+                  (click)="reintentarFunciones()"
+                >
+                  Reintentar horarios
+                </button>
+              </div>
+            }
+
+            <!-- Estado 3: Sin funciones disponibles -->
+            @else if (gruposFunciones().length === 0) {
+              <div class="funciones-estado funciones-estado--vacio">
+                <span class="icono-vacio">🕒</span>
+                <p>No hay funciones disponibles para esta película por el momento.</p>
+              </div>
+            }
+
+            <!-- Estado 4: Listado de funciones agrupadas por día -->
+            @else {
+              <div class="lista-grupos-dias">
+                @for (grupo of gruposFunciones(); track grupo.fechaKey) {
+                  <div class="grupo-dia">
+                    <header class="grupo-dia__cabecera">
+                      <h3 class="grupo-dia__titulo">{{ grupo.tituloDia }}</h3>
+                      @if (grupo.tituloDia === 'Hoy' || grupo.tituloDia === 'Mañana') {
+                        <span class="grupo-dia__fecha-legible">{{ grupo.fechaLegible }}</span>
+                      }
+                    </header>
+
+                    <div class="grupo-dia__grilla">
+                      @for (funcion of grupo.funciones; track funcion.id) {
+                        <article class="tarjeta-funcion">
+                          <span class="tarjeta-funcion__hora">
+                            {{ formatearHora(funcion.fechaHoraInicio) }}
+                          </span>
+                          <span
+                            class="badge-formato"
+                            [class.badge-formato--2d]="funcion.formato === '2D'"
+                            [class.badge-formato--3d]="funcion.formato === '3D'"
+                            [class.badge-formato--4d]="funcion.formato === '4D'"
+                            [class.badge-formato--5d]="funcion.formato === '5D'"
+                          >
+                            {{ funcion.formato }}
+                          </span>
+                          <span class="tarjeta-funcion__sala">
+                            @if (funcion.sala) {
+                              Sala {{ funcion.sala.numero }} ({{ funcion.sala.nombre }})
+                            } @else {
+                              Sala asignada
+                            }
+                          </span>
+                        </article>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </section>
 
           <!-- Botón de retorno inferior -->
           <div class="detalle-pelicula__acciones">

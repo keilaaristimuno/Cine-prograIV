@@ -108,6 +108,53 @@ export class ServicioFunciones {
   }
 
   /**
+   * Obtiene exclusivamente las funciones programadas y futuras de una película específica
+   * para la visualización pública en el detalle de la película (/pelicula/:id).
+   *
+   * Filtros aplicados en la consulta a Supabase:
+   * - pelicula_id = peliculaId
+   * - estado = 'programada' (descarta canceladas)
+   * - fecha_hora_inicio >= momento actual (descarta pasadas)
+   *
+   * Orden: fecha_hora_inicio ASC.
+   * Incluye datos de la sala asignada (número, nombre, formato).
+   */
+  async obtenerFuncionesDisponiblesPorPelicula(
+    peliculaId: string
+  ): Promise<FuncionConDetalle[]> {
+    const cliente = this.servicioSupabase.cliente;
+    const ahoraIso = new Date().toISOString();
+
+    const { data, error } = await cliente
+      .from('funciones')
+      .select(`
+        id,
+        pelicula_id,
+        sala_id,
+        fecha_hora_inicio,
+        fecha_hora_fin,
+        formato,
+        estado,
+        sala:salas (
+          id,
+          numero,
+          nombre,
+          formato
+        )
+      `)
+      .eq('pelicula_id', peliculaId)
+      .eq('estado', 'programada')
+      .gte('fecha_hora_inicio', ahoraIso)
+      .order('fecha_hora_inicio', { ascending: true });
+
+    if (error) {
+      throw error;
+    }
+
+    return (data ?? []).map(fila => this.mapearFilaFuncion(fila));
+  }
+
+  /**
    * Verifica si una sala está disponible para programar una nueva función.
    * Considera:
    * - Solo funciones en estado 'programada' de esa sala (las canceladas no bloquean).
