@@ -1,3 +1,4 @@
+import { ClasificacionEdad } from './pelicula';
 import { FormatoProyeccion, Sala } from './sala';
 
 export type EstadoFuncion = 'programada' | 'cancelada';
@@ -55,6 +56,7 @@ export interface FuncionConDetalle extends Funcion {
     nombre: string;
     duracionMinutos: number;
     imagenUrl: string;
+    clasificacionEdad?: ClasificacionEdad;
   };
   sala?: {
     id: string;

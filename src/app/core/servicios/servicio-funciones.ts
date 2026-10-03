@@ -84,7 +84,8 @@ export class ServicioFunciones {
           id,
           nombre,
           duracion_minutos,
-          imagen_url
+          imagen_url,
+          clasificacion_edad
         ),
         sala:salas (
           id,
@@ -459,7 +460,8 @@ export class ServicioFunciones {
             id: peliculaFila.id,
             nombre: peliculaFila.nombre,
             duracionMinutos: peliculaFila.duracion_minutos,
-            imagenUrl: peliculaFila.imagen_url
+            imagenUrl: peliculaFila.imagen_url,
+            clasificacionEdad: peliculaFila.clasificacion_edad
           }
         : undefined,
       sala: salaFila

@@ -1,27 +1,29 @@
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { Butaca } from '../../../../core/modelos/butaca';
 import { FuncionConDetalle } from '../../../../core/modelos/funcion';
+import { ServicioAuth } from '../../../../core/servicios/servicio-auth';
 import { ServicioButacas } from '../../../../core/servicios/servicio-butacas';
+import { ServicioCompras } from '../../../../core/servicios/servicio-compras';
 import { ServicioFunciones } from '../../../../core/servicios/servicio-funciones';
 import { MapaButacas } from '../../../../shared/components/mapa-butacas/mapa-butacas';
 
 /**
- * Página pública de disponibilidad y selección interactiva de butacas (/funcion/:id/butacas).
+ * Página pública de disponibilidad, selección y compra de butacas (/funcion/:id/butacas).
  *
  * Características:
  * - Accesible tanto para usuarios anónimos como autenticados.
- * - Carga en paralelo la función, sus datos de película/sala y las butacas físicas.
- * - Recupera el conjunto de butacas ocupadas desde la tabla 'entradas'.
- * - Mantiene la selección 100% local en memoria en un Signal reactivo (seleccionadasIds).
- * - Se suscribe a Supabase Realtime para recibir cambios concurrentes en vivo.
- * - Deselecciona automáticamente y advierte si otra compra ocupa una butaca elegida.
- * - Limpia estrictamente el canal Realtime al destruirse el componente.
+ * - Mantiene selección local en Signal (seleccionadasIds).
+ * - Sincroniza en tiempo real con Supabase Realtime (tabla 'entradas').
+ * - Despliega modal de confirmación con resumen de compra, advertencia de edad y captura de email para anónimos.
+ * - Invoca la transacción atómica RPC 'realizar_compra_entradas' en PostgreSQL.
+ * - Transfiere el resultado de la compra de forma privada y segura hacia /compra/:id/confirmacion.
  */
 @Component({
   selector: 'app-seleccion-butacas',
-  imports: [RouterLink, MapaButacas],
+  imports: [RouterLink, FormsModule, MapaButacas],
   templateUrl: './seleccion-butacas.html',
   styleUrl: './seleccion-butacas.scss'
 })
@@ -31,6 +33,8 @@ export class SeleccionButacas implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly servicioFunciones = inject(ServicioFunciones);
   private readonly servicioButacas = inject(ServicioButacas);
+  private readonly servicioAuth = inject(ServicioAuth);
+  private readonly servicioCompras = inject(ServicioCompras);
 
   readonly funcion = signal<FuncionConDetalle | null>(null);
   readonly butacas = signal<Butaca[]>([]);
@@ -44,14 +48,26 @@ export class SeleccionButacas implements OnInit {
   /** Indica si la función admite selección de butacas */
   readonly permiteSeleccion = signal<boolean>(true);
 
+  // Estados del modal de confirmación de compra
+  readonly mostrarModalConfirmacion = signal<boolean>(false);
+  readonly emailContacto = signal<string>('');
+  readonly errorEmail = signal<string | null>(null);
+  readonly procesandoCompra = signal<boolean>(false);
+  readonly errorCompra = signal<string | null>(null);
+
   private canalRealtime: RealtimeChannel | null = null;
   private timerAviso: any = null;
 
   /** Cantidad total de butacas seleccionadas */
   readonly cantidadSeleccionadas = computed(() => this.seleccionadasIds().size);
 
+  /** Datos de autenticación para diferenciar flujo registrado vs anónimo */
+  readonly esUsuarioAutenticado = computed(() => this.servicioAuth.estaAutenticado());
+  readonly usuarioPerfil = computed(() => this.servicioAuth.perfilActual());
+  readonly usuarioAuth = computed(() => this.servicioAuth.usuarioActual());
+
   /**
-   * Colección ordenada de butacas seleccionadas para mostrar en la barra resumen.
+   * Colección ordenada de butacas seleccionadas para mostrar en la barra resumen y modal.
    */
   readonly butacasSeleccionadas = computed<Butaca[]>(() => {
     const ids = this.seleccionadasIds();
@@ -60,6 +76,20 @@ export class SeleccionButacas implements OnInit {
     }
     const seleccionadas = this.butacas().filter(b => ids.has(b.id));
     return this.servicioButacas.ordenarButacas(seleccionadas);
+  });
+
+  /**
+   * Verifica si la película tiene clasificación con restricción de edad (+13 o +18).
+   */
+  readonly advertenciaClasificacion = computed<string | null>(() => {
+    const clasif = this.funcion()?.pelicula?.clasificacionEdad;
+    if (clasif === '+18') {
+      return 'Película clasificada para mayores de 18 años (+18). Los menores de edad deben asistir acompañados por un adulto responsable.';
+    }
+    if (clasif === '+13') {
+      return 'Película con restricción para mayores de 13 años (+13). Los menores de edad deben asistir acompañados por un adulto.';
+    }
+    return null;
   });
 
   ngOnInit(): void {
@@ -181,6 +211,11 @@ export class SeleccionButacas implements OnInit {
         this.mostrarAvisoConflicto(
           `¡Atención! ${identificacion} acaba de ser confirmada por otro usuario y fue deseleccionada.`
         );
+
+        // Si el modal de confirmación estaba abierto, cerrarlo para que revise la nueva selección
+        if (this.mostrarModalConfirmacion()) {
+          this.cerrarModalConfirmacion();
+        }
       }
     } else if (evento.tipo === 'liberada') {
       // Liberar la butaca en la vista
@@ -216,6 +251,118 @@ export class SeleccionButacas implements OnInit {
    */
   limpiarSeleccion(): void {
     this.seleccionadasIds.set(new Set());
+  }
+
+  /**
+   * Abre el modal de confirmación con el resumen de la compra.
+   */
+  abrirModalConfirmacion(): void {
+    if (this.cantidadSeleccionadas() === 0 || !this.permiteSeleccion()) {
+      return;
+    }
+
+    this.errorCompra.set(null);
+    this.errorEmail.set(null);
+
+    // Si está autenticado, pre-completar con el email de su cuenta
+    if (this.esUsuarioAutenticado()) {
+      this.emailContacto.set(this.usuarioAuth()?.email || '');
+    } else {
+      this.emailContacto.set('');
+    }
+
+    this.mostrarModalConfirmacion.set(true);
+  }
+
+  /**
+   * Cierra el modal de confirmación si no se encuentra procesando la transacción.
+   */
+  cerrarModalConfirmacion(): void {
+    if (this.procesandoCompra()) {
+      return;
+    }
+    this.mostrarModalConfirmacion.set(false);
+    this.errorCompra.set(null);
+    this.errorEmail.set(null);
+  }
+
+  /**
+   * Ejecuta la compra atómica invocando la función RPC de PostgreSQL.
+   */
+  async confirmarCompra(): Promise<void> {
+    if (this.procesandoCompra()) {
+      return;
+    }
+
+    const funcionActual = this.funcion();
+    if (!funcionActual) {
+      return;
+    }
+
+    // Validación de email para compras anónimas
+    let emailFinal = this.emailContacto().trim();
+    if (!this.esUsuarioAutenticado()) {
+      if (!emailFinal) {
+        this.errorEmail.set('El correo electrónico es obligatorio para recibir el comprobante.');
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailFinal)) {
+        this.errorEmail.set('Por favor ingresá un formato de correo electrónico válido.');
+        return;
+      }
+    } else {
+      // Para usuario registrado, si no escribió un email alternativo, usar el de su cuenta
+      if (!emailFinal) {
+        emailFinal = this.usuarioAuth()?.email || '';
+      }
+    }
+
+    this.procesandoCompra.set(true);
+    this.errorCompra.set(null);
+    this.errorEmail.set(null);
+
+    try {
+      const butacasIds = Array.from(this.seleccionadasIds());
+
+      const resultado = await this.servicioCompras.realizarCompra({
+        funcionId: funcionActual.id,
+        butacaIds: butacasIds,
+        emailContacto: emailFinal
+      });
+
+      // Limpiar selección local y cerrar modal
+      this.seleccionadasIds.set(new Set());
+      this.mostrarModalConfirmacion.set(false);
+
+      // Redirigir a la pantalla de confirmación transfiriendo el resultado en el estado
+      this.router.navigate(['/compra', resultado.compra_id, 'confirmacion'], {
+        state: { compra: resultado }
+      });
+    } catch (err: any) {
+      console.error('Error al procesar la compra:', err);
+      this.errorCompra.set(
+        err.message || 'Ocurrió un error al procesar la compra. Por favor, reintentá.'
+      );
+
+      // Actualizar ocupadas en caso de colisión con otro usuario
+      try {
+        const nuevasOcupadas = await this.servicioButacas.obtenerIdsButacasOcupadas(funcionActual.id);
+        this.ocupadasIds.set(nuevasOcupadas);
+
+        // Remover de la selección las que hayan sido tomadas
+        this.seleccionadasIds.update(actuales => {
+          const filtradas = new Set<string>();
+          for (const id of actuales) {
+            if (!nuevasOcupadas.has(id)) {
+              filtradas.add(id);
+            }
+          }
+          return filtradas;
+        });
+      } catch (_) {}
+    } finally {
+      this.procesandoCompra.set(false);
+    }
   }
 
   /**

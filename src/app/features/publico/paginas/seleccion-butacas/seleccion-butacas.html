@@ -139,17 +139,147 @@
             </button>
           }
 
-          <!-- Botón preparado para conectar con el flujo de compra en M4.4 -->
+          <!-- Botón de compra conectado con el modal de M4.4 -->
           <button
             type="button"
             class="boton-continuar"
             [disabled]="cantidadSeleccionadas() === 0"
-            [title]="cantidadSeleccionadas() === 0 ? 'Seleccioná al menos una butaca para continuar' : 'Continuar al paso de compra (M4.4)'"
+            (click)="abrirModalConfirmacion()"
+            [title]="cantidadSeleccionadas() === 0 ? 'Seleccioná al menos una butaca para continuar' : 'Continuar con la compra'"
           >
             Continuar con la compra
           </button>
         </div>
       </div>
     </aside>
+
+    <!-- MODAL DE CONFIRMACIÓN DE COMPRA (M4.4) -->
+    @if (mostrarModalConfirmacion()) {
+      <div class="modal-overlay" (click)="cerrarModalConfirmacion()" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+        <div class="modal-confirmacion" (click)="$event.stopPropagation()">
+          <header class="modal-confirmacion__cabecera">
+            <h2 id="modal-titulo" class="modal-confirmacion__titulo">Confirmar compra de entradas</h2>
+            <button
+              type="button"
+              class="modal-confirmacion__boton-cerrar"
+              (click)="cerrarModalConfirmacion()"
+              [disabled]="procesandoCompra()"
+              aria-label="Cerrar ventana"
+            >
+              ✕
+            </button>
+          </header>
+
+          <div class="modal-confirmacion__cuerpo">
+            <!-- Resumen de función -->
+            <div class="resumen-funcion">
+              <span class="resumen-funcion__pelicula">{{ f.pelicula?.nombre }}</span>
+              <div class="resumen-funcion__datos">
+                <span>📅 {{ formatearFechaHora(f.fechaHoraInicio) }}</span>
+                <span>🏛️ Sala {{ f.sala?.numero }} ({{ f.sala?.nombre }})</span>
+                <span class="badge-formato badge-formato--{{ f.formato.toLowerCase() }}">{{ f.formato }}</span>
+              </div>
+            </div>
+
+            <!-- Advertencia de restricción de edad si corresponde -->
+            @if (advertenciaClasificacion(); as advertencia) {
+              <div class="alerta-edad" role="alert">
+                <span class="alerta-edad__icono">🔞</span>
+                <div class="alerta-edad__contenido">
+                  <strong>Restricción de edad ({{ f.pelicula?.clasificacionEdad }})</strong>
+                  <p>{{ advertencia }}</p>
+                </div>
+              </div>
+            }
+
+            <!-- Resumen de butacas seleccionadas -->
+            <div class="resumen-butacas">
+              <h3 class="resumen-butacas__titulo">
+                Butacas seleccionadas ({{ cantidadSeleccionadas() }}):
+              </h3>
+              <div class="resumen-butacas__lista">
+                @for (b of butacasSeleccionadas(); track b.id) {
+                  <div class="item-butaca" [class.item-butaca--vip]="b.tipo === 'vip'" [class.item-butaca--accesible]="b.tipo === 'accesible'">
+                    <span class="item-butaca__posicion">Fila {{ b.fila }} — Butaca {{ b.numero }}</span>
+                    <span class="item-butaca__tipo">{{ b.tipo }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Identificación del comprador: Registrado vs Anónimo -->
+            <div class="seccion-comprador">
+              @if (esUsuarioAutenticado()) {
+                <div class="comprador-autenticado">
+                  <span class="comprador-autenticado__etiqueta">Comprador registrado:</span>
+                  <div class="comprador-autenticado__datos">
+                    <span class="comprador-autenticado__nombre">
+                      {{ usuarioPerfil()?.nombre }} {{ usuarioPerfil()?.apellido }}
+                    </span>
+                    <span class="comprador-autenticado__email">({{ usuarioAuth()?.email }})</span>
+                  </div>
+                </div>
+              } @else {
+                <div class="campo-email">
+                  <label for="email-contacto" class="campo-email__label">
+                    Correo electrónico de contacto <span class="campo-email__requerido">*</span>
+                  </label>
+                  <p class="campo-email__ayuda">
+                    Te enviaremos el comprobante y los detalles de tus entradas a este correo.
+                  </p>
+                  <input
+                    id="email-contacto"
+                    type="email"
+                    class="campo-email__input"
+                    [class.campo-email__input--error]="errorEmail()"
+                    [value]="emailContacto()"
+                    (input)="emailContacto.set($any($event.target).value)"
+                    placeholder="ejemplo@correo.com"
+                    [disabled]="procesandoCompra()"
+                    autocomplete="email"
+                    required
+                  />
+                  @if (errorEmail()) {
+                    <span class="campo-email__error-texto" role="alert">{{ errorEmail() }}</span>
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- Alerta de error de compra (concurrencia, conexión o validación) -->
+            @if (errorCompra()) {
+              <div class="alerta-error-compra" role="alert">
+                <span class="alerta-error-compra__icono">⚠️</span>
+                <p class="alerta-error-compra__texto">{{ errorCompra() }}</p>
+              </div>
+            }
+          </div>
+
+          <footer class="modal-confirmacion__acciones">
+            <button
+              type="button"
+              class="boton-secundario"
+              (click)="cerrarModalConfirmacion()"
+              [disabled]="procesandoCompra()"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              class="boton-primario boton-confirmar-compra"
+              (click)="confirmarCompra()"
+              [disabled]="procesandoCompra() || cantidadSeleccionadas() === 0"
+            >
+              @if (procesandoCompra()) {
+                <span class="spinner-boton"></span>
+                <span>Procesando compra...</span>
+              } @else {
+                <span>Confirmar compra ({{ cantidadSeleccionadas() }})</span>
+              }
+            </button>
+          </footer>
+        </div>
+      </div>
+    }
   }
 </div>

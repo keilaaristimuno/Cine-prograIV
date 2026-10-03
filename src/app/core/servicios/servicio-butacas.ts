@@ -86,7 +86,7 @@ export class ServicioButacas {
 
   /**
    * Obtiene el conjunto de identificadores de butacas que se encuentran ocupadas
-   * (con entradas activas no canceladas) para una función específica.
+   * (con entradas en estado 'comprada') para una función específica.
    */
   async obtenerIdsButacasOcupadas(funcionId: string): Promise<Set<string>> {
     const cliente = this.servicioSupabase.cliente;

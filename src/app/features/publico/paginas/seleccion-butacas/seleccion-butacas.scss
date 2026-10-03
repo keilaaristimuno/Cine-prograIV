@@ -429,3 +429,370 @@
     transform: none;
   }
 }
+
+/* ==========================================================================
+   MODAL DE CONFIRMACIÓN DE COMPRA (M4.4)
+   ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: rgba(9, 7, 15, 0.82);
+  backdrop-filter: blur(8px);
+  animation: fadeIn 180ms ease-out;
+}
+
+.modal-confirmacion {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  background-color: #171424;
+  border: 1px solid #3c3252;
+  border-radius: 1rem;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalScale 200ms ease-out;
+
+  &__cabecera {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #2b233a;
+    background-color: #1c182c;
+  }
+
+  &__titulo {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #f7f5fa;
+  }
+
+  &__boton-cerrar {
+    background: transparent;
+    border: none;
+    color: #a79cb8;
+    font-size: 1.15rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.35rem;
+    transition: all 120ms ease;
+
+    &:hover:not(:disabled) {
+      background-color: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  &__cuerpo {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  &__acciones {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.85rem;
+    padding: 1.15rem 1.5rem;
+    border-top: 1px solid #2b233a;
+    background-color: #1c182c;
+  }
+}
+
+/* Resumen de función en el modal */
+.resumen-funcion {
+  background-color: #201b2f;
+  border: 1px solid #362c4f;
+  border-radius: 0.65rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  &__pelicula {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #f7f5fa;
+  }
+
+  &__datos {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    font-size: 0.88rem;
+    color: #cbb8fa;
+  }
+}
+
+/* Alerta de restricción de edad */
+.alerta-edad {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.85rem 1.1rem;
+  border-radius: 0.6rem;
+  background-color: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #fde68a;
+
+  &__icono {
+    font-size: 1.3rem;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  &__contenido {
+    strong {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 0.2rem;
+      color: #fbbf24;
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.84rem;
+      line-height: 1.35;
+      color: #fef3c7;
+    }
+  }
+}
+
+/* Resumen de butacas en el modal */
+.resumen-butacas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+
+  &__titulo {
+    margin: 0;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #d1c7e6;
+  }
+
+  &__lista {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.5rem;
+    max-height: 160px;
+    overflow-y: auto;
+    padding-right: 0.25rem;
+  }
+}
+
+.item-butaca {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0.7rem;
+  border-radius: 0.45rem;
+  background-color: #241e33;
+  border: 1px solid #3c3252;
+
+  &__posicion {
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: #f7f5fa;
+  }
+
+  &__tipo {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #a78bfa;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &--vip {
+    border-color: rgba(245, 196, 81, 0.4);
+    background-color: rgba(245, 196, 81, 0.08);
+
+    .item-butaca__tipo {
+      color: #f5c451;
+    }
+  }
+
+  &--accesible {
+    border-color: rgba(56, 189, 248, 0.4);
+    background-color: rgba(56, 189, 248, 0.08);
+
+    .item-butaca__tipo {
+      color: #38bdf8;
+    }
+  }
+}
+
+/* Identificación del comprador */
+.seccion-comprador {
+  padding-top: 0.5rem;
+  border-top: 1px solid #282136;
+}
+
+.comprador-autenticado {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.6rem;
+  background-color: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+
+  &__etiqueta {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #a78bfa;
+  }
+
+  &__datos {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  &__nombre {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #f7f5fa;
+  }
+
+  &__email {
+    font-size: 0.88rem;
+    color: #cbb8fa;
+  }
+}
+
+.campo-email {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+
+  &__label {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #e2daf0;
+  }
+
+  &__requerido {
+    color: #f43f5e;
+  }
+
+  &__ayuda {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #9f96b5;
+  }
+
+  &__input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    background-color: #211b2f;
+    border: 1px solid #4a3e66;
+    color: #f7f5fa;
+    font-size: 0.92rem;
+    transition: all 120ms ease;
+
+    &:focus {
+      outline: none;
+      border-color: #8b5cf6;
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25);
+    }
+
+    &--error {
+      border-color: #f43f5e;
+
+      &:focus {
+        border-color: #f43f5e;
+        box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.25);
+      }
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &__error-texto {
+    font-size: 0.8rem;
+    color: #fda4af;
+    font-weight: 600;
+  }
+}
+
+/* Alerta de error en la compra */
+.alerta-error-compra {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.6rem;
+  background-color: rgba(244, 63, 94, 0.15);
+  border: 1px solid rgba(244, 63, 94, 0.45);
+  color: #fda4af;
+
+  &__icono {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  &__texto {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.4;
+  }
+}
+
+.boton-confirmar-compra {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.spinner-boton {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: girar 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalScale {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}

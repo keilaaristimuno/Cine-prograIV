@@ -1,0 +1,122 @@
+<div class="pagina-confirmacion">
+  @if (cargando()) {
+    <div class="contenedor-estado">
+      <div class="spinner-cine"></div>
+      <p class="texto-carga">Cargando comprobante de compra...</p>
+    </div>
+  } @else if (compra(); as c) {
+    <div class="tarjeta-confirmacion">
+      <!-- ENCABEZADO DE ÉXITO -->
+      <div class="icono-exito" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+      </div>
+
+      <p class="etiqueta-exito">¡Todo listo!</p>
+      <h1 class="titulo-exito">¡Compra realizada con éxito!</h1>
+      <p class="subtitulo-exito">
+        Tus entradas quedaron confirmadas. Se envió el comprobante a:
+        <strong class="email-destino">{{ c.email_contacto }}</strong>
+      </p>
+
+      <div class="identificador-orden">
+        <span class="identificador-orden__etiqueta">ID de compra</span>
+        <code class="identificador-orden__codigo">{{ c.compra_id }}</code>
+      </div>
+
+      <!-- DETALLES DE LA FUNCIÓN -->
+      <section class="bloque-detalle" aria-labelledby="titulo-detalle-funcion">
+        <h2 id="titulo-detalle-funcion" class="bloque-detalle__titulo">Detalle de la función</h2>
+
+        <div class="grilla-detalles">
+          <div class="item-detalle">
+            <span class="item-detalle__etiqueta">Película</span>
+            <strong class="item-detalle__valor">{{ c.funcion.pelicula_nombre }}</strong>
+          </div>
+
+          <div class="item-detalle">
+            <span class="item-detalle__etiqueta">Fecha y horario</span>
+            <strong class="item-detalle__valor">{{ formatearFechaHora(c.funcion.fecha_hora_inicio) }}</strong>
+          </div>
+
+          <div class="item-detalle">
+            <span class="item-detalle__etiqueta">Sala asignada</span>
+            <strong class="item-detalle__valor">
+              Sala {{ c.funcion.sala_numero }} ({{ c.funcion.sala_nombre }})
+            </strong>
+          </div>
+
+          <div class="item-detalle">
+            <span class="item-detalle__etiqueta">Formato</span>
+            <span
+              class="badge-formato"
+              [class.badge-formato--2d]="c.funcion.formato === '2D'"
+              [class.badge-formato--3d]="c.funcion.formato === '3D'"
+              [class.badge-formato--4d]="c.funcion.formato === '4D'"
+              [class.badge-formato--5d]="c.funcion.formato === '5D'"
+            >
+              {{ c.funcion.formato }}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- BUTACAS ADQUIRIDAS -->
+      <section class="bloque-butacas-adquiridas" aria-labelledby="titulo-butacas-adquiridas">
+        <h2 id="titulo-butacas-adquiridas" class="bloque-butacas-adquiridas__titulo">
+          Butacas adquiridas ({{ c.butacas.length }})
+        </h2>
+
+        <div class="lista-chips-butacas">
+          @for (b of c.butacas; track b.id) {
+            <div
+              class="chip-adquirida"
+              [class.chip-adquirida--vip]="b.tipo === 'vip'"
+              [class.chip-adquirida--accesible]="b.tipo === 'accesible'"
+            >
+              <span class="chip-adquirida__ubicacion">Fila {{ b.fila }} — Butaca {{ b.numero }}</span>
+              <span class="chip-adquirida__tipo">
+                @if (b.tipo === 'vip') {
+                  ★ VIP
+                } @else if (b.tipo === 'accesible') {
+                  ♿ Accesible
+                } @else {
+                  Normal
+                }
+              </span>
+            </div>
+          }
+        </div>
+      </section>
+
+      <!-- BOTONES DE ACCIÓN -->
+      <div class="acciones-confirmacion">
+        <a routerLink="/" class="boton-primario">
+          Volver a la cartelera
+        </a>
+      </div>
+    </div>
+  } @else if (esAnonimoSinState()) {
+    <!-- CASO BORDE: RECARGA DE PÁGINA EN COMPRA ANÓNIMA -->
+    <div class="tarjeta-confirmacion">
+      <div class="icono-exito" aria-hidden="true">✓</div>
+      <h1 class="titulo-exito">Compra confirmada</h1>
+      <p class="subtitulo-exito">
+        La compra <code>{{ compraId() }}</code> fue procesada correctamente en nuestro sistema.
+      </p>
+      <div class="aviso-privacidad" role="status">
+        <p>
+          Por motivos de seguridad y privacidad en compras anónimas, el detalle completo
+          de las butacas y el comprobante fueron enviados directamente a tu dirección de correo electrónico.
+        </p>
+      </div>
+      <div class="acciones-confirmacion">
+        <a routerLink="/" class="boton-primario">
+          Volver a la cartelera
+        </a>
+      </div>
+    </div>
+  }
+</div>

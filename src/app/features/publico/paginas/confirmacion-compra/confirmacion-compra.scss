@@ -1,0 +1,288 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.pagina-confirmacion {
+  max-width: 780px;
+  margin: 2rem auto 4rem;
+  padding: 0 1rem;
+}
+
+.tarjeta-confirmacion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 3rem 2rem;
+  background-color: #14101e;
+  border: 1px solid #2e2640;
+  border-radius: 1rem;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+}
+
+.icono-exito {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.15);
+  border: 2px solid #10b981;
+  color: #34d399;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 0 24px rgba(16, 185, 129, 0.35);
+}
+
+.etiqueta-exito {
+  margin: 0 0 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #34d399;
+}
+
+.titulo-exito {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+  font-weight: 800;
+  color: #f7f5fa;
+  line-height: 1.15;
+}
+
+.subtitulo-exito {
+  margin: 0 0 1.5rem;
+  font-size: 1rem;
+  color: #cbb8fa;
+  max-width: 520px;
+  line-height: 1.5;
+
+  .email-destino {
+    color: #fff;
+    font-weight: 700;
+    word-break: break-all;
+  }
+}
+
+.identificador-orden {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.45rem 1rem;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px dashed rgba(139, 92, 246, 0.4);
+  border-radius: 2rem;
+  margin-bottom: 2rem;
+
+  &__etiqueta {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #c4b5fd;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__codigo {
+    font-size: 0.85rem;
+    font-family: monospace;
+    font-weight: 700;
+    color: #f7f5fa;
+  }
+}
+
+/* ==========================================================================
+   BLOQUES DE DETALLE
+   ========================================================================== */
+.bloque-detalle,
+.bloque-butacas-adquiridas {
+  width: 100%;
+  text-align: left;
+  margin-bottom: 1.75rem;
+  padding: 1.5rem;
+  background-color: #191426;
+  border: 1px solid #33284a;
+  border-radius: 0.75rem;
+
+  &__titulo {
+    margin: 0 0 1rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #a78bfa;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+    padding-bottom: 0.45rem;
+  }
+}
+
+.grilla-detalles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.item-detalle {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  &__etiqueta {
+    font-size: 0.78rem;
+    color: #9f96b5;
+    text-transform: uppercase;
+  }
+
+  &__valor {
+    font-size: 0.95rem;
+    color: #f7f5fa;
+  }
+}
+
+.badge-formato {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 0.2rem 0.55rem;
+  border-radius: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+
+  &--2d {
+    background: rgba(139, 92, 246, 0.15);
+    color: #c4b5fd;
+    border: 1px solid rgba(139, 92, 246, 0.35);
+  }
+
+  &--3d {
+    background: rgba(6, 182, 212, 0.15);
+    color: #67e8f9;
+    border: 1px solid rgba(6, 182, 212, 0.35);
+  }
+
+  &--4d {
+    background: rgba(245, 196, 81, 0.15);
+    color: #f5c451;
+    border: 1px solid rgba(245, 196, 81, 0.4);
+  }
+
+  &--5d {
+    background: rgba(236, 72, 153, 0.15);
+    color: #f472b6;
+    border: 1px solid rgba(236, 72, 153, 0.35);
+  }
+}
+
+/* ==========================================================================
+   CHIPS DE BUTACAS
+   ========================================================================== */
+.lista-chips-butacas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.chip-adquirida {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem 0.85rem;
+  background-color: #211b33;
+  border: 1px solid #4a3c69;
+  border-radius: 0.5rem;
+  font-size: 0.88rem;
+
+  &__ubicacion {
+    font-weight: 700;
+    color: #f7f5fa;
+  }
+
+  &__tipo {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #cbb8fa;
+    padding-left: 0.45rem;
+    border-left: 1px solid #41355c;
+  }
+
+  &--vip {
+    border-color: rgba(245, 196, 81, 0.5);
+    background-color: rgba(245, 196, 81, 0.1);
+
+    .chip-adquirida__tipo {
+      color: #fde68a;
+    }
+  }
+
+  &--accesible {
+    border-color: rgba(56, 189, 248, 0.5);
+    background-color: rgba(56, 189, 248, 0.1);
+
+    .chip-adquirida__tipo {
+      color: #7dd3fc;
+    }
+  }
+}
+
+/* ==========================================================================
+   BOTONES Y AVISOS
+   ========================================================================== */
+.aviso-privacidad {
+  padding: 1rem 1.25rem;
+  margin-bottom: 2rem;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 0.65rem;
+  font-size: 0.9rem;
+  color: #ddd6fe;
+  line-height: 1.5;
+}
+
+.acciones-confirmacion {
+  margin-top: 1rem;
+}
+
+.boton-primario {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.85rem 2rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.4);
+  transition: all 150ms ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 22px rgba(139, 92, 246, 0.6);
+  }
+}
+
+.contenedor-estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 4rem;
+  color: #cbb8fa;
+
+  .spinner-cine {
+    width: 44px;
+    height: 44px;
+    border: 3px solid rgba(139, 92, 246, 0.2);
+    border-top-color: #8b5cf6;
+    border-radius: 50%;
+    animation: girar 0.9s linear infinite;
+  }
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -29,6 +29,13 @@ export const routes: Routes = [
           import(
             './features/publico/paginas/seleccion-butacas/seleccion-butacas'
           ).then(m => m.SeleccionButacas)
+      },
+      {
+        path: 'compra/:id/confirmacion',
+        loadComponent: () =>
+          import(
+            './features/publico/paginas/confirmacion-compra/confirmacion-compra'
+          ).then(m => m.ConfirmacionCompra)
       }
     ]
   },
