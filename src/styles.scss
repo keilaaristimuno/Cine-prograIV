@@ -110,3 +110,42 @@ svg {
 .panel-generos .mat-pseudo-checkbox-checked::after {
   color: white !important;
 }
+
+/* ==========================================================================
+   ESTILOS DE PRESENTACIÓN PARA DIRECTIVA TipoButacaDirective (M4.2)
+   Lógica visual de tipos físicos de butacas en Pantalla Mágica
+   ========================================================================== */
+.butaca-tipo--normal {
+  background-color: #211c2e;
+  border: 1px solid #4a3e66;
+  color: #cbb8fa;
+
+  &:hover {
+    border-color: #8b5cf6;
+    background-color: #2b233d;
+  }
+}
+
+.butaca-tipo--accesible {
+  background-color: rgba(56, 189, 248, 0.16);
+  border: 1px solid #38bdf8;
+  color: #7dd3fc;
+  box-shadow: 0 0 6px rgba(56, 189, 248, 0.15);
+
+  &:hover {
+    background-color: rgba(56, 189, 248, 0.28);
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.35);
+  }
+}
+
+.butaca-tipo--vip {
+  background-color: rgba(245, 196, 81, 0.16);
+  border: 1px solid #f5c451;
+  color: #fde68a;
+  box-shadow: 0 0 6px rgba(245, 196, 81, 0.15);
+
+  &:hover {
+    background-color: rgba(245, 196, 81, 0.28);
+    box-shadow: 0 0 10px rgba(245, 196, 81, 0.35);
+  }
+}

@@ -89,19 +89,22 @@ export class ServicioSalas {
   }
 
   /**
-   * Registra una nueva sala en la base de datos.
+   * Registra una nueva sala en la base de datos y genera automáticamente
+   * su distribución física estándar de 518 butacas.
    */
   async guardarSala(datos: DatosNuevaSala): Promise<void> {
     const cliente = this.servicioSupabase.cliente;
 
-    const { error } = await cliente
+    const { data, error } = await cliente
       .from('salas')
       .insert({
         numero: datos.numero,
         nombre: datos.nombre.trim(),
         formato: datos.formato,
         esta_activa: datos.estaActiva
-      });
+      })
+      .select('id')
+      .single();
 
     if (error) {
       // Manejo amigable del código PostgreSQL 23505 (violación de clave única)
@@ -111,6 +114,17 @@ export class ServicioSalas {
         );
       }
       throw error;
+    }
+
+    if (data?.id) {
+      // Disparar la generación automática de las 518 butacas para la nueva sala
+      const { error: errorButacas } = await cliente.rpc('generar_butacas_sala', {
+        p_sala_id: data.id
+      });
+
+      if (errorButacas) {
+        console.error('Error al generar la distribución de butacas:', errorButacas);
+      }
     }
   }
 

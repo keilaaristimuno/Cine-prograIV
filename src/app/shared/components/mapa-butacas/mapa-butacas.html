@@ -1,0 +1,166 @@
+<div class="mapa-contenedor">
+  <!-- PANTALLA SUPERIOR -->
+  <div class="pantalla-cine" aria-label="Pantalla de proyección del cine">
+    <div class="pantalla-cine__arco">
+      <span class="pantalla-cine__texto">PANTALLA</span>
+    </div>
+    <div class="pantalla-cine__resplandor" aria-hidden="true"></div>
+  </div>
+
+  <!-- LEYENDA EXPLICATIVA -->
+  <div class="leyenda-butacas" aria-label="Leyenda de tipos y estados de butacas">
+    <!-- Grupo: Tipos Físicos -->
+    <div class="leyenda-grupo">
+      <div class="leyenda-item">
+        <span class="muestra-butaca" appTipoButaca="normal" aria-hidden="true"></span>
+        <span class="leyenda-texto">Normal</span>
+      </div>
+
+      <div class="leyenda-item">
+        <span class="muestra-butaca muestra-butaca--accesible" appTipoButaca="accesible" aria-hidden="true">♿</span>
+        <span class="leyenda-texto">Accesible</span>
+      </div>
+
+      <div class="leyenda-item">
+        <span class="muestra-butaca muestra-butaca--vip" appTipoButaca="vip" aria-hidden="true">★</span>
+        <span class="leyenda-texto">VIP</span>
+      </div>
+    </div>
+
+    <!-- Grupo: Estados de Función (cuando es interactivo) -->
+    @if (esInteractivo()) {
+      <div class="leyenda-separador" aria-hidden="true"></div>
+
+      <div class="leyenda-grupo">
+        <div class="leyenda-item">
+          <span class="muestra-butaca muestra-estado--disponible" aria-hidden="true"></span>
+          <span class="leyenda-texto">Disponible</span>
+        </div>
+
+        <div class="leyenda-item">
+          <span class="muestra-butaca muestra-estado--seleccionada" aria-hidden="true">✓</span>
+          <span class="leyenda-texto">Seleccionada</span>
+        </div>
+
+        <div class="leyenda-item">
+          <span class="muestra-butaca muestra-estado--ocupada" aria-hidden="true">✕</span>
+          <span class="leyenda-texto">Ocupada</span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- CONTENEDOR CON SCROLL HORIZONTAL CONTROLADO -->
+  <div class="mapa-scroll" tabindex="0" role="region" aria-label="Distribución de butacas de la sala">
+    <div class="sala-lienzo">
+      @for (fila of filas(); track fila.identificador) {
+        <div
+          class="fila-sala"
+          [class.fila-sala--accesible]="fila.tipoFila === 'accesible'"
+          [class.fila-sala--vip]="fila.tipoFila === 'vip'"
+        >
+          <!-- Etiqueta de fila izquierda -->
+          <div class="etiqueta-fila" [title]="'Fila ' + fila.identificador">
+            {{ fila.identificador }}
+          </div>
+
+          <!-- BLOQUE IZQUIERDO -->
+          <div class="bloque-butacas bloque-butacas--izquierdo">
+            @for (butaca of fila.bloqueIzquierdo; track butaca.id) {
+              <div
+                class="butaca"
+                [appTipoButaca]="butaca.tipo"
+                [class.butaca--disponible]="obtenerEstadoButaca(butaca) === 'disponible'"
+                [class.butaca--ocupada]="obtenerEstadoButaca(butaca) === 'ocupada'"
+                [class.butaca--seleccionada]="obtenerEstadoButaca(butaca) === 'seleccionada'"
+                [class.butaca--inactiva]="!butaca.estaActiva"
+                [class.butaca--interactiva]="esInteractivo() && butaca.estaActiva && obtenerEstadoButaca(butaca) !== 'ocupada'"
+                [attr.aria-disabled]="obtenerEstadoButaca(butaca) === 'ocupada' || !butaca.estaActiva"
+                [title]="construirTooltip(fila.identificador, butaca)"
+                (click)="alHacerClick(butaca)"
+              >
+                @if (obtenerEstadoButaca(butaca) === 'seleccionada') {
+                  <span class="butaca__check" aria-hidden="true">✓</span>
+                } @else if (obtenerEstadoButaca(butaca) === 'ocupada') {
+                  <span class="butaca__cruz" aria-hidden="true">✕</span>
+                } @else if (butaca.tipo === 'accesible') {
+                  <span class="butaca__icono" aria-hidden="true">♿</span>
+                }
+                <span class="butaca__numero">{{ butaca.numero }}</span>
+              </div>
+            }
+          </div>
+
+          <!-- PASILLO IZQUIERDO -->
+          <div class="pasillo" aria-hidden="true" title="Pasillo">
+            <span class="pasillo__guia"></span>
+          </div>
+
+          <!-- BLOQUE CENTRAL -->
+          <div class="bloque-butacas bloque-butacas--central">
+            @for (butaca of fila.bloqueCentral; track butaca.id) {
+              <div
+                class="butaca"
+                [appTipoButaca]="butaca.tipo"
+                [class.butaca--disponible]="obtenerEstadoButaca(butaca) === 'disponible'"
+                [class.butaca--ocupada]="obtenerEstadoButaca(butaca) === 'ocupada'"
+                [class.butaca--seleccionada]="obtenerEstadoButaca(butaca) === 'seleccionada'"
+                [class.butaca--inactiva]="!butaca.estaActiva"
+                [class.butaca--interactiva]="esInteractivo() && butaca.estaActiva && obtenerEstadoButaca(butaca) !== 'ocupada'"
+                [attr.aria-disabled]="obtenerEstadoButaca(butaca) === 'ocupada' || !butaca.estaActiva"
+                [title]="construirTooltip(fila.identificador, butaca)"
+                (click)="alHacerClick(butaca)"
+              >
+                @if (obtenerEstadoButaca(butaca) === 'seleccionada') {
+                  <span class="butaca__check" aria-hidden="true">✓</span>
+                } @else if (obtenerEstadoButaca(butaca) === 'ocupada') {
+                  <span class="butaca__cruz" aria-hidden="true">✕</span>
+                } @else if (butaca.tipo === 'accesible') {
+                  <span class="butaca__icono" aria-hidden="true">♿</span>
+                }
+                <span class="butaca__numero">{{ butaca.numero }}</span>
+              </div>
+            }
+          </div>
+
+          <!-- PASILLO DERECHO -->
+          <div class="pasillo" aria-hidden="true" title="Pasillo">
+            <span class="pasillo__guia"></span>
+          </div>
+
+          <!-- BLOQUE DERECHO -->
+          <div class="bloque-butacas bloque-butacas--derecho">
+            @for (butaca of fila.bloqueDerecho; track butaca.id) {
+              <div
+                class="butaca"
+                [appTipoButaca]="butaca.tipo"
+                [class.butaca--disponible]="obtenerEstadoButaca(butaca) === 'disponible'"
+                [class.butaca--ocupada]="obtenerEstadoButaca(butaca) === 'ocupada'"
+                [class.butaca--seleccionada]="obtenerEstadoButaca(butaca) === 'seleccionada'"
+                [class.butaca--inactiva]="!butaca.estaActiva"
+                [class.butaca--interactiva]="esInteractivo() && butaca.estaActiva && obtenerEstadoButaca(butaca) !== 'ocupada'"
+                [attr.aria-disabled]="obtenerEstadoButaca(butaca) === 'ocupada' || !butaca.estaActiva"
+                [title]="construirTooltip(fila.identificador, butaca)"
+                (click)="alHacerClick(butaca)"
+              >
+                @if (obtenerEstadoButaca(butaca) === 'seleccionada') {
+                  <span class="butaca__check" aria-hidden="true">✓</span>
+                } @else if (obtenerEstadoButaca(butaca) === 'ocupada') {
+                  <span class="butaca__cruz" aria-hidden="true">✕</span>
+                } @else if (butaca.tipo === 'accesible') {
+                  <span class="butaca__icono" aria-hidden="true">♿</span>
+                }
+                <span class="butaca__numero">{{ butaca.numero }}</span>
+              </div>
+            }
+          </div>
+
+          <!-- Etiqueta de fila derecha -->
+          <div class="etiqueta-fila etiqueta-fila--derecha" [title]="'Fila ' + fila.identificador">
+            {{ fila.identificador }}
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

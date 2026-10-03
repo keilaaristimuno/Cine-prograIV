@@ -1,0 +1,87 @@
+<section class="pagina-mapa-sala">
+  <!-- ENCABEZADO DE PÁGINA -->
+  <header class="encabezado-mapa">
+    <div class="encabezado-mapa__info">
+      <nav class="breadcrumb" aria-label="Miga de pan">
+        <a routerLink="/admin/salas" class="breadcrumb__enlace">Salas</a>
+        <span class="breadcrumb__separador">/</span>
+        <span class="breadcrumb__actual">Distribución de butacas</span>
+      </nav>
+
+      @if (sala(); as s) {
+        <h1 class="encabezado-mapa__titulo">
+          Sala #{{ s.numero }} <span class="encabezado-mapa__nombre">— {{ s.nombre }}</span>
+        </h1>
+        <div class="encabezado-mapa__badges">
+          <span
+            class="badge-formato"
+            [class.badge-formato--2d]="s.formato === '2D'"
+            [class.badge-formato--3d]="s.formato === '3D'"
+            [class.badge-formato--4d]="s.formato === '4D'"
+            [class.badge-formato--5d]="s.formato === '5D'"
+          >
+            {{ s.formato }}
+          </span>
+          <span class="badge-capacidad">
+            {{ butacas().length }} butacas físicas activas (19 filas)
+          </span>
+          @if (s.estaActiva) {
+            <span class="badge-estado badge-estado--activo">Habilitada</span>
+          } @else {
+            <span class="badge-estado badge-estado--inactivo">Inhabilitada</span>
+          }
+        </div>
+      } @else {
+        <h1 class="encabezado-mapa__titulo">Distribución de butacas</h1>
+      }
+    </div>
+
+    <div class="encabezado-mapa__acciones">
+      <a routerLink="/admin/salas" class="boton-volver">
+        ← Volver a salas
+      </a>
+    </div>
+  </header>
+
+  <!-- 1. ESTADO DE CARGA -->
+  @if (cargando()) {
+    <div class="contenedor-estado">
+      <div class="spinner-cine"></div>
+      <p class="texto-carga">Cargando distribución de butacas...</p>
+    </div>
+  }
+
+  <!-- 2. ESTADO DE ERROR -->
+  @else if (error()) {
+    <div class="contenedor-estado contenedor-estado--error" role="alert">
+      <div class="icono-alerta" aria-hidden="true">⚠️</div>
+      <p class="mensaje-error">{{ error() }}</p>
+      <div class="acciones-error">
+        <button type="button" class="boton-primario" (click)="cargarDatos()">
+          Reintentar
+        </button>
+        <a routerLink="/admin/salas" class="boton-secundario">
+          Volver al listado
+        </a>
+      </div>
+    </div>
+  }
+
+  <!-- 3. ESTADO SALA SIN BUTACAS -->
+  @else if (butacas().length === 0) {
+    <div class="contenedor-estado contenedor-estado--vacio">
+      <div class="icono-alerta" aria-hidden="true">💺</div>
+      <p class="texto-vacio">Esta sala todavía no tiene butacas físicas registradas en la base de datos.</p>
+      <a routerLink="/admin/salas" class="boton-secundario">
+        Volver a salas
+      </a>
+    </div>
+  }
+
+  <!-- 4. ESTADO ÉXITO: COMPONENTE REUTILIZABLE MAPA DE BUTACAS -->
+  @else {
+    <div class="contenedor-mapa">
+      <app-mapa-butacas [butacas]="butacas()" />
+    </div>
+  }
+</section>

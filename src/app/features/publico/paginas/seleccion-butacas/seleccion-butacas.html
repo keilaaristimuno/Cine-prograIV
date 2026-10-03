@@ -1,0 +1,155 @@
+<div class="pagina-seleccion-butacas">
+  <!-- MIGA DE PAN -->
+  <nav class="breadcrumb-publico" aria-label="Miga de pan">
+    <a routerLink="/" class="breadcrumb-publico__enlace">Cartelera</a>
+    <span class="breadcrumb-publico__separador">/</span>
+    @if (funcion()?.pelicula; as pelicula) {
+      <a [routerLink]="['/pelicula', pelicula.id]" class="breadcrumb-publico__enlace">
+        {{ pelicula.nombre }}
+      </a>
+      <span class="breadcrumb-publico__separador">/</span>
+    }
+    <span class="breadcrumb-publico__actual">Selección de butacas</span>
+  </nav>
+
+  <!-- AVISO DE CONFLICTO REALTIME -->
+  @if (avisoConflicto()) {
+    <div class="alerta-conflicto" role="alert">
+      <span class="alerta-conflicto__icono" aria-hidden="true">⚠️</span>
+      <p class="alerta-conflicto__texto">{{ avisoConflicto() }}</p>
+      <button
+        type="button"
+        class="alerta-conflicto__cerrar"
+        (click)="cerrarAvisoConflicto()"
+        aria-label="Cerrar aviso"
+      >
+        ✕
+      </button>
+    </div>
+  }
+
+  <!-- ESTADO DE CARGA -->
+  @if (cargando()) {
+    <div class="contenedor-estado">
+      <div class="spinner-cine"></div>
+      <p class="texto-carga">Cargando disponibilidad de la sala...</p>
+    </div>
+  }
+
+  <!-- ESTADO DE ERROR O CASO BORDE (Función cancelada, ya iniciada o inexistente) -->
+  @else if (error()) {
+    <div class="contenedor-estado contenedor-estado--error" role="alert">
+      <div class="icono-alerta" aria-hidden="true">⚠️</div>
+      <h2 class="titulo-error">No se puede acceder a la selección</h2>
+      <p class="mensaje-error">{{ error() }}</p>
+      <div class="acciones-error">
+        @if (funcion()?.pelicula; as pelicula) {
+          <a [routerLink]="['/pelicula', pelicula.id]" class="boton-primario">
+            Ver otros horarios
+          </a>
+        }
+        <a routerLink="/" class="boton-secundario">
+          Volver a la cartelera
+        </a>
+      </div>
+    </div>
+  }
+
+  <!-- CONTENIDO PRINCIPAL: FUNCIÓN ACTIVA -->
+  @else if (funcion(); as f) {
+    <!-- ENCABEZADO DE LA FUNCIÓN -->
+    <header class="cabecera-funcion">
+      <div class="cabecera-funcion__info">
+        <span class="cabecera-funcion__etiqueta">Función seleccionada</span>
+        <h1 class="cabecera-funcion__titulo">{{ f.pelicula?.nombre }}</h1>
+
+        <div class="cabecera-funcion__metadatos">
+          <span class="cabecera-funcion__fecha">
+            📅 {{ formatearFechaHora(f.fechaHoraInicio) }}
+          </span>
+
+          <span class="cabecera-funcion__separador">•</span>
+
+          <span class="cabecera-funcion__sala">
+            🏛️ Sala {{ f.sala?.numero }} ({{ f.sala?.nombre }})
+          </span>
+
+          <span class="cabecera-funcion__separador">•</span>
+
+          <span
+            class="badge-formato"
+            [class.badge-formato--2d]="f.formato === '2D'"
+            [class.badge-formato--3d]="f.formato === '3D'"
+            [class.badge-formato--4d]="f.formato === '4D'"
+            [class.badge-formato--5d]="f.formato === '5D'"
+          >
+            {{ f.formato }}
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAPA VISUAL REUTILIZABLE CON ESTADOS INTERACTIVOS -->
+    <section class="seccion-mapa" aria-label="Mapa interactivo de la sala">
+      <app-mapa-butacas
+        [butacas]="butacas()"
+        [ocupadasIds]="ocupadasIds()"
+        [seleccionadasIds]="seleccionadasIds()"
+        [esInteractivo]="permiteSeleccion()"
+        (butacaClick)="alternarSeleccion($event)"
+      />
+    </section>
+
+    <!-- BARRA FLOTANTE INFERIOR DE RESUMEN DE SELECCIÓN -->
+    <aside class="barra-resumen" aria-label="Resumen de selección de butacas">
+      <div class="barra-resumen__contenido">
+        <div class="barra-resumen__detalles">
+          <div class="barra-resumen__contador">
+            <span class="numero-butacas">{{ cantidadSeleccionadas() }}</span>
+            <span class="texto-butacas">
+              {{ cantidadSeleccionadas() === 1 ? 'butaca seleccionada' : 'butacas seleccionadas' }}
+            </span>
+          </div>
+
+          <!-- Listado de butacas seleccionadas -->
+          @if (cantidadSeleccionadas() > 0) {
+            <div class="barra-resumen__chips">
+              @for (b of butacasSeleccionadas(); track b.id) {
+                <span class="chip-butaca" [class.chip-butaca--vip]="b.tipo === 'vip'" [class.chip-butaca--accesible]="b.tipo === 'accesible'">
+                  {{ b.fila }}{{ b.numero }}
+                </span>
+              }
+            </div>
+          } @else {
+            <p class="barra-resumen__indicacion">
+              Hacé clic en las butacas disponibles para seleccionarlas
+            </p>
+          }
+        </div>
+
+        <div class="barra-resumen__acciones">
+          @if (cantidadSeleccionadas() > 0) {
+            <button
+              type="button"
+              class="boton-limpiar"
+              (click)="limpiarSeleccion()"
+              title="Deseleccionar todas las butacas"
+            >
+              Limpiar selección
+            </button>
+          }
+
+          <!-- Botón preparado para conectar con el flujo de compra en M4.4 -->
+          <button
+            type="button"
+            class="boton-continuar"
+            [disabled]="cantidadSeleccionadas() === 0"
+            [title]="cantidadSeleccionadas() === 0 ? 'Seleccioná al menos una butaca para continuar' : 'Continuar al paso de compra (M4.4)'"
+          >
+            Continuar con la compra
+          </button>
+        </div>
+      </div>
+    </aside>
+  }
+</div>

@@ -1,0 +1,368 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.mapa-contenedor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  width: 100%;
+  padding: 1.5rem 0.5rem;
+  background-color: #120f1a;
+  border: 1px solid #2b233a;
+  border-radius: 0.85rem;
+}
+
+/* ==========================================================================
+   1. PANTALLA DEL CINE (Orientación superior)
+   ========================================================================== */
+.pantalla-cine {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(92%, 780px);
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+
+  &__arco {
+    position: relative;
+    width: 100%;
+    padding: 0.5rem 0 0.8rem;
+    text-align: center;
+    border-top: 3px solid #38bdf8;
+    border-radius: 50% 50% 0 0 / 18px 18px 0 0;
+    background: linear-gradient(
+      180deg,
+      rgba(56, 189, 248, 0.12) 0%,
+      rgba(56, 189, 248, 0.02) 70%,
+      transparent 100%
+    );
+    box-shadow: 0 -4px 18px rgba(56, 189, 248, 0.35);
+  }
+
+  &__texto {
+    color: #7dd3fc;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+  }
+
+  &__resplandor {
+    position: absolute;
+    top: 0;
+    left: 20%;
+    right: 20%;
+    height: 12px;
+    background: radial-gradient(
+      ellipse at top,
+      rgba(56, 189, 248, 0.35) 0%,
+      transparent 80%
+    );
+    pointer-events: none;
+  }
+}
+
+/* ==========================================================================
+   2. LEYENDA INFORMATIVA
+   ========================================================================== */
+.leyenda-butacas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  padding: 0.65rem 1.25rem;
+  background-color: #191424;
+  border: 1px solid #332947;
+  border-radius: 2rem;
+}
+
+.leyenda-grupo {
+  display: flex;
+  align-items: center;
+  gap: 1.15rem;
+}
+
+.leyenda-separador {
+  width: 1px;
+  height: 18px;
+  background-color: #4a3e66;
+}
+
+.leyenda-item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.muestra-butaca {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 5px 5px 3px 3px;
+  font-size: 0.7rem;
+  font-weight: 700;
+
+  &--accesible {
+    font-size: 0.75rem;
+  }
+
+  &--vip {
+    font-size: 0.75rem;
+  }
+}
+
+.muestra-estado {
+  &--disponible {
+    background-color: #211c2e;
+    border: 1px solid #4a3e66;
+    color: #cbb8fa;
+  }
+
+  &--seleccionada {
+    background-color: #8b5cf6;
+    border: 1px solid #c4b5fd;
+    color: #fff;
+    box-shadow: 0 0 8px rgba(139, 92, 246, 0.6);
+  }
+
+  &--ocupada {
+    background-color: #1a1622;
+    border: 1px solid #322b40;
+    color: #685d80;
+  }
+}
+
+.leyenda-texto {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #cbb8fa;
+}
+
+/* ==========================================================================
+   3. SCROLL HORIZONTAL CONTROLADO Y LIENZO DE LA SALA
+   ========================================================================== */
+.mapa-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 1.25rem 0.5rem 1.75rem;
+  outline: none;
+
+  /* Scrollbar temático dark */
+  scrollbar-width: thin;
+  scrollbar-color: #554477 #161221;
+
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #161221;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #554477;
+    border-radius: 4px;
+
+    &:hover {
+      background: #735ca3;
+    }
+  }
+}
+
+.sala-lienzo {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  width: max-content;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* ==========================================================================
+   4. FILA DE LA SALA (Layout horizontal canónico)
+   ========================================================================== */
+.fila-sala {
+  display: flex;
+  align-items: center;
+  gap: 0;
+
+  &--accesible {
+    margin: 4px 0;
+  }
+
+  &--vip {
+    .etiqueta-fila {
+      color: #f5c451;
+    }
+  }
+}
+
+.etiqueta-fila {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #aaa4b5;
+  user-select: none;
+
+  &--derecha {
+    color: #797187;
+  }
+}
+
+.fila-sala--accesible .etiqueta-fila {
+  color: #38bdf8;
+}
+
+/* ==========================================================================
+   5. TRES BLOQUES DE BUTACAS (CSS Grid de precisión)
+   ========================================================================== */
+.bloque-butacas {
+  display: grid;
+  gap: 6px;
+
+  /* 4 columnas en bloque izquierdo */
+  &--izquierdo {
+    grid-template-columns: repeat(4, 28px);
+  }
+
+  /* 20 columnas en bloque central */
+  &--central {
+    grid-template-columns: repeat(20, 28px);
+  }
+
+  /* 4 columnas en bloque derecho */
+  &--derecho {
+    grid-template-columns: repeat(4, 28px);
+  }
+}
+
+/* En la fila accesible 'JK', cada una de las 14 butacas ocupa el doble de ancho (span 2),
+   alineando los pasillos con exactitud matemática respecto a las 18 filas normales/VIP */
+.fila-sala--accesible {
+  .bloque-butacas--izquierdo .butaca,
+  .bloque-butacas--central .butaca,
+  .bloque-butacas--derecho .butaca {
+    grid-column: span 2;
+  }
+}
+
+/* ==========================================================================
+   6. PASILLOS ENTRE BLOQUES (Separación física visual, sin butacas falsas)
+   ========================================================================== */
+.pasillo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  user-select: none;
+
+  &__guia {
+    width: 1px;
+    height: 100%;
+    background: repeating-linear-gradient(
+      180deg,
+      rgba(170, 164, 181, 0.15) 0,
+      rgba(170, 164, 181, 0.15) 3px,
+      transparent 3px,
+      transparent 6px
+    );
+  }
+}
+
+/* ==========================================================================
+   7. BUTACA FÍSICA INDIVIDUAL
+   ========================================================================== */
+.butaca {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  height: 28px;
+  border-radius: 6px 6px 3px 3px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: default;
+  user-select: none;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    background-color 120ms ease,
+    border-color 120ms ease;
+
+  &--interactiva {
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-2px) scale(1.05);
+      z-index: 4;
+    }
+  }
+
+  &--ocupada {
+    opacity: 0.28;
+    cursor: not-allowed !important;
+    filter: grayscale(90%);
+    background-color: #161220 !important;
+    border-color: #2e263c !important;
+    color: #554a6d !important;
+    box-shadow: none !important;
+
+    &:hover {
+      transform: none !important;
+      z-index: 1 !important;
+    }
+  }
+
+  &--seleccionada {
+    background-color: #8b5cf6 !important;
+    border-color: #d8b4fe !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 12px rgba(139, 92, 246, 0.7) !important;
+    transform: translateY(-1px) scale(1.06);
+    z-index: 3;
+  }
+
+  &--inactiva {
+    opacity: 0.18;
+    cursor: not-allowed !important;
+  }
+
+  &__numero {
+    line-height: 1;
+  }
+
+  &__icono {
+    font-size: 0.7rem;
+    line-height: 1;
+  }
+
+  &__check {
+    font-size: 0.7rem;
+    line-height: 1;
+    color: #ffffff;
+    font-weight: 800;
+  }
+
+  &__cruz {
+    font-size: 0.65rem;
+    line-height: 1;
+    color: #796c94;
+    font-weight: 800;
+  }
+}

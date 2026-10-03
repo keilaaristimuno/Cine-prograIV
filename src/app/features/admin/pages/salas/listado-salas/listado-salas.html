@@ -63,7 +63,7 @@
                 </span>
               </td>
               <td class="columna-capacidad">
-                560 butacas <span class="detalle-capacidad">(20 filas)</span>
+                518 butacas <span class="detalle-capacidad">(19 filas)</span>
               </td>
               <td>
                 @if (sala.estaActiva) {
@@ -78,6 +78,15 @@
               </td>
               <td>
                 <div class="acciones-sala">
+                  <!-- VER BUTACAS -->
+                  <a
+                    class="boton-accion boton-accion--butacas"
+                    [routerLink]="['/admin/salas', sala.id, 'butacas']"
+                    title="Ver distribución de butacas"
+                  >
+                    Ver butacas
+                  </a>
+
                   <!-- EDITAR -->
                   <a
                     class="boton-accion"

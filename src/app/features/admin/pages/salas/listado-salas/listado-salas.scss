@@ -273,4 +273,16 @@
       background-color: rgba(245, 196, 81, 0.2);
     }
   }
+
+  &--butacas {
+    border-color: rgba(139, 92, 246, 0.4);
+    background-color: rgba(139, 92, 246, 0.12);
+    color: #c4b5fd;
+
+    &:hover:not(:disabled) {
+      background-color: rgba(139, 92, 246, 0.22);
+      border-color: #8b5cf6;
+      color: #fff;
+    }
+  }
 }

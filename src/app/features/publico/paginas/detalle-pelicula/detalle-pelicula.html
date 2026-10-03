@@ -193,7 +193,11 @@
 
                     <div class="grupo-dia__grilla">
                       @for (funcion of grupo.funciones; track funcion.id) {
-                        <article class="tarjeta-funcion">
+                        <a
+                          class="tarjeta-funcion"
+                          [routerLink]="['/funcion', funcion.id, 'butacas']"
+                          title="Seleccionar butacas para esta función"
+                        >
                           <span class="tarjeta-funcion__hora">
                             {{ formatearHora(funcion.fechaHoraInicio) }}
                           </span>
@@ -213,7 +217,7 @@
                               Sala asignada
                             }
                           </span>
-                        </article>
+                        </a>
                       }
                     </div>
                   </div>

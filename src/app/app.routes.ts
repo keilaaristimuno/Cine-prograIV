@@ -22,6 +22,13 @@ export const routes: Routes = [
           import(
             './features/publico/paginas/detalle-pelicula/detalle-pelicula'
           ).then(m => m.DetallePelicula)
+      },
+      {
+        path: 'funcion/:id/butacas',
+        loadComponent: () =>
+          import(
+            './features/publico/paginas/seleccion-butacas/seleccion-butacas'
+          ).then(m => m.SeleccionButacas)
       }
     ]
   },
@@ -88,6 +95,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/admin/pages/salas/formulario-sala/formulario-sala')
             .then(m => m.FormularioSala)
+      },
+      {
+        path: 'salas/:id/butacas',
+        loadComponent: () =>
+          import('./features/admin/pages/salas/mapa-sala/mapa-sala')
+            .then(m => m.MapaSala)
       },
       {
         path: 'funciones',

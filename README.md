@@ -90,7 +90,7 @@ El proyecto se desarrolla de forma modular y progresiva. Al finalizar el **Módu
 * [x] **Modelo y formatos de proyección:**
   * Formatos soportados estrictamente tipados: `'2D' | '3D' | '4D' | '5D'`.
   * Estructura de sala simplificada y extensible (`id`, `numero`, `nombre`, `formato`, `estaActiva`).
-  * Capacidad fija establecida para la distribución requerida del cine (560 butacas, 20 filas en tres bloques 4-20-4).
+  * Capacidad física definitiva de 518 butacas (19 filas: 15 normales, 1 accesible 'JK' y 3 VIP).
 * [x] **Panel administrativo de salas (`/admin/salas`):**
   * Listado completo de salas ordenadas por número ascendente (`ServicioSalas.obtenerSalas`).
   * Formulario reactivo (`/admin/salas/nueva` y `/admin/salas/editar/:id`) con validación de número positivo único y nombre.
@@ -126,7 +126,7 @@ El proyecto se desarrolla de forma modular y progresiva. Al finalizar el **Módu
 
 ### Próximos pasos y funcionalidades en desarrollo
 
-* [ ] **Módulo de Butacas:** Generación de la distribución física de asientos (20 filas con bloques 4-20-4 = 560 butacas por sala), mapa interactivo y selección de ubicaciones.
+* [ ] **Módulo de Butacas:** Distribución física de asientos (19 filas: 15 normales, 1 accesible 'JK' y 3 VIP = 518 butacas por sala), mapa interactivo y selección de ubicaciones.
 * [ ] **Módulo de Compra y Reservas:** Definición del modelo de precios según formato (2D, 3D, 4D, 5D), reserva temporal de butacas y pasarela de pago.
 * [ ] **Páginas específicas de cliente:** Panel de mi cuenta, historial de compras y consulta de crédito.
 * [ ] **Páginas específicas de empleado:** Escáner e interfaz de validación de entradas por código QR.
