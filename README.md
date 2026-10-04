@@ -152,7 +152,7 @@ El proyecto se desarrolla de forma modular y progresiva. Al finalizar el **Módu
   * Doble anillo de seguridad:
     1. **Frontend:** Bloqueo reactivo en interfaz (`SeleccionButacas`), inhabilitando selección y botón de compra con advertencia clara.
     2. **Backend (RPC):** Validación mandatoria en PostgreSQL que aborta la transacción (`RAISE EXCEPTION`) si el usuario registrado no cumple la edad requerida.
-  * Validación para películas ATP (sin restricción), +13 y +18 (bloqueo para menores de 18).
+  * Validación para películas ATP (sin restricción), +13 (bloqueo para registrados menores de 13) y +18 (bloqueo para registrados menores de 18).
   * Advertencias legales de acompañamiento responsable para menores y compras anónimas.
 * [x] **M4.6 — Sistema de precios, VIP, preventa y descuento de primera compra:**
   * Tabla `public.tarifas_formato` con precios base configurables (2D: $10.000, 3D: $12.000, 4D: $15.000, 5D: $18.000).
@@ -324,8 +324,8 @@ Catálogo de películas administrado por los usuarios autorizados:
 | `generos` | `text[]` | Array con los géneros cinematográficos aplicables. |
 | `imagen_url` | `text` | URL pública del póster en Supabase Storage. |
 | `permite_preventa` | `boolean` | Habilita venta anticipada con descuento promocional (`DEFAULT false`). |
-| `porcentaje_descuento_preventa` | `integer` | Porcentaje de descuento por preventa (`0` a `100`, `DEFAULT 0`). |
-| `dias_anticipacion_preventa` | `integer` | Días mínimos requeridos entre la compra y la función (`DEFAULT 0`). |
+| `porcentaje_descuento_preventa` | `numeric(5,2)` | Porcentaje de descuento por preventa (`DEFAULT 20.00`). |
+| `dias_anticipacion_preventa` | `integer` | Días mínimos requeridos entre la compra y la función (`DEFAULT 7`). |
 | `creado_por` | `UUID` (FK) | Referencia al usuario administrador creador. |
 | `creado_en` | `timestamptz` | Fecha de creación del registro. |
 
@@ -373,12 +373,13 @@ Cabecera transaccional de compras realizadas por clientes registrados o anónimo
 | Campo | Tipo | Descripción |
 | :--- | :--- | :--- |
 | `id` | `UUID` (PK) | Identificador único de la compra (`gen_random_uuid()`). |
-| `usuario_id` | `UUID` (FK) | Referencia a `auth.users(id)` (`NULL` en compras de anónimos). |
+| `usuario_id` | `UUID` (FK) | Referencia a `auth.users(id)` (`ON DELETE SET NULL`, `NULL` en compras de anónimos). |
 | `email_contacto` | `text` | Correo electrónico del comprador (obtenido de Auth o ingresado en compra anónima). |
 | `subtotal` | `numeric(10,2)` | Monto acumulado de precios de lista antes de descuentos (`NULL` en compras históricas pre-M4.6). |
-| `porcentaje_descuento` | `integer` | Porcentaje de descuento aplicado (`0` a `100`, `DEFAULT 0`). |
-| `tipo_descuento_aplicado` | `text` | Promoción aplicada: `'ninguno'`, `'preventa'`, `'primera_compra'`. |
-| `es_primera_compra` | `boolean` | Flag que indica si consumió la promoción de primera compra (`DEFAULT false`). |
+| `porcentaje_descuento_aplicado` | `numeric(5,2)` | Porcentaje de descuento aplicado (`DEFAULT 0.00`). |
+| `monto_descuento` | `numeric(10,2)` | Monto total descontado sobre el subtotal (`DEFAULT 0.00`). |
+| `tipo_descuento_aplicado` | `text` | Promoción ganadora aplicada: `'ninguno'`, `'preventa'`, `'primera_compra'`. |
+| `es_primera_compra` | `boolean` | Indica que la transacción corresponde a la primera compra completada del usuario registrado (`DEFAULT false`). |
 | `total` | `numeric(10,2)` | Monto total final cobrado (`NULL` en compras históricas pre-M4.6). |
 | `estado` | `text` | Estado de la compra: `'pendiente'`, `'completada'`, `'cancelada'`. |
 | `creado_en` | `timestamptz` | Fecha y hora de la transacción. |
@@ -391,8 +392,8 @@ Detalle de entradas individuales asociadas a una compra, función y butaca físi
 | Campo | Tipo | Descripción |
 | :--- | :--- | :--- |
 | `id` | `UUID` (PK) | Identificador único de la entrada (`gen_random_uuid()`). |
-| `compra_id` | `UUID` (FK) | Referencia a la transacción `public.compras(id)` (`ON DELETE RESTRICT`). |
-| `funcion_id` | `UUID` (FK) | Referencia a `public.funciones(id)` (`ON DELETE RESTRICT`). |
+| `compra_id` | `UUID` (FK) | Referencia a la transacción `public.compras(id)` (`ON DELETE CASCADE`). |
+| `funcion_id` | `UUID` (FK) | Referencia a `public.funciones(id)` (`ON DELETE CASCADE`). |
 | `butaca_id` | `UUID` (FK) | Referencia a `public.butacas(id)` (`ON DELETE RESTRICT`). |
 | `precio_unitario` | `numeric(10,2)` | Precio de lista congelado al momento de la venta (`NULL` en compras históricas pre-M4.6). |
 | `estado` | `text` | Estado de la entrada: `'comprada'`, `'cancelada'`. |
@@ -410,14 +411,16 @@ Precios de lista base por formato de proyección gestionados desde el panel admi
 | `actualizado_en` | `timestamptz` | Fecha y hora de la última modificación. |
 
 ### `public.configuracion_cine`
-Parámetros globales y porcentajes de recargo/descuento del cine:
+Tabla singleton con parámetros comerciales globales y porcentajes de recargo/descuento:
 
 | Campo | Tipo | Descripción |
 | :--- | :--- | :--- |
-| `clave` | `text` (PK) | Identificador de configuración (`'recargo_vip_porcentaje'`, `'descuento_primera_compra_porcentaje'`). |
-| `valor_numerico` | `numeric(10,2)` | Porcentaje aplicable (por defecto: 50% recargo VIP, 20% descuento bienvenida). |
-| `descripcion` | `text` | Explicación del parámetro de configuración. |
-| `actualizado_en` | `timestamptz` | Fecha y hora de la última actualización. |
+| `id` | `integer` (PK) | Identificador singleton del cine (`DEFAULT 1 CHECK (id = 1)`). |
+| `porcentaje_recargo_vip` | `numeric(5,2)` | Recargo porcentual sobre precio base para butacas VIP (`DEFAULT 50.00`). |
+| `porcentaje_descuento_primera_compra` | `numeric(5,2)` | Descuento porcentual para la primera compra del usuario (`DEFAULT 20.00`). |
+| `descuento_primera_compra_activo` | `boolean` | Habilitación operativa de la promoción de primera compra (`DEFAULT true`). |
+| `dias_anticipacion_preventa` | `integer` | Días de anticipación por defecto para compras en preventa (`DEFAULT 7`). |
+| `actualizado_en` | `timestamptz` | Fecha y hora de la última actualización administrativa. |
 
 ---
 
@@ -456,7 +459,7 @@ Parámetros globales y porcentajes de recargo/descuento del cine:
     - *Anillo de cliente (UX):* El componente `SeleccionButacas` consulta la fecha de nacimiento del perfil autenticado, calcula la edad exacta considerando año, mes y día (sin errores de huso horario), y deshabilita la selección de asientos y el botón de compra si no cumple con la clasificación (+13 o +18). Para compras anónimas, despliega una advertencia obligatoria de acompañamiento de adultos.
     - *Anillo de servidor (Integridad):* La RPC `realizar_compra_entradas` en PostgreSQL realiza la misma comprobación estricta de edad sobre `public.perfiles` (`fecha_nacimiento`). Si un usuario intenta eludir el cliente llamando directamente a la API o RPC, PostgreSQL lanza una excepción (`RAISE EXCEPTION`) y aborta la transacción inmediatamente.
 16. **Precios base por formato, recargo VIP y congelamiento histórico:**
-    El sistema desacopla los precios de las salas y funciones mediante la tabla `public.tarifas_formato` (`2D`, `3D`, `4D`, `5D`) y `public.configuracion_cine` (`recargo_vip_porcentaje`). Las butacas normales y accesibles tributan el precio base del formato de la función, mientras que las butacas VIP aplican el recargo configurable (por defecto 50%). Cada entrada vendida congela su precio de lista en `entradas.precio_unitario`, garantizando que futuras modificaciones de tarifas no alteren los montos facturados en compras históricas ni rompan la contabilidad.
+    El sistema desacopla los precios de las salas y funciones mediante la tabla `public.tarifas_formato` (`2D`, `3D`, `4D`, `5D`) y `public.configuracion_cine` (`porcentaje_recargo_vip`). Las butacas normales y accesibles tributan el precio base del formato de la función, mientras que las butacas VIP aplican el recargo configurable (por defecto 50%). Cada entrada vendida congela su precio de lista en `entradas.precio_unitario`, garantizando que futuras modificaciones de tarifas no alteren los montos facturados en compras históricas ni rompan la contabilidad.
 17. **Descuentos no acumulables, serialización con `FOR UPDATE` y restricción de primera compra:**
     El sistema admite dos promociones: preventa por película (si la función se adquiere con la anticipación requerida) y descuento de primera compra (20% para clientes registrados sin compras previas completadas). Por regla de negocio, **los descuentos no se acumulan en cascada**: si ambas promociones coinciden, el sistema selecciona automáticamente la de mayor porcentaje. Para evitar que dos transacciones simultáneas de un mismo usuario apliquen ambas el descuento de bienvenida, la RPC bloquea la fila del usuario con `SELECT ... FROM public.perfiles WHERE usuario_id = p_usuario_id FOR UPDATE` y la base de datos refuerza la regla con el índice único parcial `uq_compras_primera_compra_usuario` sobre `public.compras (usuario_id) WHERE (es_primera_compra = true AND estado = 'completada')`.
 
