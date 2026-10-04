@@ -30,6 +30,31 @@
         <code class="identificador-orden__codigo">{{ c.compra_id }}</code>
       </div>
 
+      <!-- PASE DIGITAL DE ACCESO AL CINE (M5.1) -->
+      @if (c.codigo_alfanumerico) {
+        <div class="tarjeta-pase-acceso" aria-labelledby="titulo-pase-acceso">
+          <div class="tarjeta-pase-acceso__info">
+            <span class="tarjeta-pase-acceso__icono" aria-hidden="true">🎟️</span>
+            <div class="tarjeta-pase-acceso__textos">
+              <span id="titulo-pase-acceso" class="tarjeta-pase-acceso__etiqueta">
+                Código de acceso al cine
+              </span>
+              <p class="tarjeta-pase-acceso__subtexto">
+                Presentá este código al ingresar a la sala para validar el acceso grupal (válido para {{ c.butacas.length }} {{ c.butacas.length === 1 ? 'butaca' : 'butacas' }}).
+              </p>
+            </div>
+          </div>
+          <div class="tarjeta-pase-acceso__box">
+            <code class="tarjeta-pase-acceso__codigo">{{ c.codigo_alfanumerico }}</code>
+            @if (c.acceso_sala_validado) {
+              <span class="badge-acceso-usado">✓ Acceso utilizado</span>
+            } @else {
+              <span class="badge-acceso-disponible">● Válido para ingreso</span>
+            }
+          </div>
+        </div>
+      }
+
       <!-- DETALLES DE LA FUNCIÓN -->
       <section class="bloque-detalle" aria-labelledby="titulo-detalle-funcion">
         <h2 id="titulo-detalle-funcion" class="bloque-detalle__titulo">Detalle de la función</h2>

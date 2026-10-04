@@ -1,5 +1,5 @@
-import { inject, Injectable } from '@angular/core';
-import { DatosConfirmarCompra, ResultadoCompra } from '../modelos/compra';
+import { inject, Injectable, signal } from '@angular/core';
+import { DatosBorradorCompra, DatosConfirmarCompra, ResultadoCompra } from '../modelos/compra';
 import { ServicioSupabase } from './servicio-supabase';
 
 @Injectable({
@@ -7,6 +7,34 @@ import { ServicioSupabase } from './servicio-supabase';
 })
 export class ServicioCompras {
   private readonly servicioSupabase = inject(ServicioSupabase);
+
+  /**
+   * Estado puramente en memoria del borrador de compra en tránsito.
+   * No se persiste en localStorage, sessionStorage ni base de datos.
+   */
+  private readonly borradorCompraSignal = signal<DatosBorradorCompra | null>(null);
+  readonly borradorActual = this.borradorCompraSignal.asReadonly();
+
+  /**
+   * Guarda los datos preliminares de la compra para la pantalla de pago simulado.
+   */
+  establecerBorrador(datos: DatosBorradorCompra): void {
+    this.borradorCompraSignal.set(datos);
+  }
+
+  /**
+   * Retorna el borrador en memoria actual.
+   */
+  obtenerBorrador(): DatosBorradorCompra | null {
+    return this.borradorCompraSignal();
+  }
+
+  /**
+   * Limpia el borrador en memoria tras completar o cancelar la operación.
+   */
+  limpiarBorrador(): void {
+    this.borradorCompraSignal.set(null);
+  }
 
   /**
    * Ejecuta la compra atómica de entradas a través de la función RPC de PostgreSQL.
@@ -69,6 +97,9 @@ export class ServicioCompras {
         tipo_descuento_aplicado,
         es_primera_compra,
         total,
+        codigo_alfanumerico,
+        acceso_sala_validado,
+        acceso_sala_validado_en,
         entradas (
           id,
           funcion_id,
@@ -112,6 +143,9 @@ export class ServicioCompras {
       tipo_descuento_aplicado: data.tipo_descuento_aplicado ?? 'ninguno',
       es_primera_compra: Boolean(data.es_primera_compra ?? false),
       total: Number(data.total ?? 0),
+      codigo_alfanumerico: data.codigo_alfanumerico || undefined,
+      acceso_sala_validado: Boolean(data.acceso_sala_validado ?? false),
+      acceso_sala_validado_en: data.acceso_sala_validado_en || null,
       funcion: {
         id: funcionData?.id || '',
         pelicula_nombre: funcionData?.pelicula?.nombre || 'Película',

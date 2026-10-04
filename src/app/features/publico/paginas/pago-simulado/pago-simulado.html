@@ -1,0 +1,353 @@
+<div class="contenedor-pago">
+  @if (!borrador()) {
+    <!-- ESTADO VACÍO: ACCESO DIRECTO SIN BORRADOR ACTIVO -->
+    <div class="pantalla-vacia">
+      <div class="pantalla-vacia__icono">🎬</div>
+      <h1 class="pantalla-vacia__titulo">No hay una orden de compra activa</h1>
+      <p class="pantalla-vacia__descripcion">
+        Para realizar un pago simulado, primero debés seleccionar una función y las butacas deseadas.
+      </p>
+      <a routerLink="/" class="boton-primario">
+        Ver cartelera de funciones
+      </a>
+    </div>
+  } @else {
+    <!-- CABECERA Y RETORNO -->
+    <header class="cabecera-pago">
+      <a [routerLink]="['/funcion', borrador()!.funcionId, 'butacas']" class="enlace-volver">
+        ← Volver a selección de butacas
+      </a>
+      <div class="cabecera-pago__info">
+        <h1 class="cabecera-pago__titulo">Pago simulado de entradas</h1>
+        <p class="cabecera-pago__subtitulo">
+          Completá los datos de pago para confirmar tu reserva en <strong>Pantalla Mágica</strong>
+        </p>
+      </div>
+    </header>
+
+    <div class="rejilla-pago">
+      <!-- COLUMNA 1: RESUMEN DE COMPRA ESTIMADA -->
+      <aside class="columna-resumen" aria-label="Resumen preliminar de compra">
+        <div class="panel-resumen">
+          <h2 class="panel-resumen__titulo">Resumen de la orden</h2>
+
+          <!-- Película y Función -->
+          <div class="bloque-detalle">
+            <span class="etiqueta-formato">{{ borrador()!.funcion.formato }}</span>
+            <span class="etiqueta-clasificacion">{{ borrador()!.funcion.clasificacionEdad }}</span>
+            <h3 class="pelicula-titulo">{{ borrador()!.funcion.peliculaNombre }}</h3>
+            <p class="funcion-sala">
+              Sala {{ borrador()!.funcion.salaNumero }} • {{ borrador()!.funcion.salaNombre }}
+            </p>
+            <p class="funcion-fecha">
+              {{ formatearFechaHora(borrador()!.funcion.fechaHoraInicio) }}
+            </p>
+          </div>
+
+          <hr class="separador" />
+
+          <!-- Butacas seleccionadas -->
+          <div class="bloque-butacas">
+            <h4 class="subtitulo-seccion">
+              Butacas seleccionadas ({{ borrador()!.butacas.length }})
+            </h4>
+            <ul class="lista-butacas">
+              @for (b of borrador()!.butacas; track b.id) {
+                <li class="item-butaca">
+                  <div class="item-butaca__info">
+                    <span class="item-butaca__codigo">{{ b.fila }}{{ b.numero }}</span>
+                    <span class="item-butaca__tipo" [class.item-butaca__tipo--vip]="b.tipo === 'vip'">
+                      {{ b.tipo === 'vip' ? 'VIP' : (b.tipo === 'accesible' ? 'Accesible' : 'Estándar') }}
+                    </span>
+                  </div>
+                  <span class="item-butaca__precio">${{ b.precioUnitario | number:'1.0-0' }}</span>
+                </li>
+              }
+            </ul>
+          </div>
+
+          <hr class="separador" />
+
+          <!-- Desglose de totales estimados -->
+          <div class="bloque-totales">
+            <div class="linea-total">
+              <span>Subtotal estimado</span>
+              <strong>${{ borrador()!.subtotalEstimado | number:'1.0-0' }}</strong>
+            </div>
+
+            @if (borrador()!.tipoDescuento !== 'ninguno') {
+              <div class="linea-total linea-total--descuento">
+                <span>
+                  {{ borrador()!.tipoDescuento === 'preventa' ? 'Descuento Preventa' : 'Descuento Primera Compra' }}
+                  (-{{ borrador()!.porcentajeDescuento }}%)
+                </span>
+                <strong>-${{ borrador()!.descuentoEstimado | number:'1.0-0' }}</strong>
+              </div>
+            }
+
+            <div class="linea-total linea-total--final">
+              <span>Total estimado</span>
+              <strong class="total-monto">${{ borrador()!.totalEstimado | number:'1.0-0' }}</strong>
+            </div>
+
+            <div class="aviso-autoridad-precio">
+              <span class="aviso-icono">ℹ️</span>
+              <p>
+                <strong>Importes estimados:</strong> La liquidación final y los descuentos aplicables son calculados y consolidados exclusivamente por PostgreSQL al confirmar la operación.
+              </p>
+            </div>
+          </div>
+
+          <hr class="separador" />
+
+          <!-- Destinatario del comprobante -->
+          <div class="bloque-contacto">
+            <span class="etiqueta-campo">Comprobante y pase digital:</span>
+            <p class="contacto-email">📧 {{ borrador()!.emailContacto }}</p>
+          </div>
+        </div>
+      </aside>
+
+      <!-- COLUMNA 2: TARJETA INTERACTIVA Y FORMULARIO REACTIVO -->
+      <main class="columna-formulario">
+        <!-- MAQUETA VISUAL INTERACTIVA DE TARJETA PLÁSTICA -->
+        <div class="tarjeta-visual" [class]="'tarjeta-visual--' + marcaTarjeta()">
+          <div class="tarjeta-visual__fondo"></div>
+          <div class="tarjeta-visual__contenido">
+            <div class="tarjeta-visual__arriba">
+              <div class="tarjeta-visual__chip" aria-hidden="true">
+                <span class="chip-linea"></span>
+                <span class="chip-linea"></span>
+              </div>
+              <div class="tarjeta-visual__marca">
+                @if (marcaTarjeta() === 'visa') {
+                  <span class="logo-marca logo-marca--visa">VISA</span>
+                } @else if (marcaTarjeta() === 'mastercard') {
+                  <span class="logo-marca logo-marca--mastercard">Mastercard</span>
+                } @else {
+                  <span class="logo-marca logo-marca--cine">PANTALLA MÁGICA</span>
+                }
+              </div>
+            </div>
+
+            <div class="tarjeta-visual__numero">
+              {{ formularioPago.get('numeroTarjeta')?.value || '•••• •••• •••• ••••' }}
+            </div>
+
+            <div class="tarjeta-visual__abajo">
+              <div class="tarjeta-visual__titular">
+                <span class="campo-etiqueta">TITULAR</span>
+                <span class="campo-valor">
+                  {{ formularioPago.get('nombreTitular')?.value || 'NOMBRE Y APELLIDO' }}
+                </span>
+              </div>
+              <div class="tarjeta-visual__vencimiento">
+                <span class="campo-etiqueta">VENCE</span>
+                <span class="campo-valor">
+                  {{ formularioPago.get('vencimiento')?.value || 'MM/AA' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FORMULARIO REACTIVO -->
+        <form [formGroup]="formularioPago" (ngSubmit)="procesarPago()" class="formulario-tarjeta" novalidate>
+          <!-- Número de tarjeta -->
+          <div class="grupo-campo">
+            <label for="numeroTarjeta" class="etiqueta">Número de tarjeta</label>
+            <div class="contenedor-input">
+              <input
+                id="numeroTarjeta"
+                type="text"
+                formControlName="numeroTarjeta"
+                class="input-control"
+                [class.input-control--error]="formularioPago.get('numeroTarjeta')?.invalid && formularioPago.get('numeroTarjeta')?.touched"
+                placeholder="4509 9535 6623 3704"
+                maxlength="23"
+                autocomplete="cc-number"
+                (input)="onInputNumeroTarjeta($event)"
+              />
+              <span class="insignia-marca">{{ marcaTarjeta() | uppercase }}</span>
+            </div>
+
+            @if (formularioPago.get('numeroTarjeta')?.invalid && formularioPago.get('numeroTarjeta')?.touched) {
+              <div class="mensaje-error" role="alert">
+                @if (formularioPago.get('numeroTarjeta')?.errors?.['required']) {
+                  <span>El número de tarjeta es obligatorio.</span>
+                } @else if (formularioPago.get('numeroTarjeta')?.errors?.['luhnLongitud']) {
+                  <span>El número debe tener entre 13 y 19 dígitos numéricos.</span>
+                } @else if (formularioPago.get('numeroTarjeta')?.errors?.['luhnInvalido']) {
+                  <span>El número de tarjeta no es válido. Revisá que esté escrito correctamente.</span>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Nombre del titular -->
+          <div class="grupo-campo">
+            <label for="nombreTitular" class="etiqueta">Nombre y apellido del titular</label>
+            <input
+              id="nombreTitular"
+              type="text"
+              formControlName="nombreTitular"
+              class="input-control"
+              [class.input-control--error]="formularioPago.get('nombreTitular')?.invalid && formularioPago.get('nombreTitular')?.touched"
+              placeholder="JUAN PEREZ"
+              autocomplete="cc-name"
+            />
+            @if (formularioPago.get('nombreTitular')?.invalid && formularioPago.get('nombreTitular')?.touched) {
+              <div class="mensaje-error" role="alert">
+                @if (formularioPago.get('nombreTitular')?.errors?.['required']) {
+                  <span>El nombre del titular es obligatorio.</span>
+                } @else if (formularioPago.get('nombreTitular')?.errors?.['minlength']) {
+                  <span>Debe tener al menos 3 caracteres.</span>
+                } @else if (formularioPago.get('nombreTitular')?.errors?.['titularInvalido']) {
+                  <span>Solo se permiten letras y espacios.</span>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Vencimiento y CVV -->
+          <div class="fila-campos">
+            <div class="grupo-campo">
+              <label for="vencimiento" class="etiqueta">Vencimiento (MM/AA)</label>
+              <input
+                id="vencimiento"
+                type="text"
+                formControlName="vencimiento"
+                class="input-control"
+                [class.input-control--error]="formularioPago.get('vencimiento')?.invalid && formularioPago.get('vencimiento')?.touched"
+                placeholder="12/28"
+                maxlength="5"
+                autocomplete="cc-exp"
+                (input)="onInputVencimiento($event)"
+              />
+              @if (formularioPago.get('vencimiento')?.invalid && formularioPago.get('vencimiento')?.touched) {
+                <div class="mensaje-error" role="alert">
+                  @if (formularioPago.get('vencimiento')?.errors?.['required']) {
+                    <span>Obligatorio.</span>
+                  } @else if (formularioPago.get('vencimiento')?.errors?.['vencimientoFormato']) {
+                    <span>Formato MM/AA (ej: 12/28).</span>
+                  } @else if (formularioPago.get('vencimiento')?.errors?.['vencimientoExpirado']) {
+                    <span>La tarjeta está vencida.</span>
+                  }
+                </div>
+              }
+            </div>
+
+            <div class="grupo-campo">
+              <label for="cvv" class="etiqueta">Código de seguridad (CVV)</label>
+              <input
+                id="cvv"
+                type="password"
+                formControlName="cvv"
+                class="input-control"
+                [class.input-control--error]="formularioPago.get('cvv')?.invalid && formularioPago.get('cvv')?.touched"
+                placeholder="123"
+                maxlength="4"
+                autocomplete="cc-csc"
+                (input)="onInputCvv($event)"
+              />
+              @if (formularioPago.get('cvv')?.invalid && formularioPago.get('cvv')?.touched) {
+                <div class="mensaje-error" role="alert">
+                  @if (formularioPago.get('cvv')?.errors?.['required']) {
+                    <span>Obligatorio.</span>
+                  } @else if (formularioPago.get('cvv')?.errors?.['cvvInvalido']) {
+                    <span>3 o 4 dígitos numéricos.</span>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- ALERTAS DE ERROR: CONCURRENCIA O RECHAZO BANCARIO -->
+          @if (errorConcurrencia()) {
+            <div class="alerta alerta--concurrencia" role="alert">
+              <span class="alerta__icono">⚠️</span>
+              <div class="alerta__cuerpo">
+                <strong>Conflicto de disponibilidad:</strong>
+                <p>{{ errorConcurrencia() }}</p>
+                <a [routerLink]="['/funcion', borrador()!.funcionId, 'butacas']" class="boton-reintentar">
+                  Volver al mapa y elegir otra butaca
+                </a>
+              </div>
+            </div>
+          }
+
+          @if (errorPago()) {
+            <div class="alerta alerta--error" role="alert">
+              <span class="alerta__icono">🚫</span>
+              <div class="alerta__cuerpo">
+                <strong>Operación no autorizada:</strong>
+                <p>{{ errorPago() }}</p>
+              </div>
+            </div>
+          }
+
+          <!-- BOTONES DE ACCIÓN -->
+          <div class="acciones-formulario">
+            <button
+              type="submit"
+              class="boton-primario boton-pagar"
+              [disabled]="formularioPago.invalid || procesando() || errorConcurrencia() !== null"
+            >
+              @if (procesando()) {
+                <span class="spinner-boton"></span>
+                <span>Procesando pago con la entidad bancaria...</span>
+              } @else {
+                <span>Pagar ${{ borrador()!.totalEstimado | number:'1.0-0' }} (Simulado)</span>
+              }
+            </button>
+
+            <a [routerLink]="['/funcion', borrador()!.funcionId, 'butacas']" class="boton-cancelar">
+              Cancelar y volver a la sala
+            </a>
+          </div>
+        </form>
+
+        <!-- PANEL DE TARJETAS DE PRUEBA ACADÉMICAS -->
+        <section class="panel-pruebas" aria-label="Casos de prueba para evaluación">
+          <div class="panel-pruebas__cabecera">
+            <h3 class="panel-pruebas__titulo">🧪 Tarjetas de prueba </h3>
+            <span class="panel-pruebas__subtitulo">
+              Hacé clic en cualquier tarjeta para autocompletar el formulario y comprobar el comportamiento:
+            </span>
+          </div>
+
+          <div class="rejilla-casos">
+            @for (caso of casosPrueba; track caso.id) {
+              <button
+                type="button"
+                class="tarjeta-caso"
+                [class.tarjeta-caso--aprobado]="caso.tipoResultado === 'aprobado'"
+                [class.tarjeta-caso--rechazo]="caso.tipoResultado === 'rechazo_bancario'"
+                [class.tarjeta-caso--luhn]="caso.tipoResultado === 'luhn_invalido'"
+                (click)="cargarCasoPrueba(caso)"
+              >
+                <div class="tarjeta-caso__titulo">
+                  <strong>{{ caso.titulo }}</strong>
+                  <span class="badge-caso">
+                    {{ caso.tipoResultado === 'aprobado' ? 'Aprobada' : (caso.tipoResultado === 'rechazo_bancario' ? 'Rechazo Simulado' : 'Luhn Inválido') }}
+                  </span>
+                </div>
+                <p class="tarjeta-caso__numero"><code>{{ caso.numero }}</code></p>
+                <p class="tarjeta-caso__detalles">Venc: {{ caso.vencimiento }} • CVV: {{ caso.cvv }}</p>
+                <p class="tarjeta-caso__desc">{{ caso.descripcion }}</p>
+              </button>
+            }
+          </div>
+        </section>
+
+        <!-- AVISO DE PRIVACIDAD Y SEGURIDAD ACADÉMICA -->
+        <footer class="pie-seguridad">
+          <span class="icono-seguro">🔒</span>
+          <p>
+            <strong>Pruebas académicas:</strong> Este simulador no realiza cargos reales ni guarda datos de tarjeta en la Base de Datos. La información reside exclusivamente en memoria durante la sesión.
+          </p>
+        </footer>
+      </main>
+    </div>
+  }
+</div>

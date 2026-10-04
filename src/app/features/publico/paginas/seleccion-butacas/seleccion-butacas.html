@@ -243,7 +243,7 @@
       <div class="modal-overlay" (click)="cerrarModalConfirmacion()" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
         <div class="modal-confirmacion" (click)="$event.stopPropagation()">
           <header class="modal-confirmacion__cabecera">
-            <h2 id="modal-titulo" class="modal-confirmacion__titulo">Confirmar compra de entradas</h2>
+            <h2 id="modal-titulo" class="modal-confirmacion__titulo">Resumen de compra y datos de contacto</h2>
             <button
               type="button"
               class="modal-confirmacion__boton-cerrar"
@@ -384,14 +384,9 @@
               type="button"
               class="boton-primario boton-confirmar-compra"
               (click)="confirmarCompra()"
-              [disabled]="procesandoCompra() || cantidadSeleccionadas() === 0 || bloqueoEdadRegistrado().bloqueado"
+              [disabled]="cantidadSeleccionadas() === 0 || bloqueoEdadRegistrado().bloqueado"
             >
-              @if (procesandoCompra()) {
-                <span class="spinner-boton"></span>
-                <span>Procesando compra...</span>
-              } @else {
-                <span>Confirmar compra (${{ calculoDetalle().total | number:'1.0-0' }})</span>
-              }
+              <span>Continuar al pago (${{ calculoDetalle().total | number:'1.0-0' }} est.)</span>
             </button>
           </footer>
         </div>

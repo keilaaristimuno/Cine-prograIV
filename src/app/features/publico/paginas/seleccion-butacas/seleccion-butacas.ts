@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { Butaca } from '../../../../core/modelos/butaca';
+import { DatosBorradorCompra } from '../../../../core/modelos/compra';
 import { FuncionConDetalle } from '../../../../core/modelos/funcion';
 import { ResumenPreciosFuncion } from '../../../../core/modelos/tarifa';
 import { ServicioAuth } from '../../../../core/servicios/servicio-auth';
@@ -442,14 +443,15 @@ export class SeleccionButacas implements OnInit {
   }
 
   /**
-   * Ejecuta la compra atómica invocando la función RPC de PostgreSQL.
+   * Valida los datos del comprador y la restricción de edad, construye el borrador
+   * de compra en memoria y redirige a la pantalla de pago simulado (M5.2).
    */
-  async confirmarCompra(): Promise<void> {
+  confirmarCompra(): void {
     if (this.procesandoCompra()) {
       return;
     }
 
-    // Doble validación en frontend de restricción de edad antes de emitir la transacción
+    // Doble validación en frontend de restricción de edad antes de avanzar al pago
     if (this.bloqueoEdadRegistrado().bloqueado) {
       this.errorCompra.set(
         this.bloqueoEdadRegistrado().mensaje ||
@@ -481,52 +483,54 @@ export class SeleccionButacas implements OnInit {
       }
     }
 
-    this.procesandoCompra.set(true);
     this.errorCompra.set(null);
     this.errorEmail.set(null);
 
-    try {
-      const butacasIds = Array.from(this.seleccionadasIds());
+    // Preparar el borrador en memoria para la pantalla de pago
+    const borrador: DatosBorradorCompra = {
+      funcionId: funcionActual.id,
+      funcion: {
+        id: funcionActual.id,
+        peliculaNombre: funcionActual.pelicula?.nombre || 'Película',
+        clasificacionEdad: funcionActual.pelicula?.clasificacionEdad || 'ATP',
+        fechaHoraInicio: funcionActual.fechaHoraInicio,
+        formato: funcionActual.formato,
+        salaNumero: funcionActual.sala?.numero || 1,
+        salaNombre: funcionActual.sala?.nombre || 'Sala'
+      },
+      butacas: this.butacasSeleccionadas().map(b => ({
+        id: b.id,
+        fila: b.fila,
+        numero: b.numero,
+        bloque: b.bloque,
+        tipo: b.tipo,
+        precioUnitario: this.obtenerPrecioUnitario(b.tipo)
+      })),
+      emailContacto: emailFinal,
+      subtotalEstimado: this.calculoDetalle().subtotal,
+      descuentoEstimado: this.calculoDetalle().montoDesc,
+      totalEstimado: this.calculoDetalle().total,
+      tipoDescuento: this.calculoDetalle().tipoDesc,
+      porcentajeDescuento: this.calculoDetalle().porcDesc
+    };
 
-      const resultado = await this.servicioCompras.realizarCompra({
-        funcionId: funcionActual.id,
-        butacaIds: butacasIds,
-        emailContacto: emailFinal
-      });
+    // Guardar borrador en memoria en el servicio
+    this.servicioCompras.establecerBorrador(borrador);
 
-      // Limpiar selección local y cerrar modal
-      this.seleccionadasIds.set(new Set());
-      this.mostrarModalConfirmacion.set(false);
+    // Cerrar modal
+    this.mostrarModalConfirmacion.set(false);
 
-      // Redirigir a la pantalla de confirmación transfiriendo el resultado en el estado
-      this.router.navigate(['/compra', resultado.compra_id, 'confirmacion'], {
-        state: { compra: resultado }
-      });
-    } catch (err: any) {
-      console.error('Error al procesar la compra:', err);
-      this.errorCompra.set(
-        err.message || 'Ocurrió un error al procesar la compra. Por favor, reintentá.'
-      );
+    // Redirigir a la pantalla de pago simulado
+    this.router.navigate(['/compra/pago'], {
+      state: { borrador }
+    });
+  }
 
-      // Actualizar ocupadas en caso de colisión con otro usuario
-      try {
-        const nuevasOcupadas = await this.servicioButacas.obtenerIdsButacasOcupadas(funcionActual.id);
-        this.ocupadasIds.set(nuevasOcupadas);
-
-        // Remover de la selección las que hayan sido tomadas
-        this.seleccionadasIds.update(actuales => {
-          const filtradas = new Set<string>();
-          for (const id of actuales) {
-            if (!nuevasOcupadas.has(id)) {
-              filtradas.add(id);
-            }
-          }
-          return filtradas;
-        });
-      } catch (_) {}
-    } finally {
-      this.procesandoCompra.set(false);
-    }
+  /**
+   * Alias semántico para avanzar al pago.
+   */
+  continuarAlPago(): void {
+    this.confirmarCompra();
   }
 
   /**

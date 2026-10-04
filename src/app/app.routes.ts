@@ -31,6 +31,13 @@ export const routes: Routes = [
           ).then(m => m.SeleccionButacas)
       },
       {
+        path: 'compra/pago',
+        loadComponent: () =>
+          import(
+            './features/publico/paginas/pago-simulado/pago-simulado'
+          ).then(m => m.PagoSimulado)
+      },
+      {
         path: 'compra/:id/confirmacion',
         loadComponent: () =>
           import(

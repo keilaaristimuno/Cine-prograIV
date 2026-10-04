@@ -93,6 +93,117 @@
 }
 
 /* ==========================================================================
+   PASE DIGITAL DE ACCESO AL CINE (M5.1)
+   ========================================================================== */
+.tarjeta-pase-acceso {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(30, 20, 50, 0.8) 100%);
+  border: 1.5px solid #8b5cf6;
+  border-radius: 0.85rem;
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.2);
+  text-align: left;
+
+  @media (min-width: 600px) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__info {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  &__icono {
+    font-size: 2rem;
+    line-height: 1;
+  }
+
+  &__textos {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  &__etiqueta {
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #c4b5fd;
+  }
+
+  &__subtexto {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #cbd5e1;
+    line-height: 1.4;
+  }
+
+  &__box {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+
+    @media (min-width: 600px) {
+      align-items: flex-end;
+    }
+  }
+
+  &__codigo {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: #0f0b18;
+    border: 1px solid #a78bfa;
+    border-radius: 0.5rem;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    color: #facc15;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+    user-select: all;
+  }
+}
+
+.badge-acceso-disponible {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 1rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-acceso-usado {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 1rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: rgba(100, 116, 139, 0.2);
+  color: #94a3b8;
+  border: 1px solid rgba(100, 116, 139, 0.3);
+}
+
+/* ==========================================================================
    BLOQUES DE DETALLE
    ========================================================================== */
 .bloque-detalle,
