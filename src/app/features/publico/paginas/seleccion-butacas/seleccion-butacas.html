@@ -85,9 +85,42 @@
           >
             {{ f.formato }}
           </span>
+
+          <span class="cabecera-funcion__separador">•</span>
+
+          <span
+            class="badge-clasificacion"
+            [class.badge-clasificacion--18]="f.pelicula?.clasificacionEdad === '+18'"
+            [class.badge-clasificacion--13]="f.pelicula?.clasificacionEdad === '+13'"
+          >
+            {{ f.pelicula?.clasificacionEdad || 'ATP' }}
+          </span>
         </div>
       </div>
     </header>
+
+    <!-- AVISO DE RESTRICCIÓN O BLOQUEO DE EDAD (M4.5) -->
+    @if (bloqueoEdadRegistrado().bloqueado) {
+      <div class="alerta-bloqueo-edad" role="alert">
+        <span class="alerta-bloqueo-edad__icono" aria-hidden="true">⛔</span>
+        <div class="alerta-bloqueo-edad__contenido">
+          <strong class="alerta-bloqueo-edad__titulo">Compra no permitida por restricción de edad</strong>
+          <p class="alerta-bloqueo-edad__texto">{{ bloqueoEdadRegistrado().mensaje }}</p>
+        </div>
+      </div>
+    } @else if (advertenciaClasificacion(); as advertencia) {
+      <div class="alerta-clasificacion-sala" role="note">
+        <span class="alerta-clasificacion-sala__icono" aria-hidden="true">🔞</span>
+        <div class="alerta-clasificacion-sala__contenido">
+          <strong class="alerta-clasificacion-sala__titulo">
+            Restricción por edad: Película clasificada {{ f.pelicula?.clasificacionEdad }}
+          </strong>
+          <p class="alerta-clasificacion-sala__texto">
+            {{ advertencia }}
+          </p>
+        </div>
+      </div>
+    }
 
     <!-- MAPA VISUAL REUTILIZABLE CON ESTADOS INTERACTIVOS -->
     <section class="seccion-mapa" aria-label="Mapa interactivo de la sala">
@@ -95,7 +128,7 @@
         [butacas]="butacas()"
         [ocupadasIds]="ocupadasIds()"
         [seleccionadasIds]="seleccionadasIds()"
-        [esInteractivo]="permiteSeleccion()"
+        [esInteractivo]="permiteSeleccion() && !bloqueoEdadRegistrado().bloqueado"
         (butacaClick)="alternarSeleccion($event)"
       />
     </section>
@@ -139,13 +172,13 @@
             </button>
           }
 
-          <!-- Botón de compra conectado con el modal de M4.4 -->
+          <!-- Botón de compra conectado con el modal de M4.4 y validación M4.5 -->
           <button
             type="button"
             class="boton-continuar"
-            [disabled]="cantidadSeleccionadas() === 0"
+            [disabled]="cantidadSeleccionadas() === 0 || bloqueoEdadRegistrado().bloqueado"
             (click)="abrirModalConfirmacion()"
-            [title]="cantidadSeleccionadas() === 0 ? 'Seleccioná al menos una butaca para continuar' : 'Continuar con la compra'"
+            [title]="bloqueoEdadRegistrado().bloqueado ? (bloqueoEdadRegistrado().mensaje || '') : (cantidadSeleccionadas() === 0 ? 'Seleccioná al menos una butaca para continuar' : 'Continuar con la compra')"
           >
             Continuar con la compra
           </button>
@@ -217,6 +250,11 @@
                       {{ usuarioPerfil()?.nombre }} {{ usuarioPerfil()?.apellido }}
                     </span>
                     <span class="comprador-autenticado__email">({{ usuarioAuth()?.email }})</span>
+                    @if (edadUsuario() !== null) {
+                      <span class="badge-edad-verificada">
+                        ✓ Edad: {{ edadUsuario() }} años
+                      </span>
+                    }
                   </div>
                 </div>
               } @else {
@@ -268,7 +306,7 @@
               type="button"
               class="boton-primario boton-confirmar-compra"
               (click)="confirmarCompra()"
-              [disabled]="procesandoCompra() || cantidadSeleccionadas() === 0"
+              [disabled]="procesandoCompra() || cantidadSeleccionadas() === 0 || bloqueoEdadRegistrado().bloqueado"
             >
               @if (procesandoCompra()) {
                 <span class="spinner-boton"></span>

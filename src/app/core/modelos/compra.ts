@@ -28,6 +28,7 @@ export interface ResultadoCompra {
   funcion: {
     id: string;
     pelicula_nombre: string;
+    clasificacion_edad: string;
     fecha_hora_inicio: string;
     formato: string;
     sala_numero: number;

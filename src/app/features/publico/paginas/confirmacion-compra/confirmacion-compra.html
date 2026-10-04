@@ -37,6 +37,17 @@
           </div>
 
           <div class="item-detalle">
+            <span class="item-detalle__etiqueta">Clasificación</span>
+            <span
+              class="badge-clasificacion"
+              [class.badge-clasificacion--18]="c.funcion.clasificacion_edad === '+18'"
+              [class.badge-clasificacion--13]="c.funcion.clasificacion_edad === '+13'"
+            >
+              {{ c.funcion.clasificacion_edad || 'ATP' }}
+            </span>
+          </div>
+
+          <div class="item-detalle">
             <span class="item-detalle__etiqueta">Fecha y horario</span>
             <strong class="item-detalle__valor">{{ formatearFechaHora(c.funcion.fecha_hora_inicio) }}</strong>
           </div>
@@ -61,6 +72,21 @@
             </span>
           </div>
         </div>
+
+        <!-- ADVERTENCIA DE ACOMPAÑAMIENTO ADULTO PARA +13 / +18 -->
+        @if (c.funcion.clasificacion_edad === '+13' || c.funcion.clasificacion_edad === '+18') {
+          <div class="alerta-clasificacion-comprobante" role="alert">
+            <span class="alerta-clasificacion-comprobante__icono">🔞</span>
+            <div class="alerta-clasificacion-comprobante__info">
+              <strong class="alerta-clasificacion-comprobante__titulo">
+                Restricción por edad ({{ c.funcion.clasificacion_edad }}) — Acompañamiento obligatorio
+              </strong>
+              <p class="alerta-clasificacion-comprobante__texto">
+                Esta película está clasificada como {{ c.funcion.clasificacion_edad }}. Los menores de edad deben asistir obligatoriamente acompañados por un adulto responsable al ingresar a la sala.
+              </p>
+            </div>
+          </div>
+        }
       </section>
 
       <!-- BUTACAS ADQUIRIDAS -->

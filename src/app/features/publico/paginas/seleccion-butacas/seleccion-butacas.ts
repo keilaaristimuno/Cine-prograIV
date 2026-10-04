@@ -79,15 +79,103 @@ export class SeleccionButacas implements OnInit {
   });
 
   /**
-   * Verifica si la película tiene clasificación con restricción de edad (+13 o +18).
+   * Calcula la edad real en años considerando año, mes y día.
+   * Evita problemas de desfase horario parseando directamente la fecha en formato YYYY-MM-DD.
+   */
+  calcularEdad(fechaNacimientoIso: string): number {
+    if (!fechaNacimientoIso) return 0;
+    const soloFecha = fechaNacimientoIso.split('T')[0];
+    const partes = soloFecha.split('-');
+    if (partes.length < 3) return 0;
+
+    const anioNac = parseInt(partes[0], 10);
+    const mesNac = parseInt(partes[1], 10) - 1; // 0-indexed
+    const diaNac = parseInt(partes[2], 10);
+
+    if (isNaN(anioNac) || isNaN(mesNac) || isNaN(diaNac)) return 0;
+
+    const hoy = new Date();
+    let edad = hoy.getFullYear() - anioNac;
+    const mesActual = hoy.getMonth();
+    const diaActual = hoy.getDate();
+
+    // Si aún no llegó el mes o el día de cumpleaños en el año corriente, restar un año
+    if (mesActual < mesNac || (mesActual === mesNac && diaActual < diaNac)) {
+      edad--;
+    }
+    return edad;
+  }
+
+  /**
+   * Edad del usuario autenticado calculada en tiempo real a partir de su fecha de nacimiento
+   */
+  readonly edadUsuario = computed<number | null>(() => {
+    if (!this.esUsuarioAutenticado()) {
+      return null;
+    }
+    const fechaNac = this.usuarioPerfil()?.fechaNacimiento;
+    if (!fechaNac) {
+      return null;
+    }
+    return this.calcularEdad(fechaNac);
+  });
+
+  /**
+   * Evalúa si un usuario registrado está bloqueado para la compra debido a la restricción de edad (+13 o +18).
+   * Si es anónimo, nunca se bloquea porque no hay dato de edad verificable.
+   */
+  readonly bloqueoEdadRegistrado = computed<{
+    bloqueado: boolean;
+    mensaje: string | null;
+    edad: number | null;
+  }>(() => {
+    if (!this.esUsuarioAutenticado()) {
+      return { bloqueado: false, mensaje: null, edad: null };
+    }
+
+    const clasif = this.funcion()?.pelicula?.clasificacionEdad;
+    if (clasif !== '+13' && clasif !== '+18') {
+      return { bloqueado: false, mensaje: null, edad: this.edadUsuario() };
+    }
+
+    const edad = this.edadUsuario();
+    if (edad === null) {
+      return {
+        bloqueado: true,
+        mensaje: 'No se pudo verificar tu edad porque tu perfil no cuenta con una fecha de nacimiento registrada.',
+        edad: null
+      };
+    }
+
+    if (clasif === '+18' && edad < 18) {
+      return {
+        bloqueado: true,
+        mensaje: `Esta película es exclusiva para mayores de 18 años (+18) y tu edad registrada es de ${edad} años. La compra se encuentra bloqueada por disposición legal.`,
+        edad
+      };
+    }
+
+    if (clasif === '+13' && edad < 13) {
+      return {
+        bloqueado: true,
+        mensaje: `Esta película tiene restricción para mayores de 13 años (+13) y tu edad registrada es de ${edad} años. La compra se encuentra bloqueada.`,
+        edad
+      };
+    }
+
+    return { bloqueado: false, mensaje: null, edad };
+  });
+
+  /**
+   * Genera el texto de advertencia de clasificación de edad y acompañamiento de un adulto.
    */
   readonly advertenciaClasificacion = computed<string | null>(() => {
     const clasif = this.funcion()?.pelicula?.clasificacionEdad;
     if (clasif === '+18') {
-      return 'Película clasificada para mayores de 18 años (+18). Los menores de edad deben asistir acompañados por un adulto responsable.';
+      return 'Película clasificada exclusivamente para mayores de 18 años (+18). Los menores de edad deben asistir obligatoriamente acompañados por un adulto responsable al ingresar a la sala.';
     }
     if (clasif === '+13') {
-      return 'Película con restricción para mayores de 13 años (+13). Los menores de edad deben asistir acompañados por un adulto.';
+      return 'Película con restricción para mayores de 13 años (+13). Los menores de edad deben asistir obligatoriamente acompañados por un adulto responsable al ingresar a la sala.';
     }
     return null;
   });
@@ -261,6 +349,11 @@ export class SeleccionButacas implements OnInit {
       return;
     }
 
+    // Bloquear si el usuario registrado no cumple con la restricción de edad
+    if (this.bloqueoEdadRegistrado().bloqueado) {
+      return;
+    }
+
     this.errorCompra.set(null);
     this.errorEmail.set(null);
 
@@ -291,6 +384,15 @@ export class SeleccionButacas implements OnInit {
    */
   async confirmarCompra(): Promise<void> {
     if (this.procesandoCompra()) {
+      return;
+    }
+
+    // Doble validación en frontend de restricción de edad antes de emitir la transacción
+    if (this.bloqueoEdadRegistrado().bloqueado) {
+      this.errorCompra.set(
+        this.bloqueoEdadRegistrado().mensaje ||
+        'La compra se encuentra bloqueada debido a la restricción de edad de la película.'
+      );
       return;
     }
 

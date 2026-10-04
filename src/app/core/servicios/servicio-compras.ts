@@ -79,7 +79,7 @@ export class ServicioCompras {
             id,
             fecha_hora_inicio,
             formato,
-            pelicula:peliculas ( nombre ),
+            pelicula:peliculas ( nombre, clasificacion_edad ),
             sala:salas ( numero, nombre )
           )
         )
@@ -104,6 +104,7 @@ export class ServicioCompras {
       funcion: {
         id: funcionData?.id || '',
         pelicula_nombre: funcionData?.pelicula?.nombre || 'Película',
+        clasificacion_edad: funcionData?.pelicula?.clasificacion_edad || 'ATP',
         fecha_hora_inicio: funcionData?.fecha_hora_inicio || '',
         formato: funcionData?.formato || '',
         sala_numero: funcionData?.sala?.numero || 1,
