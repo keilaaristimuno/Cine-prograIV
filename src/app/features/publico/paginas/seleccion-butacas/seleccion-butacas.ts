@@ -1,13 +1,16 @@
+import { CommonModule } from '@angular/common';
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { Butaca } from '../../../../core/modelos/butaca';
 import { FuncionConDetalle } from '../../../../core/modelos/funcion';
+import { ResumenPreciosFuncion } from '../../../../core/modelos/tarifa';
 import { ServicioAuth } from '../../../../core/servicios/servicio-auth';
 import { ServicioButacas } from '../../../../core/servicios/servicio-butacas';
 import { ServicioCompras } from '../../../../core/servicios/servicio-compras';
 import { ServicioFunciones } from '../../../../core/servicios/servicio-funciones';
+import { ServicioTarifas } from '../../../../core/servicios/servicio-tarifas';
 import { MapaButacas } from '../../../../shared/components/mapa-butacas/mapa-butacas';
 
 /**
@@ -23,7 +26,7 @@ import { MapaButacas } from '../../../../shared/components/mapa-butacas/mapa-but
  */
 @Component({
   selector: 'app-seleccion-butacas',
-  imports: [RouterLink, FormsModule, MapaButacas],
+  imports: [CommonModule, RouterLink, FormsModule, MapaButacas],
   templateUrl: './seleccion-butacas.html',
   styleUrl: './seleccion-butacas.scss'
 })
@@ -35,6 +38,7 @@ export class SeleccionButacas implements OnInit {
   private readonly servicioButacas = inject(ServicioButacas);
   private readonly servicioAuth = inject(ServicioAuth);
   private readonly servicioCompras = inject(ServicioCompras);
+  private readonly servicioTarifas = inject(ServicioTarifas);
 
   readonly funcion = signal<FuncionConDetalle | null>(null);
   readonly butacas = signal<Butaca[]>([]);
@@ -77,6 +81,59 @@ export class SeleccionButacas implements OnInit {
     const seleccionadas = this.butacas().filter(b => ids.has(b.id));
     return this.servicioButacas.ordenarButacas(seleccionadas);
   });
+
+  /** Resumen de precios, recargos y promociones de la función */
+  readonly resumenPrecios = signal<ResumenPreciosFuncion | null>(null);
+
+  /**
+   * Cálculo financiero en tiempo real de la selección:
+   * Cantidades por tipo, subtotal, mejor descuento aplicable (no acumulable) y total estimado.
+   */
+  readonly calculoDetalle = computed(() => {
+    const seleccionadas = this.butacasSeleccionadas();
+    const resumen = this.resumenPrecios();
+    const pNormal = resumen?.precioBase ?? 10000;
+    const pVip = resumen?.precioVip ?? 15000;
+
+    let subtotal = 0;
+    let cantNormal = 0;
+    let cantVip = 0;
+
+    for (const b of seleccionadas) {
+      if (b.tipo === 'vip') {
+        subtotal += pVip;
+        cantVip++;
+      } else {
+        subtotal += pNormal;
+        cantNormal++;
+      }
+    }
+
+    const tipoDesc = resumen?.tipoMejorDescuento ?? 'ninguno';
+    const porcDesc = resumen?.mejorDescuentoPorcentaje ?? 0;
+    const montoDesc = Math.round(subtotal * (porcDesc / 100));
+    const total = subtotal - montoDesc;
+
+    return {
+      pNormal,
+      pVip,
+      cantNormal,
+      cantVip,
+      subtotal,
+      tipoDesc,
+      porcDesc,
+      montoDesc,
+      total
+    };
+  });
+
+  obtenerPrecioUnitario(tipo: string): number {
+    const resumen = this.resumenPrecios();
+    if (tipo === 'vip') {
+      return resumen?.precioVip ?? 15000;
+    }
+    return resumen?.precioBase ?? 10000;
+  }
 
   /**
    * Calcula la edad real en años considerando año, mes y día.
@@ -247,7 +304,12 @@ export class SeleccionButacas implements OnInit {
       this.butacas.set(butacasData);
       this.ocupadasIds.set(ocupadasSet);
 
-      // 4. Iniciar suscripción Realtime para detectar ocupaciones concurrentes
+      // 4. Cargar tarifas y promociones aplicables para esta función
+      const usuarioId = this.servicioAuth.usuarioActual()?.id ?? null;
+      const resumen = await this.servicioTarifas.obtenerResumenPreciosFuncion(funcionData, usuarioId);
+      this.resumenPrecios.set(resumen);
+
+      // 5. Iniciar suscripción Realtime para detectar ocupaciones concurrentes
       this.iniciarSuscripcionRealtime(funcionId);
     } catch (err: any) {
       console.error('Error al inicializar la pantalla de selección de butacas:', err);

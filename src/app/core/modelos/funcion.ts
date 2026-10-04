@@ -57,6 +57,10 @@ export interface FuncionConDetalle extends Funcion {
     duracionMinutos: number;
     imagenUrl: string;
     clasificacionEdad?: ClasificacionEdad;
+    fechaEstreno?: string;
+    permitePreventa?: boolean;
+    porcentajeDescuentoPreventa?: number;
+    diasAnticipacionPreventa?: number;
   };
   sala?: {
     id: string;

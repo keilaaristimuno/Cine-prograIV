@@ -149,6 +149,49 @@
                 </label>
             </div>
 
+            <!-- Configuración de Preventa -->
+            <div class="seccion-preventa">
+                <h3>Configuración de Preventa</h3>
+
+                <div class="campo-formulario">
+                    <label class="campo-booleano">
+                        <input
+                        type="checkbox"
+                        formControlName="permitePreventa"
+                        />
+                        <span>Habilitar preventa para esta película</span>
+                    </label>
+                </div>
+
+                @if (formularioPelicula.controls.permitePreventa.value) {
+                    <div class="fila-campos-preventa">
+                        <div class="campo-formulario">
+                            <label for="descuento-preventa">Descuento Preventa (%):</label>
+                            <input
+                                id="descuento-preventa"
+                                type="number"
+                                min="0"
+                                max="100"
+                                formControlName="porcentajeDescuentoPreventa"
+                                placeholder="Ej: 20"
+                            />
+                        </div>
+
+                        <div class="campo-formulario">
+                            <label for="dias-anticipacion">Días de anticipación al estreno:</label>
+                            <input
+                                id="dias-anticipacion"
+                                type="number"
+                                min="1"
+                                max="90"
+                                formControlName="diasAnticipacionPreventa"
+                                placeholder="Ej: 7"
+                            />
+                        </div>
+                    </div>
+                }
+            </div>
+
             <!-- GENEROS Select con mat para mejor visualizacion -->
             <div class="campo-formulario">
                 <mat-form-field appearance="outline" class="selector-generos">

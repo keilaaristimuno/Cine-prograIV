@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ResultadoCompra } from '../../../../core/modelos/compra';
@@ -17,7 +18,7 @@ import { ServicioCompras } from '../../../../core/servicios/servicio-compras';
  */
 @Component({
   selector: 'app-confirmacion-compra',
-  imports: [RouterLink],
+  imports: [CommonModule, RouterLink],
   templateUrl: './confirmacion-compra.html',
   styleUrl: './confirmacion-compra.scss'
 })

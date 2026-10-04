@@ -13,6 +13,9 @@ export interface DatosNuevaPelicula {
   clasificacionEdad: 'ATP' | '+13' | '+18';
   estaActiva: boolean;
   generos: string[];
+  permitePreventa?: boolean;
+  porcentajeDescuentoPreventa?: number;
+  diasAnticipacionPreventa?: number;
 }
 
 @Injectable({
@@ -83,6 +86,9 @@ export class ServicioPeliculas {
         clasificacion_edad: pelicula.clasificacionEdad,
         esta_activa: pelicula.estaActiva,
         generos: pelicula.generos,
+        permite_preventa: pelicula.permitePreventa ?? false,
+        porcentaje_descuento_preventa: pelicula.porcentajeDescuentoPreventa ?? 20,
+        dias_anticipacion_preventa: pelicula.diasAnticipacionPreventa ?? 7,
         imagen_url: datosUrl.publicUrl
       });
 
@@ -114,7 +120,10 @@ export class ServicioPeliculas {
         fecha_estreno,
         clasificacion_edad,
         generos,
-        esta_activa
+        esta_activa,
+        permite_preventa,
+        porcentaje_descuento_preventa,
+        dias_anticipacion_preventa
       `)
       .is('eliminada_en', null)
       .order('creado_en', {
@@ -135,7 +144,10 @@ export class ServicioPeliculas {
       clasificacionEdad:
         fila.clasificacion_edad as Pelicula['clasificacionEdad'],
       generos: fila.generos,
-      estaActiva: fila.esta_activa
+      estaActiva: fila.esta_activa,
+      permitePreventa: fila.permite_preventa ?? false,
+      porcentajeDescuentoPreventa: Number(fila.porcentaje_descuento_preventa ?? 20),
+      diasAnticipacionPreventa: Number(fila.dias_anticipacion_preventa ?? 7)
     }));
   }
 
@@ -160,7 +172,10 @@ export class ServicioPeliculas {
         fecha_estreno,
         clasificacion_edad,
         generos,
-        esta_activa
+        esta_activa,
+        permite_preventa,
+        porcentaje_descuento_preventa,
+        dias_anticipacion_preventa
       `)
       .is('eliminada_en', null)
       .eq('esta_activa', true)
@@ -182,7 +197,10 @@ export class ServicioPeliculas {
       clasificacionEdad:
         fila.clasificacion_edad as Pelicula['clasificacionEdad'],
       generos: fila.generos,
-      estaActiva: fila.esta_activa
+      estaActiva: fila.esta_activa,
+      permitePreventa: fila.permite_preventa ?? false,
+      porcentajeDescuentoPreventa: Number(fila.porcentaje_descuento_preventa ?? 20),
+      diasAnticipacionPreventa: Number(fila.dias_anticipacion_preventa ?? 7)
     }));
   }
 
@@ -206,7 +224,10 @@ export class ServicioPeliculas {
         fecha_estreno,
         clasificacion_edad,
         generos,
-        esta_activa
+        esta_activa,
+        permite_preventa,
+        porcentaje_descuento_preventa,
+        dias_anticipacion_preventa
       `)
       /* Busca la fila del id que coincida con el de URL */
       .eq('id', id)
@@ -230,7 +251,10 @@ export class ServicioPeliculas {
       clasificacionEdad:
         data.clasificacion_edad as Pelicula['clasificacionEdad'],
       generos: data.generos,
-      estaActiva: data.esta_activa
+      estaActiva: data.esta_activa,
+      permitePreventa: data.permite_preventa ?? false,
+      porcentajeDescuentoPreventa: Number(data.porcentaje_descuento_preventa ?? 20),
+      diasAnticipacionPreventa: Number(data.dias_anticipacion_preventa ?? 7)
     };
   }
 
@@ -256,7 +280,10 @@ export class ServicioPeliculas {
         fecha_estreno,
         clasificacion_edad,
         generos,
-        esta_activa
+        esta_activa,
+        permite_preventa,
+        porcentaje_descuento_preventa,
+        dias_anticipacion_preventa
       `)
       .eq('id', id)
       .is('eliminada_en', null)
@@ -280,7 +307,10 @@ export class ServicioPeliculas {
       clasificacionEdad:
         data.clasificacion_edad as Pelicula['clasificacionEdad'],
       generos: data.generos,
-      estaActiva: data.esta_activa
+      estaActiva: data.esta_activa,
+      permitePreventa: data.permite_preventa ?? false,
+      porcentajeDescuentoPreventa: Number(data.porcentaje_descuento_preventa ?? 20),
+      diasAnticipacionPreventa: Number(data.dias_anticipacion_preventa ?? 7)
     };
   }
 
@@ -301,7 +331,10 @@ export class ServicioPeliculas {
       fecha_estreno: pelicula.fechaEstreno,
       clasificacion_edad: pelicula.clasificacionEdad,
       esta_activa: pelicula.estaActiva,
-      generos: pelicula.generos
+      generos: pelicula.generos,
+      permite_preventa: pelicula.permitePreventa ?? false,
+      porcentaje_descuento_preventa: pelicula.porcentajeDescuentoPreventa ?? 20,
+      dias_anticipacion_preventa: pelicula.diasAnticipacionPreventa ?? 7
     };
 
     let rutaImagenNueva: string | null = null;

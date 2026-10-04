@@ -1,0 +1,170 @@
+:host {
+  display: block;
+}
+
+.pagina-tarifas {
+  min-height: 100%;
+  padding: 2rem;
+  color: #f5f5f5;
+}
+
+.tarjeta-tarifas {
+  width: min(100%, 850px);
+  margin: 0 auto;
+  padding: 2rem;
+  border: 1px solid #37334a;
+  border-radius: 0.75rem;
+  background-color: #15131f;
+}
+
+.encabezado-seccion {
+  margin-bottom: 2rem;
+
+  h1 {
+    margin: 0 0 0.5rem;
+    font-size: 1.75rem;
+    color: #f5f5f5;
+  }
+
+  p {
+    margin: 0;
+    color: #a59fb8;
+    font-size: 0.95rem;
+  }
+}
+
+.estado-carga {
+  text-align: center;
+  padding: 3rem;
+  color: #cbb8fa;
+}
+
+.alerta {
+  padding: 0.85rem 1.25rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+
+  &--exito {
+    background-color: rgba(76, 165, 108, 0.15);
+    border: 1px solid #4ca56c;
+    color: #89e3a9;
+  }
+
+  &--error {
+    background-color: rgba(220, 53, 69, 0.15);
+    border: 1px solid #dc3545;
+    color: #ff8591;
+  }
+}
+
+.formulario-tarifas {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.bloque-tarifas {
+  border: 1px solid #37334a;
+  border-radius: 0.6rem;
+  padding: 1.5rem;
+  background-color: #191626;
+
+  legend {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #e3ddfa;
+    padding: 0 0.5rem;
+  }
+}
+
+.descripcion-bloque {
+  margin: 0 0 1.25rem;
+  font-size: 0.88rem;
+  color: #9f97b5;
+}
+
+.rejilla-formatos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 1.25rem;
+}
+
+.campo-tarifa {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #d1cbe5;
+  }
+
+  input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.75rem;
+    border: 1px solid #585070;
+    border-radius: 0.4rem;
+    background-color: #0e0d15;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 600;
+
+    &:focus {
+      border-color: #9a83ff;
+      outline: 2px solid rgba(154, 131, 255, 0.3);
+    }
+  }
+
+  &--reducido {
+    max-width: 250px;
+  }
+}
+
+.campo-booleano {
+  margin-bottom: 1rem;
+}
+
+.toggle-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #e2dcfa;
+
+  input[type="checkbox"] {
+    width: 1.15rem;
+    height: 1.15rem;
+    cursor: pointer;
+  }
+}
+
+.acciones-formulario {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.boton-guardar {
+  padding: 0.85rem 2rem;
+  border: 0;
+  border-radius: 0.4rem;
+  background-color: #7657e8;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: #8b70ee;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}

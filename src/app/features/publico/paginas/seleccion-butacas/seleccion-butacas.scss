@@ -203,6 +203,88 @@
   }
 }
 
+.badge-promo {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.65rem;
+  border-radius: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+
+  &--preventa {
+    background: rgba(249, 115, 22, 0.2);
+    color: #ffedd5;
+    border: 1px solid #f97316;
+  }
+
+  &--primera-compra {
+    background: rgba(234, 179, 8, 0.2);
+    color: #fef08a;
+    border: 1px solid #eab308;
+  }
+}
+
+.tarjetas-precios {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.tarjeta-precio {
+  flex: 1;
+  min-width: 180px;
+  background-color: #191526;
+  border: 1px solid #372f4e;
+  border-radius: 0.65rem;
+  padding: 0.9rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+
+  &__tipo {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #a59fb8;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__valor {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #f5f5f5;
+  }
+
+  &__nota {
+    font-size: 0.78rem;
+    color: #cbb8fa;
+  }
+
+  &--vip {
+    border-color: rgba(245, 196, 81, 0.4);
+    background: rgba(245, 196, 81, 0.06);
+
+    .tarjeta-precio__tipo {
+      color: #f5c451;
+    }
+  }
+
+  &--promo {
+    border-color: rgba(52, 211, 153, 0.5);
+    background: rgba(52, 211, 153, 0.08);
+
+    .tarjeta-precio__tipo {
+      color: #6ee7b7;
+    }
+
+    .tarjeta-precio__valor {
+      color: #34d399;
+    }
+  }
+}
+
 /* Alertas de restricción y bloqueo de edad (M4.5) */
 .alerta-bloqueo-edad {
   display: flex;
@@ -450,6 +532,36 @@
     align-items: center;
     gap: 0.45rem;
     flex-wrap: wrap;
+  }
+
+  &__totales {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+    font-size: 0.88rem;
+    color: #cbb8fa;
+    margin-top: 0.25rem;
+  }
+
+  &__subtotal {
+    color: #b3a9cc;
+  }
+
+  &__descuento {
+    color: #34d399;
+    background: rgba(52, 211, 153, 0.12);
+    padding: 0.15rem 0.5rem;
+    border-radius: 0.3rem;
+    border: 1px solid rgba(52, 211, 153, 0.3);
+  }
+
+  &__total {
+    color: #f5f5f5;
+    strong {
+      color: #fff;
+      font-size: 1.15rem;
+    }
   }
 
   &__indicacion {
@@ -704,11 +816,18 @@
 
 .item-butaca {
   display: flex;
-  flex-direction: column;
-  padding: 0.5rem 0.7rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0.85rem;
   border-radius: 0.45rem;
   background-color: #241e33;
   border: 1px solid #3c3252;
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
 
   &__posicion {
     font-size: 0.86rem;
@@ -724,12 +843,22 @@
     letter-spacing: 0.04em;
   }
 
+  &__precio {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #f5f5f5;
+  }
+
   &--vip {
     border-color: rgba(245, 196, 81, 0.4);
     background-color: rgba(245, 196, 81, 0.08);
 
     .item-butaca__tipo {
       color: #f5c451;
+    }
+
+    .item-butaca__precio {
+      color: #fde68a;
     }
   }
 
@@ -740,6 +869,53 @@
     .item-butaca__tipo {
       color: #38bdf8;
     }
+  }
+}
+
+/* Desglose financiero M4.6 */
+.desglose-financiero {
+  background-color: #1a1626;
+  border: 1px solid #332b47;
+  border-radius: 0.6rem;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.desglose-fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #b9b3cc;
+
+  &__monto {
+    font-weight: 600;
+    color: #f5f5f5;
+
+    &--total {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #6ee7b7;
+    }
+  }
+
+  &--descuento {
+    color: #34d399;
+
+    .desglose-fila__monto {
+      color: #34d399;
+    }
+  }
+
+  &--total {
+    border-top: 1px solid #3c3252;
+    padding-top: 0.75rem;
+    margin-top: 0.25rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #f7f5fa;
   }
 }
 

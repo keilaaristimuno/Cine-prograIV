@@ -85,7 +85,11 @@ export class ServicioFunciones {
           nombre,
           duracion_minutos,
           imagen_url,
-          clasificacion_edad
+          clasificacion_edad,
+          fecha_estreno,
+          permite_preventa,
+          porcentaje_descuento_preventa,
+          dias_anticipacion_preventa
         ),
         sala:salas (
           id,
@@ -461,7 +465,15 @@ export class ServicioFunciones {
             nombre: peliculaFila.nombre,
             duracionMinutos: peliculaFila.duracion_minutos,
             imagenUrl: peliculaFila.imagen_url,
-            clasificacionEdad: peliculaFila.clasificacion_edad
+            clasificacionEdad: peliculaFila.clasificacion_edad,
+            fechaEstreno: peliculaFila.fecha_estreno,
+            permitePreventa: peliculaFila.permite_preventa,
+            porcentajeDescuentoPreventa: peliculaFila.porcentaje_descuento_preventa != null
+              ? Number(peliculaFila.porcentaje_descuento_preventa)
+              : undefined,
+            diasAnticipacionPreventa: peliculaFila.dias_anticipacion_preventa != null
+              ? Number(peliculaFila.dias_anticipacion_preventa)
+              : undefined
           }
         : undefined,
       sala: salaFila

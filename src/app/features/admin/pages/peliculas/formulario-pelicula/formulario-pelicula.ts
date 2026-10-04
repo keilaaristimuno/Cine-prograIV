@@ -74,12 +74,15 @@ export class FormularioPelicula implements OnInit{
           '',
           Validators.required
     ],
-    clasificacionEdad:
+      clasificacionEdad:
       this.constructorFormularios.nonNullable.control<ClasificacionEdad>(
             'ATP',
             Validators.required
       ),
       estaActiva: [true],
+      permitePreventa: [false],
+      porcentajeDescuentoPreventa: [20, [Validators.min(0), Validators.max(100)]],
+      diasAnticipacionPreventa: [7, [Validators.min(1), Validators.max(90)]],
         /* Representa los generos que el usuario selecciono:  */
       generos: this.constructorFormularios.nonNullable.control<string[]>(
       [],
@@ -144,6 +147,9 @@ export class FormularioPelicula implements OnInit{
         fechaEstreno: pelicula.fechaEstreno.slice(0, 10),
         clasificacionEdad: pelicula.clasificacionEdad,
         estaActiva: pelicula.estaActiva,
+        permitePreventa: pelicula.permitePreventa ?? false,
+        porcentajeDescuentoPreventa: pelicula.porcentajeDescuentoPreventa ?? 20,
+        diasAnticipacionPreventa: pelicula.diasAnticipacionPreventa ?? 7,
         generos: [...pelicula.generos],
         imagen: null
       });
@@ -232,6 +238,9 @@ export class FormularioPelicula implements OnInit{
       fechaEstreno: datosFormulario.fechaEstreno,
       clasificacionEdad: datosFormulario.clasificacionEdad,
       estaActiva: datosFormulario.estaActiva,
+      permitePreventa: datosFormulario.permitePreventa,
+      porcentajeDescuentoPreventa: Number(datosFormulario.porcentajeDescuentoPreventa),
+      diasAnticipacionPreventa: Number(datosFormulario.diasAnticipacionPreventa),
       generos: datosFormulario.generos
     };
 

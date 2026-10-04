@@ -95,6 +95,20 @@
           >
             {{ f.pelicula?.clasificacionEdad || 'ATP' }}
           </span>
+
+          @if (resumenPrecios()?.enPreventa) {
+            <span class="cabecera-funcion__separador">•</span>
+            <span class="badge-promo badge-promo--preventa">
+              🔥 Preventa {{ resumenPrecios()?.porcentajeDescuentoPreventa }}% OFF
+            </span>
+          }
+
+          @if (resumenPrecios()?.aplicaPrimeraCompra) {
+            <span class="cabecera-funcion__separador">•</span>
+            <span class="badge-promo badge-promo--primera-compra">
+              ⭐ 1ª Compra {{ resumenPrecios()?.porcentajeDescuentoPrimeraCompra }}% OFF
+            </span>
+          }
         </div>
       </div>
     </header>
@@ -121,6 +135,28 @@
         </div>
       </div>
     }
+
+    <!-- BANNER DE TARIFAS Y PROMOCIONES (M4.6) -->
+    <div class="tarjetas-precios" aria-label="Tarifas de la función">
+      <div class="tarjeta-precio">
+        <span class="tarjeta-precio__tipo">Butaca Normal / Accesible</span>
+        <span class="tarjeta-precio__valor">${{ (resumenPrecios()?.precioBase ?? 10000) | number:'1.0-0' }}</span>
+      </div>
+      <div class="tarjeta-precio tarjeta-precio--vip">
+        <span class="tarjeta-precio__tipo">Butaca VIP (Filas R, S, T)</span>
+        <span class="tarjeta-precio__valor">${{ (resumenPrecios()?.precioVip ?? 15000) | number:'1.0-0' }}</span>
+        <span class="tarjeta-precio__nota">+{{ resumenPrecios()?.recargoVipPorcentaje ?? 50 }}% recargo</span>
+      </div>
+      @if (resumenPrecios()?.tipoMejorDescuento !== 'ninguno') {
+        <div class="tarjeta-precio tarjeta-precio--promo">
+          <span class="tarjeta-precio__tipo">
+            {{ resumenPrecios()?.tipoMejorDescuento === 'preventa' ? 'Promoción Preventa' : 'Promoción Primera Compra' }}
+          </span>
+          <span class="tarjeta-precio__valor">-{{ resumenPrecios()?.mejorDescuentoPorcentaje }}% OFF</span>
+          <span class="tarjeta-precio__nota">Se aplica automáticamente al total</span>
+        </div>
+      }
+    </div>
 
     <!-- MAPA VISUAL REUTILIZABLE CON ESTADOS INTERACTIVOS -->
     <section class="seccion-mapa" aria-label="Mapa interactivo de la sala">
@@ -152,6 +188,22 @@
                   {{ b.fila }}{{ b.numero }}
                 </span>
               }
+            </div>
+
+            <!-- Totales financieros estimados en la barra resumen -->
+            <div class="barra-resumen__totales">
+              <span class="barra-resumen__subtotal">
+                Subtotal: <strong>${{ calculoDetalle().subtotal | number:'1.0-0' }}</strong>
+              </span>
+              @if (calculoDetalle().tipoDesc !== 'ninguno') {
+                <span class="barra-resumen__descuento">
+                  {{ calculoDetalle().tipoDesc === 'preventa' ? 'Preventa' : '1ª Compra' }} (-{{ calculoDetalle().porcDesc }}%):
+                  <strong>-${{ calculoDetalle().montoDesc | number:'1.0-0' }}</strong>
+                </span>
+              }
+              <span class="barra-resumen__total">
+                Total: <strong>${{ calculoDetalle().total | number:'1.0-0' }}</strong>
+              </span>
             </div>
           } @else {
             <p class="barra-resumen__indicacion">
@@ -233,10 +285,36 @@
               <div class="resumen-butacas__lista">
                 @for (b of butacasSeleccionadas(); track b.id) {
                   <div class="item-butaca" [class.item-butaca--vip]="b.tipo === 'vip'" [class.item-butaca--accesible]="b.tipo === 'accesible'">
-                    <span class="item-butaca__posicion">Fila {{ b.fila }} — Butaca {{ b.numero }}</span>
-                    <span class="item-butaca__tipo">{{ b.tipo }}</span>
+                    <div class="item-butaca__info">
+                      <span class="item-butaca__posicion">Fila {{ b.fila }} — Butaca {{ b.numero }}</span>
+                      <span class="item-butaca__tipo">{{ b.tipo }}</span>
+                    </div>
+                    <span class="item-butaca__precio">${{ obtenerPrecioUnitario(b.tipo) | number:'1.0-0' }}</span>
                   </div>
                 }
+              </div>
+            </div>
+
+            <!-- Desglose financiero M4.6 -->
+            <div class="desglose-financiero">
+              <div class="desglose-fila">
+                <span>Subtotal ({{ cantidadSeleccionadas() }} {{ cantidadSeleccionadas() === 1 ? 'entrada' : 'entradas' }}):</span>
+                <span class="desglose-fila__monto">${{ calculoDetalle().subtotal | number:'1.0-0' }}</span>
+              </div>
+              @if (calculoDetalle().tipoDesc !== 'ninguno') {
+                <div class="desglose-fila desglose-fila--descuento">
+                  <span>
+                    Descuento {{ calculoDetalle().tipoDesc === 'preventa' ? 'Preventa' : '1ª Compra' }}
+                    ({{ calculoDetalle().porcDesc }}%):
+                  </span>
+                  <span class="desglose-fila__monto">-${{ calculoDetalle().montoDesc | number:'1.0-0' }}</span>
+                </div>
+              }
+              <div class="desglose-fila desglose-fila--total">
+                <span>Total a pagar:</span>
+                <span class="desglose-fila__monto desglose-fila__monto--total">
+                  ${{ calculoDetalle().total | number:'1.0-0' }}
+                </span>
               </div>
             </div>
 
@@ -312,7 +390,7 @@
                 <span class="spinner-boton"></span>
                 <span>Procesando compra...</span>
               } @else {
-                <span>Confirmar compra ({{ cantidadSeleccionadas() }})</span>
+                <span>Confirmar compra (${{ calculoDetalle().total | number:'1.0-0' }})</span>
               }
             </button>
           </footer>

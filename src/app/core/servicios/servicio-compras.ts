@@ -63,11 +63,17 @@ export class ServicioCompras {
         email_contacto,
         estado,
         creado_en,
+        subtotal,
+        porcentaje_descuento_aplicado,
+        monto_descuento,
+        tipo_descuento_aplicado,
+        es_primera_compra,
         total,
         entradas (
           id,
           funcion_id,
           estado,
+          precio_unitario,
           butaca:butacas (
             id,
             fila,
@@ -100,7 +106,12 @@ export class ServicioCompras {
       email_contacto: data.email_contacto,
       estado: data.estado,
       creado_en: data.creado_en,
-      total: data.total,
+      subtotal: Number(data.subtotal ?? data.total ?? 0),
+      porcentaje_descuento_aplicado: Number(data.porcentaje_descuento_aplicado ?? 0),
+      monto_descuento: Number(data.monto_descuento ?? 0),
+      tipo_descuento_aplicado: data.tipo_descuento_aplicado ?? 'ninguno',
+      es_primera_compra: Boolean(data.es_primera_compra ?? false),
+      total: Number(data.total ?? 0),
       funcion: {
         id: funcionData?.id || '',
         pelicula_nombre: funcionData?.pelicula?.nombre || 'Película',
@@ -115,7 +126,9 @@ export class ServicioCompras {
         fila: e.butaca.fila,
         numero: e.butaca.numero,
         bloque: e.butaca.bloque,
-        tipo: e.butaca.tipo
+        tipo: e.butaca.tipo,
+        precio_unitario: e.precio_unitario != null ? Number(e.precio_unitario) : null,
+        precioUnitario: e.precio_unitario != null ? Number(e.precio_unitario) : undefined
       }))
     };
   }

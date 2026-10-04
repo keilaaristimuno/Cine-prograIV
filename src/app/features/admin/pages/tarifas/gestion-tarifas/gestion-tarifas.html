@@ -1,0 +1,95 @@
+<section class="pagina-tarifas">
+  <div class="tarjeta-tarifas">
+    <header class="encabezado-seccion">
+      <h1>Gestión de Tarifas y Descuentos</h1>
+      <p>Configure los precios base por formato, recargo de butacas VIP y la promoción de primera compra.</p>
+    </header>
+
+    @if (cargando()) {
+      <div class="estado-carga">
+        <p>Cargando tarifas y configuración...</p>
+      </div>
+    } @else {
+      @if (mensajeExito()) {
+        <div class="alerta alerta--exito">
+          {{ mensajeExito() }}
+        </div>
+      }
+
+      @if (mensajeError()) {
+        <div class="alerta alerta--error">
+          {{ mensajeError() }}
+        </div>
+      }
+
+      <form [formGroup]="formularioTarifas" (ngSubmit)="guardar()" class="formulario-tarifas">
+        
+        <!-- Precios base por formato -->
+        <fieldset class="bloque-tarifas">
+          <legend>Precios Base por Formato</legend>
+          <p class="descripcion-bloque">Aplica para butacas normales y accesibles de cada formato de proyección.</p>
+          
+          <div class="rejilla-formatos">
+            <div class="campo-tarifa">
+              <label for="precio2D">Formato 2D ($):</label>
+              <input id="precio2D" type="number" formControlName="precio2D" min="0" step="500" />
+            </div>
+
+            <div class="campo-tarifa">
+              <label for="precio3D">Formato 3D ($):</label>
+              <input id="precio3D" type="number" formControlName="precio3D" min="0" step="500" />
+            </div>
+
+            <div class="campo-tarifa">
+              <label for="precio4D">Formato 4D ($):</label>
+              <input id="precio4D" type="number" formControlName="precio4D" min="0" step="500" />
+            </div>
+
+            <div class="campo-tarifa">
+              <label for="precio5D">Formato 5D ($):</label>
+              <input id="precio5D" type="number" formControlName="precio5D" min="0" step="500" />
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Recargo VIP -->
+        <fieldset class="bloque-tarifas">
+          <legend>Butacas VIP</legend>
+          <p class="descripcion-bloque">Porcentaje adicional aplicado sobre el precio base del formato para butacas de las filas R, S y T.</p>
+          
+          <div class="campo-tarifa campo-tarifa--reducido">
+            <label for="porcentajeRecargoVip">Recargo VIP (%):</label>
+            <input id="porcentajeRecargoVip" type="number" formControlName="porcentajeRecargoVip" min="0" max="200" step="5" />
+          </div>
+        </fieldset>
+
+        <!-- Descuento Primera Compra -->
+        <fieldset class="bloque-tarifas">
+          <legend>Promoción Primera Compra (Usuarios Registrados)</legend>
+          <p class="descripcion-bloque">Beneficio otorgado automáticamente a usuarios registrados en su primera compra completada.</p>
+          
+          <div class="campo-booleano">
+            <label class="toggle-control">
+              <input type="checkbox" formControlName="descuentoPrimeraCompraActivo" />
+              <span>Habilitar beneficio de primera compra</span>
+            </label>
+          </div>
+
+          @if (formularioTarifas.get('descuentoPrimeraCompraActivo')?.value) {
+            <div class="campo-tarifa campo-tarifa--reducido">
+              <label for="porcentajePrimeraCompra">Porcentaje de Descuento (%):</label>
+              <input id="porcentajePrimeraCompra" type="number" formControlName="porcentajeDescuentoPrimeraCompra" min="0" max="100" step="5" />
+            </div>
+          }
+        </fieldset>
+
+        <div class="acciones-formulario">
+          <button type="submit" [disabled]="guardando()" class="boton-guardar">
+            {{ guardando() ? 'Guardando cambios...' : 'Guardar Cambios' }}
+          </button>
+        </div>
+
+      </form>
+    }
+  </div>
+</section>

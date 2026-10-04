@@ -10,4 +10,7 @@ export interface Pelicula {
   clasificacionEdad: ClasificacionEdad;
   generos: string[];
   estaActiva: boolean;
+  permitePreventa?: boolean;
+  porcentajeDescuentoPreventa?: number;
+  diasAnticipacionPreventa?: number;
 }

@@ -120,6 +120,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/admin/pages/funciones/formulario-funcion/formulario-funcion')
             .then(m => m.FormularioFuncion)
+      },
+      {
+        path: 'tarifas',
+        loadComponent: () =>
+          import('./features/admin/pages/tarifas/gestion-tarifas/gestion-tarifas')
+            .then(m => m.GestionTarifas)
       }
     ]
   },

@@ -14,7 +14,11 @@
         </svg>
       </div>
 
-      <p class="etiqueta-exito">¡Todo listo!</p>
+      @if (c.es_primera_compra) {
+        <p class="etiqueta-exito">🎉 ¡Felicitaciones por tu primera compra!</p>
+      } @else {
+        <p class="etiqueta-exito">¡Todo listo!</p>
+      }
       <h1 class="titulo-exito">¡Compra realizada con éxito!</h1>
       <p class="subtitulo-exito">
         Tus entradas quedaron confirmadas. Se envió el comprobante a:
@@ -102,20 +106,56 @@
               [class.chip-adquirida--vip]="b.tipo === 'vip'"
               [class.chip-adquirida--accesible]="b.tipo === 'accesible'"
             >
-              <span class="chip-adquirida__ubicacion">Fila {{ b.fila }} — Butaca {{ b.numero }}</span>
-              <span class="chip-adquirida__tipo">
-                @if (b.tipo === 'vip') {
-                  ★ VIP
-                } @else if (b.tipo === 'accesible') {
-                  ♿ Accesible
-                } @else {
-                  Normal
-                }
-              </span>
+              <div class="chip-adquirida__datos">
+                <span class="chip-adquirida__ubicacion">Fila {{ b.fila }} — Butaca {{ b.numero }}</span>
+                <span class="chip-adquirida__tipo">
+                  @if (b.tipo === 'vip') {
+                    ★ VIP
+                  } @else if (b.tipo === 'accesible') {
+                    ♿ Accesible
+                  } @else {
+                    Normal
+                  }
+                </span>
+              </div>
+              @if (b.precio_unitario || b.precioUnitario) {
+                <span class="chip-adquirida__precio">${{ (b.precio_unitario || b.precioUnitario) | number:'1.0-0' }}</span>
+              }
             </div>
           }
         </div>
       </section>
+
+      <!-- RESUMEN FINANCIERO DEFINITIVO (M4.6) -->
+      @if (c.total !== null && c.total !== undefined) {
+        <section class="bloque-detalle bloque-resumen-financiero" aria-labelledby="titulo-resumen-pago">
+          <h2 id="titulo-resumen-pago" class="bloque-detalle__titulo">Resumen del pago</h2>
+
+          <div class="desglose-compra">
+            <div class="fila-desglose">
+              <span class="fila-desglose__etiqueta">
+                Subtotal ({{ c.butacas.length }} {{ c.butacas.length === 1 ? 'entrada' : 'entradas' }}):
+              </span>
+              <span class="fila-desglose__valor">${{ (c.subtotal ?? c.total) | number:'1.0-0' }}</span>
+            </div>
+
+            @if (c.tipo_descuento_aplicado && c.tipo_descuento_aplicado !== 'ninguno' && (c.monto_descuento ?? 0) > 0) {
+              <div class="fila-desglose fila-desglose--descuento">
+                <span class="fila-desglose__etiqueta">
+                  Descuento {{ c.tipo_descuento_aplicado === 'preventa' ? 'Preventa' : 'Primera Compra' }}
+                  ({{ c.porcentaje_descuento_aplicado }}%):
+                </span>
+                <span class="fila-desglose__valor">-${{ c.monto_descuento | number:'1.0-0' }}</span>
+              </div>
+            }
+
+            <div class="fila-desglose fila-desglose--total">
+              <span class="fila-desglose__etiqueta">Total abonado:</span>
+              <span class="fila-desglose__valor fila-desglose__valor--total">${{ c.total | number:'1.0-0' }}</span>
+            </div>
+          </div>
+        </section>
+      }
 
       <!-- BOTONES DE ACCIÓN -->
       <div class="acciones-confirmacion">
