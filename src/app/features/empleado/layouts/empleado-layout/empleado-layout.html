@@ -1,0 +1,59 @@
+<div class="estructura-empleado">
+  <header class="barra-superior">
+    <div class="barra-superior__seccion-marca">
+      <div class="marca">
+        <span class="marca__nombre">Pantalla Mágica</span>
+        <span class="marca__area">Control de Acceso</span>
+      </div>
+
+      <nav class="navegacion">
+        <a
+          routerLink="/empleado/validar-entrada"
+          routerLinkActive="navegacion__enlace--activo"
+          class="navegacion__enlace"
+        >
+          Validar Entrada
+        </a>
+
+        @if (esAdmin()) {
+          <a
+            routerLink="/admin"
+            class="navegacion__enlace navegacion__enlace--admin"
+          >
+            Panel Admin
+          </a>
+        }
+
+        <a
+          routerLink="/"
+          class="navegacion__enlace"
+        >
+          Cartelera Pública
+        </a>
+      </nav>
+    </div>
+
+    <div class="barra-superior__seccion-usuario">
+      <div class="datos-usuario">
+        <span class="datos-usuario__nombre">
+          {{ perfil()?.nombre ? (perfil()?.nombre + ' ' + perfil()?.apellido) : (usuario()?.email ?? 'Empleado') }}
+        </span>
+        <span class="datos-usuario__etiqueta-rol">
+          {{ perfil()?.rol ?? 'empleado' }}
+        </span>
+      </div>
+
+      <button
+        type="button"
+        class="boton-cerrar-sesion"
+        (click)="cerrarSesion()"
+      >
+        Cerrar sesión
+      </button>
+    </div>
+  </header>
+
+  <main class="contenido-empleado">
+    <router-outlet />
+  </main>
+</div>

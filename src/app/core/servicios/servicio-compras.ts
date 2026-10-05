@@ -1,5 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { DatosBorradorCompra, DatosConfirmarCompra, ResultadoCompra } from '../modelos/compra';
+import { ResultadoValidacionAcceso } from '../modelos/validacion-acceso';
 import { ServicioSupabase } from './servicio-supabase';
 
 @Injectable({
@@ -116,7 +117,7 @@ export class ServicioCompras {
             id,
             fecha_hora_inicio,
             formato,
-            pelicula:peliculas ( nombre, clasificacion_edad ),
+            pelicula:peliculas ( nombre, clasificacion_edad, imagen_url ),
             sala:salas ( numero, nombre )
           )
         )
@@ -153,7 +154,8 @@ export class ServicioCompras {
         fecha_hora_inicio: funcionData?.fecha_hora_inicio || '',
         formato: funcionData?.formato || '',
         sala_numero: funcionData?.sala?.numero || 1,
-        sala_nombre: funcionData?.sala?.nombre || ''
+        sala_nombre: funcionData?.sala?.nombre || '',
+        pelicula_imagen_url: funcionData?.pelicula?.imagen_url || null
       },
       butacas: (data.entradas as any[]).map(e => ({
         id: e.butaca.id,
@@ -166,4 +168,60 @@ export class ServicioCompras {
       }))
     };
   }
+
+  /**
+   * Valida el acceso a la sala mediante el código alfanumérico único de la compra (o escaneo QR).
+   * Solo disponible para roles 'empleado' y 'administrador'.
+   * Invoca la función RPC en PostgreSQL con control de concurrencia y validación de uso único.
+   */
+  async validarAccesoSala(codigo: string): Promise<ResultadoValidacionAcceso> {
+    const codigoLimpio = codigo.trim().toUpperCase();
+
+    if (!codigoLimpio) {
+      return {
+        ok: false,
+        estado_validacion: 'codigo_invalido',
+        mensaje: 'Debés ingresar o escanear un código de acceso.'
+      };
+    }
+
+    try {
+      const cliente = this.servicioSupabase.cliente;
+      const { data, error } = await cliente.rpc('validar_acceso_sala', {
+        p_codigo: codigoLimpio
+      });
+
+      if (error) {
+        console.error('Error al invocar validar_acceso_sala:', error);
+
+        if (
+          error.code === '42501' ||
+          error.message?.includes('permisos') ||
+          error.message?.includes('Acceso denegado')
+        ) {
+          return {
+            ok: false,
+            estado_validacion: 'no_autorizado',
+            mensaje: 'No tenés permisos de empleado o administrador para validar entradas.'
+          };
+        }
+
+        return {
+          ok: false,
+          estado_validacion: 'error_desconocido',
+          mensaje: 'Ocurrió un error inesperado al procesar la validación. Por favor, intentá nuevamente.'
+        };
+      }
+
+      return data as ResultadoValidacionAcceso;
+    } catch (err) {
+      console.error('Excepción inesperada en validarAccesoSala:', err);
+      return {
+        ok: false,
+        estado_validacion: 'error_desconocido',
+        mensaje: 'Error de conexión al validar la entrada. Por favor, revisá tu red e intentá de nuevo.'
+      };
+    }
+  }
 }
+

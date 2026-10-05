@@ -46,7 +46,7 @@ export class InicioSesion implements OnInit {
       this.ruta.snapshot.queryParamMap.get('accesoDenegado');
     if (accesoDenegado) {
       this.mensajeError.set(
-        'Acceso restringido: necesitás una cuenta de administrador para ingresar al panel.'
+        'Acceso restringido: no contás con los permisos necesarios para ingresar a esa sección.'
       );
     }
   }
@@ -76,9 +76,7 @@ export class InicioSesion implements OnInit {
       }
 
       if (perfil?.rol === 'empleado') {
-        this.mensajeInfo.set(
-          `¡Hola ${perfil.nombre || 'Empleado'}! Has iniciado sesión como empleado. El módulo de validación QR se habilitará en la siguiente etapa.`
-        );
+        await this.enrutador.navigate(['/empleado/validar-entrada']);
         return;
       }
 

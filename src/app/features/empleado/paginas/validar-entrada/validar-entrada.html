@@ -1,0 +1,364 @@
+<section class="pagina-validacion">
+  <div class="encabezado-seccion">
+    <h1 class="titulo-seccion">Control de Acceso a Sala</h1>
+    <p class="subtitulo-seccion">
+      Validá el ingreso del espectador escaneando el código QR de su pase o ingresando el código alfanumérico.
+    </p>
+  </div>
+
+  <!-- Si no hay resultado activo, mostramos los métodos de ingreso -->
+  @if (!resultado()) {
+    <div class="contenedor-ingreso">
+      <!-- Selector de pestañas -->
+      <div class="pestanas-ingreso">
+        <button
+          type="button"
+          class="pestana"
+          [class.pestana--activa]="modoActual() === 'qr'"
+          (click)="cambiarModo('qr')"
+        >
+          <svg class="icono-pestana" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          Escanear Código QR
+        </button>
+
+        <button
+          type="button"
+          class="pestana"
+          [class.pestana--activa]="modoActual() === 'manual'"
+          (click)="cambiarModo('manual')"
+        >
+          <svg class="icono-pestana" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+            <path d="M6 8h.001M10 8h.001M14 8h.001M18 8h.001M6 12h.001M10 12h.001M14 12h.001M18 12h.001M7 16h10"></path>
+          </svg>
+          Ingreso Manual
+        </button>
+      </div>
+
+      <!-- Pestaña 1: Cámara / QR -->
+      @if (modoActual() === 'qr') {
+        <div class="caja-metodo caja-qr">
+          @if (errorCamara()) {
+            <div class="alerta-error">
+              <span class="alerta-icono">⚠️</span>
+              <p>{{ errorCamara() }}</p>
+            </div>
+          }
+
+          @if (!camaraActiva()) {
+            <div class="camara-placeholder">
+              <div class="icono-camara-grande">📷</div>
+              <p class="instruccion-camara">
+                La cámara está lista para escanear. Presioná el botón para activarla y enfocar el QR del cliente.
+              </p>
+
+              <button
+                type="button"
+                class="boton boton--primario boton--camara"
+                [disabled]="cargandoCamara() || cargandoValidacion()"
+                (click)="iniciarCamara()"
+              >
+                @if (cargandoCamara()) {
+                  <span class="spinner"></span>
+                  Iniciando cámara...
+                } @else {
+                  Encender Cámara
+                }
+              </button>
+            </div>
+          } @else {
+            <!-- Contenedor del video HTML5 QR activo con dimensiones visibles reales -->
+            <div
+              [id]="elementoCamaraId"
+              class="visor-camara"
+            ></div>
+
+            <div class="acciones-camara">
+              <span class="indicador-escaneando">
+                <span class="pulso-verde"></span>
+                Enfocando código QR...
+              </span>
+
+              <button
+                type="button"
+                class="boton boton--secundario"
+                (click)="detenerCamara()"
+              >
+                Detener Cámara
+              </button>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Pestaña 2: Manual -->
+      @if (modoActual() === 'manual') {
+        <div class="caja-metodo caja-manual">
+          <form
+            [formGroup]="formularioManual"
+            (ngSubmit)="enviarCodigoManual()"
+            class="formulario-manual"
+          >
+            <div class="grupo-campo">
+              <label for="campo-codigo" class="etiqueta-campo">
+                Código de Entrada (TK-XXXX-XXXX)
+              </label>
+              <div class="campo-con-boton">
+                <input
+                  id="campo-codigo"
+                  type="text"
+                  formControlName="codigo"
+                  placeholder="Ej: TK-4A2B-9C1D"
+                  class="input-codigo"
+                  autocomplete="off"
+                  autocapitalize="characters"
+                  spellcheck="false"
+                />
+                <button
+                  type="submit"
+                  class="boton boton--primario"
+                  [disabled]="formularioManual.invalid || cargandoValidacion()"
+                >
+                  @if (cargandoValidacion()) {
+                    <span class="spinner"></span>
+                    Validando...
+                  } @else {
+                    Validar
+                  }
+                </button>
+              </div>
+
+              @if (formularioManual.get('codigo')?.touched && formularioManual.get('codigo')?.errors) {
+                <span class="error-validacion">
+                  Ingresá un código válido con formato alfanumérico (ej: TK-XXXX-XXXX).
+                </span>
+              }
+            </div>
+
+            <p class="ayuda-manual">
+              El código alfanumérico se encuentra impreso en la entrada digital y en el PDF, justo debajo del código QR.
+            </p>
+          </form>
+        </div>
+      }
+
+      @if (cargandoValidacion()) {
+        <div class="overlay-cargando">
+          <div class="spinner-grande"></div>
+          <p>Verificando pase en el sistema...</p>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ======================================================================== -->
+  <!-- RESULTADO DE VALIDACIÓN (Tarjeta Operacional)                            -->
+  <!-- ======================================================================== -->
+  @if (resultado()) {
+    <div
+      class="tarjeta-resultado"
+      [class.tarjeta-resultado--autorizado]="resultado()?.estado_validacion === 'autorizado'"
+      [class.tarjeta-resultado--ya-utilizado]="resultado()?.estado_validacion === 'ya_utilizado'"
+      [class.tarjeta-resultado--cancelado]="resultado()?.estado_validacion === 'funcion_cancelada'"
+      [class.tarjeta-resultado--invalido]="
+        resultado()?.estado_validacion === 'codigo_invalido' ||
+        resultado()?.estado_validacion === 'compra_no_completada' ||
+        resultado()?.estado_validacion === 'sin_entradas_activas' ||
+        resultado()?.estado_validacion === 'inconsistencia_funciones' ||
+        resultado()?.estado_validacion === 'no_autorizado' ||
+        resultado()?.estado_validacion === 'error_desconocido'
+      "
+    >
+      <!-- 1. CASO AUTORIZADO -->
+      @if (resultado()?.estado_validacion === 'autorizado') {
+        <div class="cabecera-resultado estado-autorizado">
+          <div class="icono-resultado">✓</div>
+          <div class="textos-cabecera">
+            <span class="badge-estado">Acceso Autorizado</span>
+            <h2 class="titulo-resultado">{{ resultado()?.mensaje }}</h2>
+          </div>
+        </div>
+
+        <div class="cuerpo-resultado">
+          <div class="bloque-datos">
+            <div class="fila-dato">
+              <span class="etiqueta-dato">Película:</span>
+              <span class="valor-dato valor-destacado">{{ resultado()?.pelicula_nombre }}</span>
+            </div>
+
+            <div class="fila-dato">
+              <span class="etiqueta-dato">Formato / Edad:</span>
+              <span class="valor-dato">
+                <span class="chip-formato">{{ resultado()?.formato }}</span>
+                <span class="chip-clasificacion">{{ resultado()?.clasificacion_edad }}</span>
+              </span>
+            </div>
+
+            <div class="fila-dato">
+              <span class="etiqueta-dato">Sala:</span>
+              <span class="valor-dato">Sala {{ resultado()?.sala_numero }} ({{ resultado()?.sala_nombre }})</span>
+            </div>
+
+            <div class="fila-dato">
+              <span class="etiqueta-dato">Horario Función:</span>
+              <span class="valor-dato">{{ formatearFechaHora(resultado()?.fecha_hora_inicio) }}</span>
+            </div>
+
+            <div class="fila-dato">
+              <span class="etiqueta-dato">Tipo de Pase:</span>
+              <span class="valor-dato">
+                @if ((resultado()?.cantidad_entradas ?? 1) > 1) {
+                  <strong>Entrada grupal</strong> ({{ resultado()?.cantidad_entradas }} personas)
+                } @else {
+                  <strong>Entrada individual</strong> (1 persona)
+                }
+              </span>
+            </div>
+
+            <div class="fila-dato fila-butacas">
+              <span class="etiqueta-dato">Butacas Habilitadas:</span>
+              <div class="lista-butacas-chips">
+                @for (b of resultado()?.butacas; track b.fila + b.numero) {
+                  <span class="chip-butaca">
+                    Fila {{ b.fila }} - Butaca {{ b.numero }}
+                    <small>({{ b.tipo }})</small>
+                  </span>
+                }
+              </div>
+            </div>
+
+            <div class="fila-dato fila-auditoria">
+              <span class="etiqueta-dato">Código:</span>
+              <span class="codigo-mono">{{ resultado()?.codigo_alfanumerico }}</span>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- 2. CASO YA UTILIZADO -->
+      @if (resultado()?.estado_validacion === 'ya_utilizado') {
+        <div class="cabecera-resultado estado-ya-utilizado">
+          <div class="icono-resultado">⚠️</div>
+          <div class="textos-cabecera">
+            <span class="badge-estado badge-estado--alerta">Entrada Ya Utilizada</span>
+            <h2 class="titulo-resultado">Acceso Denegado: Código Consumido</h2>
+          </div>
+        </div>
+
+        <div class="cuerpo-resultado">
+          <div class="alerta-uso-previo">
+            <p class="texto-alerta">
+              Este pase de acceso ya fue validado en puerta anteriormente. No se permite un segundo ingreso con el mismo código.
+            </p>
+            <div class="datos-auditoria-previa">
+              <div><strong>Validado el:</strong> {{ formatearFechaHora(resultado()?.validado_en) }}</div>
+              <div><strong>Validado por:</strong> {{ resultado()?.validado_por_email }}</div>
+            </div>
+          </div>
+
+          <div class="bloque-datos">
+            <div class="fila-dato">
+              <span class="etiqueta-dato">Película:</span>
+              <span class="valor-dato">{{ resultado()?.pelicula_nombre }}</span>
+            </div>
+            <div class="fila-dato">
+              <span class="etiqueta-dato">Sala:</span>
+              <span class="valor-dato">Sala {{ resultado()?.sala_numero }}</span>
+            </div>
+            <div class="fila-dato">
+              <span class="etiqueta-dato">Horario:</span>
+              <span class="valor-dato">{{ formatearFechaHora(resultado()?.fecha_hora_inicio) }}</span>
+            </div>
+            <div class="fila-dato">
+              <span class="etiqueta-dato">Entradas en la compra:</span>
+              <span class="valor-dato">{{ resultado()?.cantidad_entradas }} butacas</span>
+            </div>
+            <div class="fila-dato fila-auditoria">
+              <span class="etiqueta-dato">Código:</span>
+              <span class="codigo-mono">{{ resultado()?.codigo_alfanumerico }}</span>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- 3. CASO FUNCIÓN CANCELADA -->
+      @if (resultado()?.estado_validacion === 'funcion_cancelada') {
+        <div class="cabecera-resultado estado-cancelado">
+          <div class="icono-resultado">🚫</div>
+          <div class="textos-cabecera">
+            <span class="badge-estado badge-estado--error">Función Cancelada</span>
+            <h2 class="titulo-resultado">Acceso No Autorizado</h2>
+          </div>
+        </div>
+
+        <div class="cuerpo-resultado">
+          <div class="alerta-error">
+            <p>{{ resultado()?.mensaje }}</p>
+          </div>
+
+          <div class="bloque-datos">
+            <div class="fila-dato">
+              <span class="etiqueta-dato">Película:</span>
+              <span class="valor-dato">{{ resultado()?.pelicula_nombre }}</span>
+            </div>
+            <div class="fila-dato">
+              <span class="etiqueta-dato">Sala:</span>
+              <span class="valor-dato">Sala {{ resultado()?.sala_numero }}</span>
+            </div>
+            <div class="fila-dato">
+              <span class="etiqueta-dato">Horario original:</span>
+              <span class="valor-dato">{{ formatearFechaHora(resultado()?.fecha_hora_inicio) }}</span>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- 4. CASOS DE CÓDIGO INVÁLIDO O ERROR -->
+      @if (
+        resultado()?.estado_validacion === 'codigo_invalido' ||
+        resultado()?.estado_validacion === 'compra_no_completada' ||
+        resultado()?.estado_validacion === 'sin_entradas_activas' ||
+        resultado()?.estado_validacion === 'inconsistencia_funciones' ||
+        resultado()?.estado_validacion === 'no_autorizado' ||
+        resultado()?.estado_validacion === 'error_desconocido'
+      ) {
+        <div class="cabecera-resultado estado-invalido">
+          <div class="icono-resultado">✕</div>
+          <div class="textos-cabecera">
+            <span class="badge-estado badge-estado--error">Entrada No Válida</span>
+            <h2 class="titulo-resultado">Acceso Denegado</h2>
+          </div>
+        </div>
+
+        <div class="cuerpo-resultado">
+          <div class="alerta-error">
+            <p>{{ resultado()?.mensaje }}</p>
+          </div>
+
+          @if (resultado()?.codigo_alfanumerico) {
+            <div class="fila-dato fila-auditoria">
+              <span class="etiqueta-dato">Código consultado:</span>
+              <span class="codigo-mono">{{ resultado()?.codigo_alfanumerico }}</span>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ACCIÓN: VALIDAR OTRA ENTRADA -->
+      <div class="pie-resultado">
+        <button
+          type="button"
+          class="boton boton--primario boton--otra-entrada"
+          (click)="nuevaValidacion()"
+        >
+          Validar Otra Entrada
+        </button>
+      </div>
+    </div>
+  }
+</section>

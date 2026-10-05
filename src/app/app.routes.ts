@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { adminGuard } from './core/guards/admin.guard';
+import { empleadoGuard } from './core/guards/empleado.guard';
 
 export const routes: Routes = [
   {
@@ -133,6 +134,26 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/admin/pages/tarifas/gestion-tarifas/gestion-tarifas')
             .then(m => m.GestionTarifas)
+      }
+    ]
+  },
+  {
+    path: 'empleado',
+    canActivate: [empleadoGuard],
+    loadComponent: () =>
+      import('./features/empleado/layouts/empleado-layout/empleado-layout')
+        .then(m => m.EmpleadoLayout),
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'validar-entrada'
+      },
+      {
+        path: 'validar-entrada',
+        loadComponent: () =>
+          import('./features/empleado/paginas/validar-entrada/validar-entrada')
+            .then(m => m.ValidarEntrada)
       }
     ]
   },

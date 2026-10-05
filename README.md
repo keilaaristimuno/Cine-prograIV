@@ -12,7 +12,7 @@ Aplicación desarrollada con Angular y Supabase que centraliza la gestión de pe
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-Backend-3FCF8E?logo=supabase&logoColor=white)
 ![Firebase](https://img.shields.io/badge/Firebase-Hosting-FFCA28?logo=firebase&logoColor=black)
-![Estado](https://img.shields.io/badge/Estado-Módulo%204%20Completado%20(M4.1--M4.6)-8B5CF6)
+![Estado](https://img.shields.io/badge/Estado-Módulo%205%20Completado%20(M5.1--M5.4)-8B5CF6)
 
 </div>
 
@@ -26,10 +26,10 @@ El sistema contempla diferentes experiencias según el tipo de usuario:
 
 * **Visitantes / Anónimos:** Consultan la cartelera pública, buscan por título, filtran por género, revisan próximos estrenos, acceden a las fichas técnicas, consultan las funciones disponibles y pueden seleccionar butacas y comprar entradas proporcionando su correo electrónico.
 * **Clientes:** Usuarios registrados con perfil propio que acceden a la cartelera, seleccionan butacas en un mapa interactivo de 518 asientos, adquieren entradas mediante transacción atómica, validan restricciones de edad y disfrutan automáticamente del beneficio de primera compra (20% OFF de bienvenida).
-* **Empleados:** Operadores del cine que validarán entradas y entregas de Candy mediante códigos QR *(módulo futuro)*.
+* **Empleados:** Operadores del cine que validan el ingreso a sala mediante escaneo óptico de código QR con cámara o tipeo manual del código alfanumérico único de compra (con entrega de Candy prevista para un módulo posterior).
 * **Administradores:** Gestión integral de películas (con parámetros de preventa), administración de salas (2D, 3D, 4D, 5D), programación automática de funciones con control de solapamiento y tiempos de limpieza, y gestión centralizada de tarifas por formato, recargo VIP y configuración general de promociones.
 
-El proyecto se desarrolla de forma modular y progresiva. Al finalizar el **Módulo 4 (M4.1 a M4.6)**, se encuentran plenamente operativas la autenticación, la gestión de perfiles con roles, el panel administrativo (películas, salas, funciones y tarifas), la cartelera pública interactiva, el mapa físico de butacas con sincronización en tiempo real vía Supabase Realtime, el sistema transaccional atómico de compra de entradas (para clientes registrados y anónimos), la verificación estricta de edad (+13/+18) y el motor de precios por formato con recargo VIP, preventa y descuento de primera compra no acumulables.
+El proyecto se desarrolla de forma modular y progresiva. Al finalizar el **Módulo 5 (M5.1 a M5.4)**, se encuentran plenamente operativas la autenticación, la gestión de perfiles con roles, el panel administrativo (películas, salas, funciones y tarifas), la cartelera pública interactiva, el mapa físico de butacas con sincronización en tiempo real vía Supabase Realtime, el sistema transaccional atómico de compra de entradas (para clientes registrados y anónimos), la verificación estricta de edad (+13/+18), el motor de precios por formato con recargo VIP, preventa y descuento de primera compra no acumulables, el flujo de pago simulado con tarjeta (algoritmo de Luhn), la emisión de entradas digitales con código alfanumérico único (`TK-XXXX-XXXX`), renderizado de QR local y descarga en PDF, y el portal operativo de empleados para la validación atómica y de uso único del acceso al cine.
 
 ---
 
@@ -166,12 +166,41 @@ El proyecto se desarrolla de forma modular y progresiva. Al finalizar el **Módu
   * Desglose financiero completo en modal de compra y en comprobante final (subtotal, descuento aplicado y total).
   * Compatibilidad histórica total con compras previas (`NULL`).
 
+#### Módulo 5: Entrada Digital, Pago Simulado, QR y Validación de Acceso (M5.1 - M5.4)
+* [x] **M5.1 — Identificador alfanumérico único por compra (`TK-XXXX-XXXX`):**
+  * Generación criptográfica en PostgreSQL mediante `gen_random_bytes` con formato estandarizado `TK-[A-Z0-9]{4}-[A-Z0-9]{4}` (sin caracteres ambiguos como `I`, `O`, `0`, `1`).
+  * Política de acceso grupal: **1 compra = 1 código alfanumérico = 1 QR de cine**, independientemente de la cantidad de butacas adquiridas.
+  * Backfill histórico retrocompatible con captura de `unique_violation` ante colisiones y restricción `UNIQUE` en base de datos.
+  * Generación y asignación atómica dentro de la RPC `realizar_compra_entradas`.
+* [x] **M5.2 — Flujo de pago simulado con tarjeta de crédito/débito (`/compra/pago`):**
+  * Pantalla de pago simulado insertada entre la selección de butacas y la persistencia de la compra.
+  * Borrador de compra en memoria del cliente (sin reservas huérfanas ni locks efímeros en base de datos).
+  * Formulario reactivo con validación mediante el **algoritmo de Luhn (módulo 10)** para detección de números de tarjeta inválidos, fecha de vencimiento no expirada, CVV y titular.
+  * Simulación académica con retroalimentación visual inmediata sin almacenar ni transmitir datos sensibles de tarjeta a Supabase, `localStorage`, `sessionStorage` ni logs.
+  * Confirmación transaccional: tras la aprobación del pago simulado se invoca la RPC `realizar_compra_entradas`, adoptando los importes definitivos calculados por PostgreSQL.
+* [x] **M5.3 — Entrada digital, código QR y exportación a PDF:**
+  * Comprobante rediseñado con estética de ticket cinematográfico (`/compra/:id/confirmacion`).
+  * Generación de código QR en cliente con la librería `qrcode`, codificando exclusivamente el código de acceso `TK-XXXX-XXXX`.
+  * Soporte completo para compras individuales y compras grupales (resumen de todas las butacas adquiridas para la función).
+  * Descarga directa de la entrada en formato **PDF vectorial** utilizando `jspdf` para presentación o impresión física.
+* [x] **M5.4 — Portal de empleado, escaneo QR y validación atómica de acceso (`/empleado/validar-entrada`):**
+  * Portal operativo protegido mediante `empleadoGuard`, restringido a usuarios con rol `empleado` o `administrador`.
+  * Validación dual y convergente:
+    1. **Escaneo óptico de código QR:** Integración con `html5-qrcode` mediante cámara web o dispositivo móvil, con detección automática, detención inmediata de cámara tras lectura y liberación de hardware al desmontar el componente.
+    2. **Ingreso manual:** Formulario reactivo para tipeo del código `TK-XXXX-XXXX` con formateo y normalización automática.
+  * Validación transaccional atómica en PostgreSQL mediante la función RPC `public.validar_acceso_sala(p_codigo text)` con `SECURITY DEFINER` y `SET search_path = public, pg_temp`:
+    * Autorización en base de datos comprobando que el ejecutor posea rol de empleado o administrador vía `auth.uid()`.
+    * Control de concurrencia mediante `SELECT ... FOR UPDATE` sobre `public.compras` para garantizar el **uso único e irrepetible** del pase grupal.
+    * Verificación estricta de función única (`COUNT(DISTINCT e.funcion_id) = 1`) para resguardar la coherencia de las entradas asociadas.
+    * Auditoría completa de validación: registro de marca temporal (`acceso_sala_validado_en`) y del operador validador (`acceso_sala_validado_por`), obteniendo su correo directamente desde `auth.users.email`.
+    * Respuestas tipadas con estados visuales claros: `ACCESO AUTORIZADO`, `ENTRADA YA UTILIZADA`, `ENTRADA NO VÁLIDA` y `FUNCIÓN CANCELADA`.
+
 ### Próximos pasos y funcionalidades en desarrollo
 
 * [ ] **Páginas específicas de cliente:** Panel de mi cuenta, historial de compras y consulta de crédito.
-* [ ] **Páginas específicas de empleado:** Escáner e interfaz de validación de entradas por código QR.
-* [ ] **Generación de entradas:** Emisión de entradas con código QR único para ingreso a sala y retiro en Candy (PDF / QR descargable).
-* [ ] **Módulo Candy:** Catálogo de productos, combos y retiro en mostrador.
+* [x] **Páginas específicas de empleado:** Escáner e interfaz de validación de entradas por código QR e ingreso manual.
+* [x] **Generación de entradas:** Emisión de entradas con código QR y código alfanumérico único para ingreso a sala (PDF descargable y pase digital grupal).
+* [ ] **Módulo Candy:** Catálogo de productos, combos y retiro en mostrador (código y validación independiente).
 * [ ] **Fidelización y cancelaciones:** Sistema de puntos, cupones y crédito por cancelaciones.
 * [ ] **Reportes y métricas:** Estadísticas de venta y ocupación, incluyendo el cálculo real de Top 3 de películas más vistas/vendidas basado en transacciones.
 
@@ -181,8 +210,8 @@ El proyecto se desarrolla de forma modular y progresiva. Al finalizar el **Módu
 
 | Rol | Estado en la aplicación | Permisos y accesos |
 | :--- | :--- | :--- |
-| `administrador` | **Activo e implementado** | Acceso irrestricto al panel `/admin`. Crea, edita, publica, oculta y elimina películas (con parámetros de preventa); administra salas (2D, 3D, 4D, 5D); programa funciones con asignación automática de sala; cancela funciones liberando slots; y gestiona centralizadamente tarifas por formato, recargo VIP y promoción de primera compra (`/admin/tarifas`). |
-| `empleado` | **Modelo definido en BD** *(vista operativa en desarrollo)* | Diseñado para la validación de accesos a sala y retiro de Candy mediante escaneo de QR. |
+| `administrador` | **Activo e implementado** | Acceso irrestricto al panel `/admin`. Crea, edita, publica, oculta y elimina películas (con parámetros de preventa); administra salas (2D, 3D, 4D, 5D); programa funciones con asignación automática de sala; cancela funciones liberando slots; y gestiona centralizadamente tarifas por formato, recargo VIP y promoción de primera compra (`/admin/tarifas`). También cuenta con acceso operativo al validador de entradas de empleados (`/empleado/validar-entrada`). |
+| `empleado` | **Activo e implementado** | Acceso al sector operativo `/empleado` protegido por `empleadoGuard`. Operador del cine facultado para validar el acceso grupal a la sala mediante escaneo de código QR o tipeo manual de código alfanumérico (`/empleado/validar-entrada`). |
 | `cliente` | **Activo e implementado** | Rol por defecto al registrarse. Dispone de sesión activa, Navbar personalizado, cartelera, ficha de detalles, selección interactiva de butacas en mapa físico, compra atómica de entradas con verificación de edad y acceso automático al beneficio de primera compra (20% OFF de bienvenida). |
 | **Anónimo** | **Activo e implementado** | Visitante sin autenticar. Explora la cartelera, busca películas, filtra por géneros, consulta próximos estrenos, fichas de detalle, funciones disponibles y puede seleccionar butacas y comprar entradas válidas indicando un correo electrónico de contacto. |
 
@@ -194,13 +223,16 @@ El proyecto se desarrolla de forma modular y progresiva. Al finalizar el **Módu
 * **Angular 22:** Componentes Standalone, nuevo sistema de flujo de control (`@if`, `@for`), Signals y Computed Signals.
 * **TypeScript 5:** Tipado estricto e interfaces de dominio.
 * **Angular Router:** Carga *lazy loading*, rutas dinámicas con parámetros (`:id`) y guards funcionales (`CanActivateFn`).
-* **Angular Reactive Forms:** Formularios con validadores sincronizados y tipados.
+* **Angular Reactive Forms:** Formularios con validadores sincronizados y tipados (incluyendo algoritmo de Luhn en cliente).
 * **SCSS:** Estilos modulares con paleta cinematográfica personalizada.
+* **html5-qrcode:** Escaneo óptico de códigos QR en tiempo real mediante cámara web o sensor de dispositivo móvil.
+* **qrcode:** Generación y renderizado dinámico de códigos QR en Canvas del cliente.
+* **jspdf:** Generación y exportación de comprobantes y entradas digitales en formato PDF vectorial descargable.
 
 ### Backend y Base de Datos (BaaS)
 * **Supabase:**
   * **Authentication:** Gestión de usuarios y credenciales cifradas (`auth.users`).
-  * **PostgreSQL:** Base de datos relacional con trigger PL/pgSQL y funciones `SECURITY DEFINER`.
+  * **PostgreSQL:** Base de datos relacional con trigger PL/pgSQL, funciones `SECURITY DEFINER` y control de concurrencia (`FOR UPDATE`).
   * **Realtime:** Suscripciones a eventos de base de datos (`postgres_changes`) para sincronización instantánea de butacas vendidas entre clientes conectados.
   * **Storage:** Bucket `posters` para almacenamiento de imágenes de películas.
   * **Row Level Security (RLS):** Políticas de seguridad a nivel de fila para control de acceso a datos.
@@ -220,7 +252,8 @@ src/
 └── app/
     ├── core/
     │   ├── guards/
-    │   │   └── admin.guard.ts         # Protección funcional de rutas administrativas
+    │   │   ├── admin.guard.ts         # Protección funcional de rutas administrativas
+    │   │   └── empleado.guard.ts      # Protección funcional de rutas operativas de empleados/admin
     │   ├── modelos/
     │   │   ├── butaca.ts              # Modelo físico de butaca y tipos ('normal', 'accesible', 'vip')
     │   │   ├── compra.ts              # Modelo Compra, estados, DTOs y desglose financiero
@@ -229,12 +262,14 @@ src/
     │   │   ├── pelicula.ts            # Interfaces, tipos del catálogo y campos de preventa
     │   │   ├── sala.ts                # Modelo Sala, formatos (2D, 3D, 4D, 5D) y DTOs
     │   │   ├── tarifa.ts              # Tarifas por formato, recargo VIP y configuración de promociones
-    │   │   └── usuario.ts             # Roles, tipos y modelo de perfil de usuario
+    │   │   ├── usuario.ts             # Roles, tipos y modelo de perfil de usuario
+    │   │   └── validacion-acceso.ts   # Tipos y respuestas tipadas para validación de acceso a sala
     │   └── servicios/
     │       ├── servicio-auth.ts       # Gestión de sesión, signals y autenticación
     │       ├── servicio-butacas.ts    # Butacas físicas de sala y ocupadas por función (Realtime)
-    │       ├── servicio-compras.ts    # Orquestación de compra atómica vía RPC e historial
+    │       ├── servicio-compras.ts    # Orquestación de compra atómica, historial y validación de acceso RPC
     │       ├── servicio-funciones.ts  # Lógica horaria, margen de limpieza y asignación automática
+    │       ├── servicio-pdf-entrada.ts# Generación y exportación de entradas digitales en PDF vectorial
     │       ├── servicio-peliculas.ts  # CRUD de películas, consultas públicas y Storage
     │       ├── servicio-salas.ts      # CRUD de salas y gestión de estado activa/inactiva
     │       ├── servicio-supabase.ts   # Conexión cliente con Supabase
@@ -253,28 +288,35 @@ src/
     │   │   │   └── public-layout/     # Layout público con Navbar reactivo y Footer
     │   │   └── paginas/
     │   │       ├── cartelera/         # Cartelera, hero, filtros multigénero y próximos estrenos
-    │   │       ├── confirmacion-compra/# Comprobante final de compra y desglose financiero
+    │   │       ├── pago-simulado/     # Formulario de pago simulado (Luhn), borrador en memoria y feedback
+    │   │       ├── confirmacion-compra/# Comprobante con ticket visual, QR de acceso grupal y descarga en PDF
     │   │       ├── detalle-pelicula/  # Ficha técnica pública y funciones disponibles agrupadas por día
-    │   │       └── seleccion-butacas/ # Selección interactiva, control de edad, realtime y modal de compra
+    │   │       └── seleccion-butacas/ # Selección interactiva, control de edad y navegación hacia pago
     │   │
-    │   └── admin/
+    │   ├── admin/
+    │   │   ├── layouts/
+    │   │   │   └── admin-layout/      # Layout del panel con usuario y navegación
+    │   │   │
+    │   │   └── pages/
+    │   │       ├── dashboard-admin/   # Vista de resumen administrativo
+    │   │       ├── peliculas/
+    │   │       │   ├── listado-peliculas/    # Grilla de administración de películas
+    │   │       │   └── formulario-pelicula/  # Alta y edición con upload de póster y preventa
+    │   │       ├── salas/
+    │   │       │   ├── listado-salas/        # Gestión de salas y habilitación/inhabilitación
+    │   │       │   ├── formulario-sala/      # Alta y edición de salas
+    │   │       │   └── mapa-sala/            # Vista administrativa del plano de 518 butacas
+    │   │       ├── funciones/
+    │   │       │   ├── listado-funciones/    # Grilla de funciones y cancelación con modal
+    │   │       │   └── formulario-funcion/   # Programación con asignación automática de sala
+    │   │       └── tarifas/
+    │   │           └── gestion-tarifas/      # Panel de tarifas por formato, recargo VIP y promociones
+    │   │
+    │   └── empleado/
     │       ├── layouts/
-    │       │   └── admin-layout/      # Layout del panel con usuario y navegación
-    │       │
-    │       └── pages/
-    │           ├── dashboard-admin/   # Vista de resumen administrativo
-    │           ├── peliculas/
-    │           │   ├── listado-peliculas/    # Grilla de administración de películas
-    │           │   └── formulario-pelicula/  # Alta y edición con upload de póster y preventa
-    │           ├── salas/
-    │           │   ├── listado-salas/        # Gestión de salas y habilitación/inhabilitación
-    │           │   ├── formulario-sala/      # Alta y edición de salas
-    │           │   └── mapa-sala/            # Vista administrativa del plano de 518 butacas
-    │           ├── funciones/
-    │           │   ├── listado-funciones/    # Grilla de funciones y cancelación con modal
-    │           │   └── formulario-funcion/   # Programación con asignación automática de sala
-    │           └── tarifas/
-    │               └── gestion-tarifas/      # Panel de tarifas por formato, recargo VIP y promociones
+    │       │   └── empleado-layout/   # Layout operativo de empleado con control de sesión
+    │       └── paginas/
+    │           └── validar-entrada/   # Validación dual de acceso grupal (lector de cámara QR + código manual)
     │
     ├── shared/
     │   ├── components/
@@ -283,7 +325,7 @@ src/
     │       └── tipo-butaca.directive.ts # Directiva de atributos para estilización visual de butacas
     │
     ├── app.config.ts                  # Configuración global e inyección de dependencias
-    └── app.routes.ts                  # Enrutamiento con lazy loading y guards
+    └── app.routes.ts                  # Enrutamiento con lazy loading y guards (adminGuard, empleadoGuard)
 ```
 
 ---
@@ -381,10 +423,16 @@ Cabecera transaccional de compras realizadas por clientes registrados o anónimo
 | `tipo_descuento_aplicado` | `text` | Promoción ganadora aplicada: `'ninguno'`, `'preventa'`, `'primera_compra'`. |
 | `es_primera_compra` | `boolean` | Indica que la transacción corresponde a la primera compra completada del usuario registrado (`DEFAULT false`). |
 | `total` | `numeric(10,2)` | Monto total final cobrado (`NULL` en compras históricas pre-M4.6). |
+| `codigo_alfanumerico` | `text` (UNIQUE) | Código único de acceso al cine con formato `TK-XXXX-XXXX` generado criptográficamente (`gen_random_bytes`). |
+| `acceso_sala_validado` | `boolean` | Indica si el pase grupal ya fue utilizado para ingresar a la sala (`DEFAULT false`). |
+| `acceso_sala_validado_en` | `timestamptz` | Fecha y hora de la validación del acceso al cine (`NULL` si aún no fue utilizado). |
+| `acceso_sala_validado_por` | `UUID` (FK) | Referencia al usuario empleado/administrador (`auth.users.id`) que validó el acceso. |
 | `estado` | `text` | Estado de la compra: `'pendiente'`, `'completada'`, `'cancelada'`. |
 | `creado_en` | `timestamptz` | Fecha y hora de la transacción. |
 
-*Restricción de unicidad parcial:* `uq_compras_primera_compra_usuario` sobre `(usuario_id) WHERE (es_primera_compra = true AND estado = 'completada')`.
+*Restricciones de integridad y unicidad:*
+- `uq_compras_codigo_alfanumerico` sobre `(codigo_alfanumerico)`.
+- `uq_compras_primera_compra_usuario` sobre `(usuario_id) WHERE (es_primera_compra = true AND estado = 'completada')`.
 
 ### `public.entradas`
 Detalle de entradas individuales asociadas a una compra, función y butaca física:
@@ -462,6 +510,12 @@ Tabla singleton con parámetros comerciales globales y porcentajes de recargo/de
     El sistema desacopla los precios de las salas y funciones mediante la tabla `public.tarifas_formato` (`2D`, `3D`, `4D`, `5D`) y `public.configuracion_cine` (`porcentaje_recargo_vip`). Las butacas normales y accesibles tributan el precio base del formato de la función, mientras que las butacas VIP aplican el recargo configurable (por defecto 50%). Cada entrada vendida congela su precio de lista en `entradas.precio_unitario`, garantizando que futuras modificaciones de tarifas no alteren los montos facturados en compras históricas ni rompan la contabilidad.
 17. **Descuentos no acumulables, serialización con `FOR UPDATE` y restricción de primera compra:**
     El sistema admite dos promociones: preventa por película (si la función se adquiere con la anticipación requerida) y descuento de primera compra (20% para clientes registrados sin compras previas completadas). Por regla de negocio, **los descuentos no se acumulan en cascada**: si ambas promociones coinciden, el sistema selecciona automáticamente la de mayor porcentaje. Para evitar que dos transacciones simultáneas de un mismo usuario apliquen ambas el descuento de bienvenida, la RPC bloquea la fila del usuario con `SELECT ... FROM public.perfiles WHERE usuario_id = p_usuario_id FOR UPDATE` y la base de datos refuerza la regla con el índice único parcial `uq_compras_primera_compra_usuario` sobre `public.compras (usuario_id) WHERE (es_primera_compra = true AND estado = 'completada')`.
+18. **Pase grupal por compra y código alfanumérico criptográfico (`gen_random_bytes`):**
+    Para agilizar la experiencia de ingreso y simplificar la logística operativa, se adoptó la decisión de emitir **un único pase digital grupal por compra (1 compra = 1 código alfanumérico = 1 código QR)**, en lugar de generar entradas o códigos individuales por butaca. El código alfanumérico con formato `TK-XXXX-XXXX` se genera en PostgreSQL mediante `gen_random_bytes` a partir de un alfabeto de 32 caracteres (alfanumérico en mayúsculas excluyendo caracteres visualmente confusos como `0`, `O`, `1`, `I`). La unicidad está garantizada por una restricción `UNIQUE` en base de datos y un bucle de inserción con reintentos controlados ante eventuales colisiones.
+19. **Borrador de compra en memoria y validación de tarjeta con algoritmo de Luhn (módulo 10):**
+    Para prevenir el bloqueo innecesario de asientos por carritos abandonados sin recurrir a locks temporales o registros efímeros en base de datos, los datos de la compra seleccionada se preservan únicamente en memoria reactiva del cliente (Signals). La pantalla de pago simulado (`/compra/pago`) implementa una validación exhaustiva mediante el algoritmo de checksum de Luhn (módulo 10) para alertar sobre números de tarjeta con dígitos erróneos o inválidos. Se simula una aprobación/rechazo bancario inmediato con fines pedagógicos, sin persistir ni transmitir en ningún momento datos sensibles a Supabase, `localStorage`, `sessionStorage` ni logs. Solo tras la aprobación del pago simulado se invoca la RPC transaccional definitiva `realizar_compra_entradas`.
+20. **Validación atómica de acceso grupal, bloqueo pesimista con `FOR UPDATE` y auditoría en `auth.users`:**
+    La admisión a la sala cinematográfica se realiza a través de la función RPC `public.validar_acceso_sala(p_codigo text)` con `SECURITY DEFINER` y `SET search_path = public, pg_temp`. Para garantizar el uso único e irrepetible del pase y prevenir ataques de reproducción o doble validación concurrente, la función ejecuta un bloqueo pesimista mediante `SELECT ... FOR UPDATE` sobre la compra. Adicionalmente, verifica explícitamente que las entradas activas pertenezcan a una única función (`COUNT(DISTINCT e.funcion_id) = 1`), asegurando consistencia física. Al autorizar el acceso, marca de manera atómica `acceso_sala_validado = true`, almacena la marca temporal y el identificador del validador, recuperando el correo del empleado o administrador directamente desde `auth.users.email` para una trazabilidad transparente y segura.
 
 ---
 

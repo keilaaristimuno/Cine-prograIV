@@ -1,20 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ResultadoCompra } from '../../../../core/modelos/compra';
 import { ServicioAuth } from '../../../../core/servicios/servicio-auth';
 import { ServicioCompras } from '../../../../core/servicios/servicio-compras';
+import { ServicioPdfEntrada } from '../../../../core/servicios/servicio-pdf-entrada';
 
 /**
- * Pantalla de confirmación de compra exitosa (/compra/:id/confirmacion).
+ * Pantalla de confirmación de compra y Entrada Digital (/compra/:id/confirmacion).
  *
- * Características de seguridad y privacidad:
- * - Para compras anónimas, consume de manera inmediata el objeto ResultadoCompra
- *   proveniente de la RPC de compra a través del estado de navegación (history.state),
- *   evitando abrir permisos públicos indiscriminados de SELECT en la tabla 'compras'.
- * - Para usuarios registrados, si recargan la página, recupera su compra desde la base
- *   de datos validando RLS (usuario_id = auth.uid()).
- * - Muestra el identificador de orden, película, función, sala y detalle de butacas adquiridas.
+ * M5.3 — Entrada Digital + QR + PDF:
+ * - Muestra la confirmación de la compra y el pase digital del cine.
+ * - Genera un único código QR para toda la compra (1 compra = 1 QR de acceso grupal).
+ * - Muestra el código alfanumérico legible (TK-XXXX-XXXX) debajo del QR para validación manual.
+ * - Presenta póster (si está disponible), función, sala, butacas y estado de acceso.
+ * - Provee descarga directa de entrada en formato PDF vectorial con jsPDF.
+ * - Soporta recarga segura para usuarios registrados mediante RLS en Supabase.
  */
 @Component({
   selector: 'app-confirmacion-compra',
@@ -27,11 +28,40 @@ export class ConfirmacionCompra implements OnInit {
   private readonly router = inject(Router);
   private readonly servicioCompras = inject(ServicioCompras);
   private readonly servicioAuth = inject(ServicioAuth);
+  private readonly servicioPdf = inject(ServicioPdfEntrada);
 
   readonly compraId = signal<string>('');
   readonly compra = signal<ResultadoCompra | null>(null);
   readonly cargando = signal<boolean>(true);
   readonly esAnonimoSinState = signal<boolean>(false);
+
+  /** Código QR generado localmente en formato DataURL */
+  readonly qrDataUrl = signal<string | null>(null);
+  readonly generandoQr = signal<boolean>(false);
+  readonly descargandoPdf = signal<boolean>(false);
+
+  /** Computados para textos de grupo o individual */
+  readonly cantidadEntradas = computed<number>(() => this.compra()?.butacas?.length ?? 1);
+  readonly esEntradaGrupal = computed<boolean>(() => this.cantidadEntradas() > 1);
+
+  constructor() {
+    // Generar reactivamente el QR cuando el código alfanumérico esté disponible
+    effect(async () => {
+      const c = this.compra();
+      const codigo = c?.codigo_alfanumerico;
+      if (codigo) {
+        try {
+          this.generandoQr.set(true);
+          const dataUrl = await this.servicioPdf.generarQrDataUrl(codigo);
+          this.qrDataUrl.set(dataUrl);
+        } catch (err) {
+          console.error('Error al generar código QR local:', err);
+        } finally {
+          this.generandoQr.set(false);
+        }
+      }
+    });
+  }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -74,6 +104,25 @@ export class ConfirmacionCompra implements OnInit {
       this.esAnonimoSinState.set(true);
     } finally {
       this.cargando.set(false);
+    }
+  }
+
+  /**
+   * Genera y descarga el archivo PDF de la entrada digital.
+   */
+  async descargarPdf(): Promise<void> {
+    const c = this.compra();
+    if (!c || this.descargandoPdf()) {
+      return;
+    }
+
+    try {
+      this.descargandoPdf.set(true);
+      await this.servicioPdf.descargarEntradaPdf(c);
+    } catch (err) {
+      console.error('Error al generar el PDF de la entrada:', err);
+    } finally {
+      this.descargandoPdf.set(false);
     }
   }
 

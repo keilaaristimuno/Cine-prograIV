@@ -496,7 +496,8 @@ export class SeleccionButacas implements OnInit {
         fechaHoraInicio: funcionActual.fechaHoraInicio,
         formato: funcionActual.formato,
         salaNumero: funcionActual.sala?.numero || 1,
-        salaNombre: funcionActual.sala?.nombre || 'Sala'
+        salaNombre: funcionActual.sala?.nombre || 'Sala',
+        peliculaImagenUrl: funcionActual.pelicula?.imagenUrl || null
       },
       butacas: this.butacasSeleccionadas().map(b => ({
         id: b.id,

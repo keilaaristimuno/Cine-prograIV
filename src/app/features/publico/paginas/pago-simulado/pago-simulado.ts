@@ -9,7 +9,7 @@ import {
   Validators
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { DatosBorradorCompra } from '../../../../core/modelos/compra';
+import { DatosBorradorCompra, ResultadoCompra } from '../../../../core/modelos/compra';
 import { ServicioCompras } from '../../../../core/servicios/servicio-compras';
 
 /**
@@ -323,8 +323,19 @@ export class PagoSimulado implements OnInit {
       this.formularioPago.reset();
 
       // 5. Redirección a confirmación con datos definitivos retornados por PostgreSQL
+      const resultadoConImagen: ResultadoCompra = {
+        ...resultado,
+        funcion: {
+          ...resultado.funcion,
+          pelicula_imagen_url:
+            resultado.funcion?.pelicula_imagen_url ||
+            borradorActual.funcion.peliculaImagenUrl ||
+            null
+        }
+      };
+
       this.router.navigate(['/compra', resultado.compra_id, 'confirmacion'], {
-        state: { compra: resultado }
+        state: { compra: resultadoConImagen }
       });
     } catch (err: any) {
       console.error('Error al procesar la compra en PostgreSQL:', err);

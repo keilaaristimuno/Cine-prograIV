@@ -4,63 +4,68 @@
 }
 
 .pagina-confirmacion {
-  max-width: 780px;
+  max-width: 820px;
   margin: 2rem auto 4rem;
-  padding: 0 1rem;
+  padding: 0 1.25rem;
 }
 
-.tarjeta-confirmacion {
+/* ==========================================================================
+   SECCIÓN 1: CABECERA DE ÉXITO Y PAGO CONFIRMADO
+   ========================================================================== */
+.seccion-exito {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 3rem 2rem;
+  padding: 2.25rem 1.5rem 1.75rem;
   background-color: #14101e;
   border: 1px solid #2e2640;
   border-radius: 1rem;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  margin-bottom: 2rem;
 }
 
 .icono-exito {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 76px;
-  height: 76px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   background: rgba(16, 185, 129, 0.15);
   border: 2px solid #10b981;
   color: #34d399;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
   box-shadow: 0 0 24px rgba(16, 185, 129, 0.35);
 }
 
 .etiqueta-exito {
+  display: inline-block;
   margin: 0 0 0.35rem;
   font-size: 0.82rem;
   font-weight: 800;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #34d399;
 }
 
 .titulo-exito {
-  margin: 0 0 0.75rem;
-  font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.6rem, 3.2vw, 2.2rem);
   font-weight: 800;
   color: #f7f5fa;
-  line-height: 1.15;
+  line-height: 1.2;
 }
 
 .subtitulo-exito {
-  margin: 0 0 1.5rem;
-  font-size: 1rem;
+  margin: 0 0 1.25rem;
+  font-size: 0.98rem;
   color: #cbb8fa;
   max-width: 520px;
   line-height: 1.5;
 
   .email-destino {
-    color: #fff;
+    color: #ffffff;
     font-weight: 700;
     word-break: break-all;
   }
@@ -70,14 +75,13 @@
   display: inline-flex;
   align-items: center;
   gap: 0.65rem;
-  padding: 0.45rem 1rem;
+  padding: 0.4rem 1rem;
   background: rgba(139, 92, 246, 0.1);
   border: 1px dashed rgba(139, 92, 246, 0.4);
   border-radius: 2rem;
-  margin-bottom: 2rem;
 
   &__etiqueta {
-    font-size: 0.78rem;
+    font-size: 0.76rem;
     font-weight: 700;
     color: #c4b5fd;
     text-transform: uppercase;
@@ -93,389 +97,561 @@
 }
 
 /* ==========================================================================
-   PASE DIGITAL DE ACCESO AL CINE (M5.1)
+   SECCIÓN 2: ENTRADA DIGITAL (DISEÑO TICKET CINEMATOGRÁFICO)
    ========================================================================== */
-.tarjeta-pase-acceso {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(30, 20, 50, 0.8) 100%);
-  border: 1.5px solid #8b5cf6;
-  border-radius: 0.85rem;
-  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.2);
-  text-align: left;
+.ticket-digital {
+  background: #14101e;
+  border: 1.5px solid #372f4e;
+  border-radius: 1.25rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  position: relative;
 
-  @media (min-width: 600px) {
-    flex-direction: row;
-    align-items: center;
+  &__cabecera {
+    background: linear-gradient(135deg, #1f1830 0%, #171126 100%);
+    border-bottom: 1.5px solid #2e2640;
+    padding: 1.2rem 1.75rem;
+    display: flex;
     justify-content: space-between;
+    align-items: center;
   }
 
-  &__info {
+  &__marca {
     display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-  }
+    align-items: center;
+    gap: 0.6rem;
 
-  &__icono {
-    font-size: 2rem;
-    line-height: 1;
-  }
+    .marca-icono {
+      font-size: 1.4rem;
+    }
 
-  &__textos {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-  }
-
-  &__etiqueta {
-    font-size: 0.85rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #c4b5fd;
-  }
-
-  &__subtexto {
-    margin: 0;
-    font-size: 0.85rem;
-    color: #cbd5e1;
-    line-height: 1.4;
-  }
-
-  &__box {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-
-    @media (min-width: 600px) {
-      align-items: flex-end;
+    .marca-texto {
+      font-size: 1.1rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      color: #f5c451;
+      text-transform: uppercase;
     }
   }
 
-  &__codigo {
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    background: #0f0b18;
-    border: 1px solid #a78bfa;
-    border-radius: 0.5rem;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 1.35rem;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    color: #facc15;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
-    user-select: all;
-  }
-}
-
-.badge-acceso-disponible {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.2rem 0.6rem;
-  border-radius: 1rem;
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.3);
-}
-
-.badge-acceso-usado {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.2rem 0.6rem;
-  border-radius: 1rem;
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  background: rgba(100, 116, 139, 0.2);
-  color: #94a3b8;
-  border: 1px solid rgba(100, 116, 139, 0.3);
-}
-
-/* ==========================================================================
-   BLOQUES DE DETALLE
-   ========================================================================== */
-.bloque-detalle,
-.bloque-butacas-adquiridas {
-  width: 100%;
-  text-align: left;
-  margin-bottom: 1.75rem;
-  padding: 1.5rem;
-  background-color: #191426;
-  border: 1px solid #33284a;
-  border-radius: 0.75rem;
-
-  &__titulo {
-    margin: 0 0 1rem;
-    font-size: 0.95rem;
+  .badge-pase {
+    font-size: 0.8rem;
     font-weight: 700;
+    padding: 0.3rem 0.75rem;
+    border-radius: 2rem;
+    background: rgba(139, 92, 246, 0.2);
+    border: 1px solid rgba(139, 92, 246, 0.45);
+    color: #ddd6fe;
+    text-transform: uppercase;
     letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: #a78bfa;
-    border-bottom: 1px solid rgba(139, 92, 246, 0.2);
-    padding-bottom: 0.45rem;
-  }
-}
-
-.grilla-detalles {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-}
-
-.item-detalle {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-
-  &__etiqueta {
-    font-size: 0.78rem;
-    color: #9f96b5;
-    text-transform: uppercase;
   }
 
-  &__valor {
-    font-size: 0.95rem;
-    color: #f7f5fa;
-  }
-}
-
-.badge-formato {
-  display: inline-flex;
-  align-items: center;
-  width: fit-content;
-  padding: 0.2rem 0.55rem;
-  border-radius: 0.35rem;
-  font-size: 0.78rem;
-  font-weight: 800;
-
-  &--2d {
-    background: rgba(139, 92, 246, 0.15);
-    color: #c4b5fd;
-    border: 1px solid rgba(139, 92, 246, 0.35);
-  }
-
-  &--3d {
-    background: rgba(6, 182, 212, 0.15);
-    color: #67e8f9;
-    border: 1px solid rgba(6, 182, 212, 0.35);
-  }
-
-  &--4d {
-    background: rgba(245, 196, 81, 0.15);
-    color: #f5c451;
-    border: 1px solid rgba(245, 196, 81, 0.4);
-  }
-
-  &--5d {
-    background: rgba(236, 72, 153, 0.15);
-    color: #f472b6;
-    border: 1px solid rgba(236, 72, 153, 0.35);
-  }
-}
-
-.badge-clasificacion {
-  display: inline-flex;
-  align-items: center;
-  width: fit-content;
-  padding: 0.2rem 0.55rem;
-  border-radius: 0.35rem;
-  font-size: 0.78rem;
-  font-weight: 800;
-  background: rgba(139, 92, 246, 0.15);
-  color: #c4b5fd;
-  border: 1px solid rgba(139, 92, 246, 0.35);
-
-  &--18 {
-    background: rgba(244, 63, 94, 0.15);
-    color: #fda4af;
-    border-color: rgba(244, 63, 94, 0.4);
-  }
-
-  &--13 {
-    background: rgba(245, 158, 11, 0.15);
-    color: #fde68a;
-    border-color: rgba(245, 158, 11, 0.4);
-  }
-}
-
-.alerta-clasificacion-comprobante {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  width: 100%;
-  margin-top: 1.25rem;
-  padding: 1rem 1.25rem;
-  border-radius: 0.65rem;
-  background-color: rgba(245, 158, 11, 0.12);
-  border: 1px solid rgba(245, 158, 11, 0.45);
-  text-align: left;
-  box-sizing: border-box;
-
-  &__icono {
-    font-size: 1.75rem;
-    line-height: 1;
-    flex-shrink: 0;
-  }
-
-  &__info {
+  &__cuerpo {
+    padding: 2rem 1.75rem;
     display: flex;
     flex-direction: column;
-    gap: 0.3rem;
+    gap: 1.75rem;
   }
 
-  &__titulo {
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: #fbbf24;
+  /* PELÍCULA Y POSTER */
+  &__pelicula {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+
+    @media (max-width: 600px) {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
   }
 
-  &__texto {
-    margin: 0;
-    font-size: 0.88rem;
-    line-height: 1.45;
-    color: #fef3c7;
+  &__poster {
+    width: 110px;
+    height: 160px;
+    flex-shrink: 0;
+    border-radius: 0.65rem;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
   }
-}
 
-/* ==========================================================================
-   CHIPS DE BUTACAS
-   ========================================================================== */
-.lista-chips-butacas {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.65rem;
-}
-
-.chip-adquirida {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.85rem;
-  padding: 0.55rem 0.95rem;
-  background-color: #211b33;
-  border: 1px solid #4a3c69;
-  border-radius: 0.5rem;
-  font-size: 0.88rem;
-
-  &__datos {
-    display: inline-flex;
-    align-items: center;
+  &__pelicula-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
     gap: 0.65rem;
   }
 
-  &__ubicacion {
-    font-weight: 700;
-    color: #f7f5fa;
+  .etiquetas-pelicula {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+
+    @media (max-width: 600px) {
+      justify-content: center;
+    }
   }
 
-  &__tipo {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #cbb8fa;
-    padding-left: 0.45rem;
-    border-left: 1px solid #41355c;
+  .pelicula-titulo {
+    font-size: clamp(1.4rem, 2.5vw, 1.85rem);
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0;
+    line-height: 1.25;
   }
 
-  &__precio {
-    font-weight: 700;
-    color: #f5f5f5;
-    font-size: 0.9rem;
-    padding-left: 0.5rem;
-    border-left: 1px solid #4a3c69;
+  .grilla-datos-funcion {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-top: 0.5rem;
+    padding: 0.9rem 1.1rem;
+    background: #191426;
+    border: 1px solid #2e2640;
+    border-radius: 0.65rem;
   }
 
-  &--vip {
-    border-color: rgba(245, 196, 81, 0.5);
-    background-color: rgba(245, 196, 81, 0.1);
+  .dato-funcion {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
 
-    .chip-adquirida__tipo,
-    .chip-adquirida__precio {
+    &__etiqueta {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: #a78bfa;
+      text-transform: uppercase;
+    }
+
+    &__valor {
+      font-size: 0.95rem;
+      color: #f7f5fa;
+      font-weight: 700;
+    }
+  }
+
+  /* BADGES DE FORMATO Y CLASIFICACIÓN */
+  .badge-formato {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.65rem;
+    border-radius: 0.35rem;
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: rgba(139, 92, 246, 0.25);
+    color: #c4b5fd;
+    border: 1px solid rgba(139, 92, 246, 0.5);
+
+    &--3d {
+      background: rgba(6, 182, 212, 0.2);
+      color: #67e8f9;
+      border-color: rgba(6, 182, 212, 0.5);
+    }
+    &--4d {
+      background: rgba(249, 115, 22, 0.2);
+      color: #fdba74;
+      border-color: rgba(249, 115, 22, 0.5);
+    }
+    &--5d {
+      background: rgba(236, 72, 153, 0.2);
+      color: #f472b6;
+      border-color: rgba(236, 72, 153, 0.5);
+    }
+  }
+
+  .badge-clasificacion {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.65rem;
+    border-radius: 0.35rem;
+    font-size: 0.78rem;
+    font-weight: 800;
+    background: rgba(16, 185, 129, 0.2);
+    color: #6ee7b7;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+
+    &--13 {
+      background: rgba(245, 158, 11, 0.2);
       color: #fde68a;
-      border-left-color: rgba(245, 196, 81, 0.3);
+      border-color: rgba(245, 158, 11, 0.5);
+    }
+    &--18 {
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+      border-color: rgba(239, 68, 68, 0.5);
     }
   }
 
-  &--accesible {
-    border-color: rgba(56, 189, 248, 0.5);
-    background-color: rgba(56, 189, 248, 0.1);
+  /* LISTADO DE BUTACAS */
+  .subtitulo-ticket {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #c4b5fd;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 0.85rem;
+  }
 
-    .chip-adquirida__tipo {
-      color: #7dd3fc;
+  .lista-chips-butacas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+  }
+
+  .chip-adquirida {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.45rem 0.9rem;
+    border-radius: 0.5rem;
+    background-color: #191426;
+    border: 1px solid #372f4e;
+    font-size: 0.88rem;
+
+    &__ubicacion {
+      font-weight: 700;
+      color: #f7f5fa;
+    }
+
+    &__tipo {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #a78bfa;
+      padding-left: 0.5rem;
+      border-left: 1px solid #372f4e;
+    }
+
+    &__precio {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #e5e7eb;
+      padding-left: 0.5rem;
+      border-left: 1px solid #372f4e;
+    }
+
+    &--vip {
+      border-color: rgba(245, 196, 81, 0.4);
+      background-color: rgba(245, 196, 81, 0.1);
+
+      .chip-adquirida__tipo,
+      .chip-adquirida__precio {
+        color: #fde68a;
+        border-left-color: rgba(245, 196, 81, 0.3);
+      }
+    }
+
+    &--accesible {
+      border-color: rgba(56, 189, 248, 0.5);
+      background-color: rgba(56, 189, 248, 0.1);
+
+      .chip-adquirida__tipo {
+        color: #7dd3fc;
+      }
     }
   }
-}
 
-/* ==========================================================================
-   RESUMEN FINANCIERO (M4.6)
-   ========================================================================== */
-.bloque-resumen-financiero {
-  margin-top: 1.5rem;
-}
+  /* PERFORACIÓN DEL TICKET */
+  &__perforacion {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin: 0.5rem -1.75rem;
 
-.desglose-compra {
-  display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
-  background-color: #171324;
-  border: 1px solid #372f4e;
-  border-radius: 0.65rem;
-  padding: 1.25rem 1.5rem;
-}
+    .muesca {
+      width: 26px;
+      height: 26px;
+      background-color: #0c0914; /* color de fondo de página para simular corte */
+      border-radius: 50%;
+      position: absolute;
+      border: 1.5px solid #372f4e;
 
-.fila-desglose {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.92rem;
-  color: #b9b3cc;
+      &--izquierda {
+        left: -13px;
+      }
 
-  &__etiqueta {
-    font-weight: 500;
+      &--derecha {
+        right: -13px;
+      }
+    }
+
+    .linea-puntos {
+      flex: 1;
+      height: 1px;
+      border-top: 2px dashed #372f4e;
+      margin: 0 1.75rem;
+    }
   }
 
-  &__valor {
-    font-weight: 600;
-    color: #f5f5f5;
+  /* BLOQUE DE ACCESO Y QR */
+  &__acceso {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.25rem;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(20, 16, 30, 0.9) 100%);
+    border: 1px solid #3b2d56;
+    border-radius: 1rem;
+    padding: 1.75rem 1.25rem;
+  }
+
+  .acceso-titulo {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #f7f5fa;
+    margin: 0 0 0.35rem;
+  }
+
+  .acceso-instruccion {
+    font-size: 0.92rem;
+    color: #cbb8fa;
+    margin: 0;
+    max-width: 480px;
+    line-height: 1.45;
+
+    strong {
+      color: #ffffff;
+    }
+  }
+
+  .caja-qr {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.9rem;
+  }
+
+  .marco-qr {
+    background: #ffffff;
+    padding: 0.85rem;
+    border-radius: 0.85rem;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+    border: 2px solid #8b5cf6;
+
+    .imagen-qr {
+      width: 190px;
+      height: 190px;
+      display: block;
+    }
+  }
+
+  .cargando-qr {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 3rem;
+    color: #c4b5fd;
+    font-size: 0.95rem;
+  }
+
+  .bloque-codigo-manual {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+
+    .etiqueta-codigo-manual {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #a78bfa;
+      text-transform: uppercase;
+    }
+
+    .codigo-manual {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fbbf24;
+      background: #1e1633;
+      padding: 0.35rem 1.2rem;
+      border-radius: 0.5rem;
+      border: 1px solid rgba(251, 191, 36, 0.4);
+      letter-spacing: 0.15em;
+      text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+    }
+  }
+
+  /* BADGES DE ESTADO DE ACCESO */
+  .badge-acceso-disponible {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 2rem;
+    font-size: 0.82rem;
+    font-weight: 800;
+    background: rgba(16, 185, 129, 0.2);
+    border: 1.5px solid #10b981;
+    color: #34d399;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .badge-acceso-usado {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 2rem;
+    font-size: 0.82rem;
+    font-weight: 800;
+    background: rgba(239, 68, 68, 0.2);
+    border: 1.5px solid #ef4444;
+    color: #fca5a5;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* TOTALES */
+  &__totales {
+    margin-top: 0.5rem;
+  }
+
+  .desglose-compra {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    background-color: #171324;
+    border: 1px solid #372f4e;
+    border-radius: 0.65rem;
+    padding: 1.15rem 1.4rem;
+  }
+
+  .fila-desglose {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.92rem;
+    color: #b9b3cc;
+
+    &__etiqueta {
+      font-weight: 500;
+    }
+
+    &__valor {
+      font-weight: 600;
+      color: #f5f5f5;
+
+      &--total {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: #6ee7b7;
+      }
+    }
+
+    &--descuento {
+      color: #34d399;
+
+      .fila-desglose__valor {
+        color: #34d399;
+      }
+    }
 
     &--total {
-      font-size: 1.4rem;
-      font-weight: 800;
-      color: #6ee7b7;
+      border-top: 1px solid #372f4e;
+      padding-top: 0.75rem;
+      margin-top: 0.25rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #f7f5fa;
     }
   }
 
-  &--descuento {
-    color: #34d399;
+  /* PIE DEL TICKET Y ACCIONES */
+  &__pie {
+    background: #171224;
+    border-top: 1.5px solid #2e2640;
+    padding: 1.5rem 1.75rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+  }
 
-    .fila-desglose__valor {
-      color: #34d399;
+  .boton-descargar-pdf {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 0.9rem 2.2rem;
+    border-radius: 0.6rem;
+    border: none;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 4px 18px rgba(16, 185, 129, 0.4);
+    transition: all 150ms ease;
+
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(16, 185, 129, 0.6);
+      background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .icono-boton {
+      font-size: 1.2rem;
     }
   }
 
-  &--total {
-    border-top: 1px solid #372f4e;
-    padding-top: 0.85rem;
-    margin-top: 0.35rem;
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #f7f5fa;
+  .boton-secundario {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.85rem 1.6rem;
+    border-radius: 0.6rem;
+    background: #231b34;
+    border: 1px solid #3b2d56;
+    color: #ddd6fe;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 150ms ease;
+
+    &:hover {
+      background: #2e2344;
+      color: #ffffff;
+      border-color: #8b5cf6;
+    }
   }
 }
 
 /* ==========================================================================
-   BOTONES Y AVISOS
+   ESTADOS DE CARGA Y CASOS BORDE
    ========================================================================== */
+.tarjeta-confirmacion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 3rem 2rem;
+  background-color: #14101e;
+  border: 1px solid #2e2640;
+  border-radius: 1rem;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+}
+
 .aviso-privacidad {
   padding: 1rem 1.25rem;
   margin-bottom: 2rem;
@@ -485,29 +661,34 @@
   font-size: 0.9rem;
   color: #ddd6fe;
   line-height: 1.5;
+  max-width: 540px;
+
+  p {
+    margin: 0;
+  }
 }
 
 .acciones-confirmacion {
   margin-top: 1rem;
-}
 
-.boton-primario {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.85rem 2rem;
-  border-radius: 0.5rem;
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.95rem;
-  text-decoration: none;
-  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.4);
-  transition: all 150ms ease;
+  .boton-primario {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.85rem 2rem;
+    border-radius: 0.5rem;
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    box-shadow: 0 4px 16px rgba(139, 92, 246, 0.4);
+    transition: all 150ms ease;
 
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 22px rgba(139, 92, 246, 0.6);
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 22px rgba(139, 92, 246, 0.6);
+    }
   }
 }
 
@@ -527,6 +708,15 @@
     border-radius: 50%;
     animation: girar 0.9s linear infinite;
   }
+}
+
+.spinner-boton {
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: girar 0.8s linear infinite;
 }
 
 @keyframes girar {

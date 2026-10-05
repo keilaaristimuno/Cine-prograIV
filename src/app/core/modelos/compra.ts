@@ -53,6 +53,7 @@ export interface ResultadoCompra {
     formato: string;
     sala_numero: number;
     sala_nombre: string;
+    pelicula_imagen_url?: string | null;
   };
   butacas: ButacaCompradaResumen[];
 }
@@ -82,6 +83,7 @@ export interface DatosBorradorCompra {
     formato: string;
     salaNumero: number;
     salaNombre: string;
+    peliculaImagenUrl?: string | null;
   };
   butacas: ButacaBorrador[];
   emailContacto: string;
