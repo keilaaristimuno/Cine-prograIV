@@ -51,6 +51,20 @@ export const routes: Routes = [
           import(
             './features/publico/paginas/candy/candy'
           ).then(m => m.Candy)
+      },
+      {
+        path: 'candy/pago',
+        loadComponent: () =>
+          import(
+            './features/publico/paginas/candy/pago-candy/pago-candy'
+          ).then(m => m.PagoCandy)
+      },
+      {
+        path: 'candy/confirmacion/:id',
+        loadComponent: () =>
+          import(
+            './features/publico/paginas/candy/confirmacion-candy/confirmacion-candy'
+          ).then(m => m.ConfirmacionCandy)
       }
     ]
   },
@@ -179,6 +193,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/empleado/paginas/validar-entrada/validar-entrada')
             .then(m => m.ValidarEntrada)
+      },
+      {
+        path: 'validar-candy',
+        loadComponent: () =>
+          import('./features/empleado/paginas/validar-candy/validar-candy')
+            .then(m => m.ValidarCandy)
       }
     ]
   },

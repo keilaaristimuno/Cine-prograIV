@@ -1,0 +1,164 @@
+<div class="contenedor-confirmacion">
+  <!-- Estado de Carga -->
+  @if (cargando()) {
+    <div class="estado-cargando">
+      <div class="spinner-cine"></div>
+      <p>Cargando voucher de Candy Bar...</p>
+    </div>
+  } @else if (esAnonimoSinState()) {
+    <!-- Caso: Compra anónima tras refresh o ID no encontrado -->
+    <div class="tarjeta-aviso-anonimo">
+      <div class="tarjeta-aviso-anonimo__icono">🔒</div>
+      <h2 class="tarjeta-aviso-anonimo__titulo">Comprobante no disponible tras recargar</h2>
+      <p class="tarjeta-aviso-anonimo__texto">
+        Por tratarse de una compra anónima y por motivos de privacidad y seguridad, este comprobante no puede reconstruirse después de recargar la página.
+      </p>
+      <div class="tarjeta-aviso-anonimo__caja-instrucciones">
+        <p>
+          No enviamos comprobantes por correo electrónico. Para retirar tus productos en el mostrador del Candy Bar, es necesario que conserves el <strong>código de retiro CD-XXXX-XXXX</strong> o el <strong>voucher en PDF</strong> obtenido al finalizar tu compra.
+        </p>
+      </div>
+      <div class="tarjeta-aviso-anonimo__acciones">
+        <a routerLink="/candy" class="boton-accion boton-accion--primario">
+          Ir al Candy Bar
+        </a>
+        <a routerLink="/" class="boton-accion boton-accion--secundario">
+          Volver a Cartelera
+        </a>
+      </div>
+    </div>
+  } @else if (compra()) {
+    <!-- Contenido Principal: Voucher Digital de Candy -->
+    <header class="encabezado-exito">
+      <div class="icono-exito">✓</div>
+      <span class="subtitulo-exito">¡Pago Aprobado!</span>
+      <h1 class="titulo-exito">Tu pedido de Candy Bar está listo para retirar</h1>
+      <p class="descripcion-exito">
+        Presentá este voucher en el mostrador del cine antes o durante tu función.
+      </p>
+    </header>
+
+    <div class="voucher-candy">
+      <!-- Sección Superior: QR y Código de Retiro -->
+      <section class="voucher-candy__seccion-retiro">
+        <div class="badge-retiro">
+          <span class="badge-retiro__punto"></span>
+          PENDIENTE DE RETIRO
+        </div>
+
+        <div class="qr-contenedor">
+          @if (generandoQr()) {
+            <div class="qr-spinner-caja">
+              <div class="spinner-cine spinner-cine--chico"></div>
+              <span>Generando código QR...</span>
+            </div>
+          } @else if (qrDataUrl()) {
+            <img [src]="qrDataUrl()" alt="Código QR de retiro Candy" class="qr-imagen" />
+          }
+        </div>
+
+        <div class="codigo-bloque">
+          <span class="codigo-bloque__label">CÓDIGO DE RETIRO</span>
+          <div class="codigo-bloque__valor-grupo">
+            <span class="codigo-bloque__valor">{{ compra()?.codigo_alfanumerico }}</span>
+            <button
+              type="button"
+              class="boton-copiar"
+              (click)="copiarCodigo()"
+              [title]="copiadoExitoso() ? '¡Copiado!' : 'Copiar código'"
+            >
+              {{ copiadoExitoso() ? '✓ Copiado' : 'Copiar' }}
+            </button>
+          </div>
+          <span class="codigo-bloque__ayuda">
+            Mostrá el código QR o dictá el código al empleado en el mostrador
+          </span>
+        </div>
+
+        <div class="acciones-voucher">
+          <button
+            type="button"
+            class="boton-descargar-pdf"
+            (click)="descargarPdf()"
+            [disabled]="descargandoPdf()"
+          >
+            @if (descargandoPdf()) {
+              <span class="spinner-boton"></span>
+              Generando PDF...
+            } @else {
+              <span>📥</span> Descargar Voucher PDF
+            }
+          </button>
+        </div>
+      </section>
+
+      <!-- Divisor perforado de ticket -->
+      <div class="perforacion-ticket">
+        <div class="perforacion-ticket__muesca perforacion-ticket__muesca--izq"></div>
+        <div class="perforacion-ticket__linea"></div>
+        <div class="perforacion-ticket__muesca perforacion-ticket__muesca--der"></div>
+      </div>
+
+      <!-- Sección Inferior: Detalle del Pedido -->
+      <section class="voucher-candy__seccion-detalle">
+        <div class="cabecera-detalle">
+          <h3 class="cabecera-detalle__titulo">Detalle de Productos</h3>
+          <span class="cabecera-detalle__subtitulo">Precios históricos confirmados</span>
+        </div>
+
+        <div class="lista-productos">
+          @for (linea of compra()?.lineas; track linea.producto_id) {
+            <div class="linea-producto">
+              <div class="linea-producto__icono-caja">
+                @if (linea.imagen_url) {
+                  <img [src]="linea.imagen_url" [alt]="linea.nombre_producto" class="linea-producto__img" />
+                } @else {
+                  <span>🍿</span>
+                }
+              </div>
+
+              <div class="linea-producto__info">
+                <strong class="linea-producto__nombre">{{ linea.nombre_producto }}</strong>
+                <span class="linea-producto__unitario">
+                  {{ linea.cantidad }} × {{ formatearPrecio(linea.precio_unitario) }}
+                </span>
+              </div>
+
+              <div class="linea-producto__subtotal">
+                {{ formatearPrecio(linea.subtotal) }}
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="resumen-total">
+          <div class="resumen-total__fila">
+            <span>Total abonado</span>
+            <strong class="resumen-total__monto">{{ formatearPrecio(compra()?.total ?? 0) }}</strong>
+          </div>
+        </div>
+
+        <div class="metadatos-pedido">
+          <div class="metadato">
+            <span class="metadato__label">Email de contacto:</span>
+            <span class="metadato__valor">{{ compra()?.email_contacto }}</span>
+          </div>
+          <div class="metadato">
+            <span class="metadato__label">Fecha y hora:</span>
+            <span class="metadato__valor">{{ compra()?.creado_en | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Navegación inferior -->
+    <nav class="navegacion-retorno">
+      <a routerLink="/candy" class="boton-retorno boton-retorno--candy">
+        🍿 Comprar más en Candy Bar
+      </a>
+      <a routerLink="/" class="boton-retorno boton-retorno--cartelera">
+        🎬 Ver Cartelera de Películas
+      </a>
+    </nav>
+  }
+</div>

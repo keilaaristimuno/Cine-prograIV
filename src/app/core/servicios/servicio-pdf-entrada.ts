@@ -240,7 +240,7 @@ export class ServicioPdfEntrada {
     doc.setTextColor(107, 99, 128);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8.5);
-    doc.text(`Enviado a: ${compra.email_contacto}`, margenX + 10, y);
+    doc.text(`Email de contacto: ${compra.email_contacto}`, margenX + 10, y);
 
     doc.setTextColor(17, 24, 39);
     doc.setFont('helvetica', 'bold');

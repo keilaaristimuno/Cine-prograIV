@@ -1,0 +1,271 @@
+<div class="contenedor-pago-candy">
+  <!-- 1. Encabezado con retorno -->
+  <header class="encabezado-checkout">
+    <a routerLink="/candy" class="enlace-volver">
+      ← Volver al Catálogo de Candy
+    </a>
+    <h1 class="encabezado-checkout__titulo">Checkout Candy Bar</h1>
+    <p class="encabezado-checkout__subtitulo">
+      Completá los datos de contacto y confirmá tu pedido con nuestro simulador de pago seguro.
+    </p>
+  </header>
+
+  <!-- 2. Alertas de Error -->
+  @if (errorStock()) {
+    <div class="alerta alerta--stock" role="alert">
+      <span class="alerta__icono">⚠️</span>
+      <div class="alerta__contenido">
+        <h4 class="alerta__titulo">Cambio de disponibilidad</h4>
+        <p class="alerta__mensaje">{{ errorStock() }}</p>
+      </div>
+      <a routerLink="/candy" class="alerta__boton">Ir al Carrito</a>
+    </div>
+  }
+
+  @if (errorPago()) {
+    <div class="alerta alerta--pago" role="alert">
+      <span class="alerta__icono">❌</span>
+      <div class="alerta__contenido">
+        <h4 class="alerta__titulo">Error en el pago</h4>
+        <p class="alerta__mensaje">{{ errorPago() }}</p>
+      </div>
+    </div>
+  }
+
+  <!-- 3. Contenido en 2 columnas -->
+  <div class="layout-checkout">
+    <!-- Columna Izquierda: Resumen del Pedido Candy -->
+    <section class="resumen-pedido">
+      <div class="resumen-pedido__tarjeta">
+        <div class="resumen-pedido__cabecera">
+          <span class="resumen-pedido__icono">🍿</span>
+          <h2 class="resumen-pedido__titulo">Resumen de tu Pedido</h2>
+          <span class="resumen-pedido__badge">{{ carrito.cantidadTotal() }} unidades</span>
+        </div>
+
+        <div class="resumen-pedido__lista">
+          @for (item of carrito.items(); track item.producto.id) {
+            <article class="item-resumen">
+              <div class="item-resumen__img-contenedor">
+                @if (item.producto.imagenUrl) {
+                  <img [src]="item.producto.imagenUrl" [alt]="item.producto.nombre" class="item-resumen__img" />
+                } @else {
+                  <span class="item-resumen__placeholder-icono">🍿</span>
+                }
+              </div>
+
+              <div class="item-resumen__info">
+                <h4 class="item-resumen__nombre">{{ item.producto.nombre }}</h4>
+                <span class="item-resumen__unitario">
+                  {{ item.cantidad }} × {{ formatearPrecio(item.producto.precio) }}
+                </span>
+              </div>
+
+              <div class="item-resumen__subtotal">
+                {{ formatearPrecio(item.subtotal) }}
+              </div>
+            </article>
+          }
+        </div>
+
+        <div class="resumen-pedido__totales">
+          <div class="resumen-pedido__fila">
+            <span class="resumen-pedido__etiqueta">Subtotal</span>
+            <span class="resumen-pedido__valor">{{ formatearPrecio(carrito.subtotal()) }}</span>
+          </div>
+          <div class="resumen-pedido__fila">
+            <span class="resumen-pedido__etiqueta">Costo de entrega en mostrador</span>
+            <span class="resumen-pedido__valor resumen-pedido__valor--gratis">¡Gratis!</span>
+          </div>
+          <div class="resumen-pedido__separador"></div>
+          <div class="resumen-pedido__fila resumen-pedido__fila--total">
+            <span class="resumen-pedido__etiqueta-total">Total a pagar</span>
+            <span class="resumen-pedido__monto-total">{{ formatearPrecio(carrito.subtotal()) }}</span>
+          </div>
+        </div>
+
+        <div class="resumen-pedido__nota">
+          <span class="nota-icono">ℹ️</span>
+          <p>
+            Al finalizar el pago se generará tu <strong>código único CD-XXXX-XXXX</strong> y el <strong>QR digital</strong> para retirar tu pedido en el mostrador del cine.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Columna Derecha: Formulario de Pago y Contacto -->
+    <section class="formulario-seccion">
+      <!-- Tarjetas de Prueba Académicas -->
+      <div class="tarjetas-prueba">
+        <div class="tarjetas-prueba__cabecera">
+          <span class="tarjetas-prueba__icono">🧪</span>
+          <h3 class="tarjetas-prueba__titulo">Tarjetas de Prueba (Simulador)</h3>
+        </div>
+        <p class="tarjetas-prueba__descripcion">
+          Hacé clic en una tarjeta para autocompletar el formulario y probar los distintos flujos:
+        </p>
+
+        <div class="tarjetas-prueba__grilla">
+          @for (caso of casosPrueba; track caso.id) {
+            <button
+              type="button"
+              class="tarjeta-prueba-item"
+              [class.tarjeta-prueba-item--aprobada]="caso.tipoResultado === 'aprobado'"
+              [class.tarjeta-prueba-item--rechazo]="caso.tipoResultado === 'rechazo_bancario'"
+              [class.tarjeta-prueba-item--luhn]="caso.tipoResultado === 'luhn_invalido'"
+              (click)="aplicarCasoPrueba(caso)"
+            >
+              <div class="tarjeta-prueba-item__fila">
+                <strong class="tarjeta-prueba-item__titulo">{{ caso.titulo }}</strong>
+                <span class="tarjeta-prueba-item__tag">
+                  {{ caso.tipoResultado === 'aprobado' ? '✓ Éxito' : '✕ Rechazo' }}
+                </span>
+              </div>
+              <p class="tarjeta-prueba-item__desc">{{ caso.descripcion }}</p>
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Tarjeta Visual Interactiva -->
+      <div class="tarjeta-visual" [class.tarjeta-visual--mastercard]="marcaTarjeta() === 'mastercard'">
+        <div class="tarjeta-visual__chip"></div>
+        <span class="tarjeta-visual__marca">{{ marcaTarjeta() | uppercase }}</span>
+        <div class="tarjeta-visual__numero">
+          {{ formularioPago.get('numeroTarjeta')?.value || '•••• •••• •••• ••••' }}
+        </div>
+        <div class="tarjeta-visual__inferior">
+          <div class="tarjeta-visual__titular">
+            <span class="tarjeta-visual__label">TITULAR</span>
+            <span class="tarjeta-visual__valor">{{ formularioPago.get('nombreTitular')?.value || 'NOMBRE Y APELLIDO' }}</span>
+          </div>
+          <div class="tarjeta-visual__vence">
+            <span class="tarjeta-visual__label">VENCE</span>
+            <span class="tarjeta-visual__valor">{{ formularioPago.get('vencimiento')?.value || 'MM/AA' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulario Reactivo -->
+      <form [formGroup]="formularioPago" (ngSubmit)="confirmarPagoCandy()" class="form-pago" novalidate>
+        <!-- Email de Contacto -->
+        <div class="campo-grupo">
+          <label for="emailContacto" class="campo-label">
+            Correo electrónico de contacto
+          </label>
+          <input
+            id="emailContacto"
+            type="email"
+            formControlName="emailContacto"
+            placeholder="ejemplo@correo.com"
+            class="campo-input"
+            [class.campo-input--invalido]="formularioPago.get('emailContacto')?.invalid && formularioPago.get('emailContacto')?.touched"
+          />
+          @if (formularioPago.get('emailContacto')?.invalid && formularioPago.get('emailContacto')?.touched) {
+            <span class="campo-error">Ingresá un correo electrónico válido.</span>
+          }
+        </div>
+
+        <!-- Número de Tarjeta -->
+        <div class="campo-grupo">
+          <label for="numeroTarjeta" class="campo-label">Número de Tarjeta</label>
+          <input
+            id="numeroTarjeta"
+            type="text"
+            formControlName="numeroTarjeta"
+            placeholder="4509 9535 6623 3704"
+            (input)="formatearNumeroTarjeta($event)"
+            maxlength="19"
+            class="campo-input"
+            [class.campo-input--invalido]="formularioPago.get('numeroTarjeta')?.invalid && formularioPago.get('numeroTarjeta')?.touched"
+          />
+          @if (formularioPago.get('numeroTarjeta')?.invalid && formularioPago.get('numeroTarjeta')?.touched) {
+            <span class="campo-error">
+              @if (formularioPago.get('numeroTarjeta')?.errors?.['luhnInvalido']) {
+                El número no superó el algoritmo de comprobación de Luhn.
+              } @else {
+                Ingresá un número de tarjeta válido.
+              }
+            </span>
+          }
+        </div>
+
+        <!-- Nombre del Titular -->
+        <div class="campo-grupo">
+          <label for="nombreTitular" class="campo-label">Nombre del Titular</label>
+          <input
+            id="nombreTitular"
+            type="text"
+            formControlName="nombreTitular"
+            placeholder="JUAN PEREZ"
+            class="campo-input"
+            [class.campo-input--invalido]="formularioPago.get('nombreTitular')?.invalid && formularioPago.get('nombreTitular')?.touched"
+          />
+          @if (formularioPago.get('nombreTitular')?.invalid && formularioPago.get('nombreTitular')?.touched) {
+            <span class="campo-error">Ingresá el nombre completo como figura en la tarjeta.</span>
+          }
+        </div>
+
+        <!-- Fila de Vencimiento y CVV -->
+        <div class="fila-campos">
+          <div class="campo-grupo">
+            <label for="vencimiento" class="campo-label">Vencimiento (MM/AA)</label>
+            <input
+              id="vencimiento"
+              type="text"
+              formControlName="vencimiento"
+              placeholder="12/28"
+              (input)="formatearFechaVencimiento($event)"
+              maxlength="5"
+              class="campo-input"
+              [class.campo-input--invalido]="formularioPago.get('vencimiento')?.invalid && formularioPago.get('vencimiento')?.touched"
+            />
+            @if (formularioPago.get('vencimiento')?.invalid && formularioPago.get('vencimiento')?.touched) {
+              <span class="campo-error">
+                @if (formularioPago.get('vencimiento')?.errors?.['vencimientoExpirado']) {
+                  La tarjeta se encuentra vencida.
+                } @else {
+                  Formato MM/AA inválido.
+                }
+              </span>
+            }
+          </div>
+
+          <div class="campo-grupo">
+            <label for="cvv" class="campo-label">Código CVV</label>
+            <input
+              id="cvv"
+              type="password"
+              formControlName="cvv"
+              placeholder="123"
+              maxlength="4"
+              class="campo-input"
+              [class.campo-input--invalido]="formularioPago.get('cvv')?.invalid && formularioPago.get('cvv')?.touched"
+            />
+            @if (formularioPago.get('cvv')?.invalid && formularioPago.get('cvv')?.touched) {
+              <span class="campo-error">CVV inválido (3 o 4 dígitos).</span>
+            }
+          </div>
+        </div>
+
+        <!-- Botón de Pago -->
+        <button
+          type="submit"
+          class="boton-pagar-candy"
+          [disabled]="procesando()"
+        >
+          @if (procesando()) {
+            <span class="spinner-boton"></span>
+            Procesando pago seguro...
+          } @else {
+            Confirmar y Pagar {{ formatearPrecio(carrito.subtotal()) }}
+          }
+        </button>
+
+        <p class="aviso-seguridad">
+          🔒 Simulación académica protegida. Los datos de la tarjeta no se almacenan ni se transmiten a ninguna base de datos.
+        </p>
+      </form>
+    </section>
+  </div>
+</div>

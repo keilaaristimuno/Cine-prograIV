@@ -162,6 +162,44 @@
                   }
                 </div>
               </div>
+
+              <!-- Acciones de Carrito -->
+              <div class="tarjeta-candy__acciones">
+                @if (prod.stock <= 0) {
+                  <button type="button" class="boton-tarjeta-candy boton-tarjeta-candy--agotado" disabled>
+                    Agotado
+                  </button>
+                } @else if (obtenerCantidadEnCarrito(prod.id) === 0) {
+                  <button
+                    type="button"
+                    class="boton-tarjeta-candy boton-tarjeta-candy--agregar"
+                    (click)="agregarAlCarrito(prod, $event)"
+                  >
+                    <span>+</span> Agregar
+                  </button>
+                } @else {
+                  <div class="control-cantidad-tarjeta">
+                    <button
+                      type="button"
+                      class="boton-stepper"
+                      (click)="decrementarEnCarrito(prod.id, $event)"
+                      title="Disminuir"
+                    >
+                      -
+                    </button>
+                    <span class="stepper-valor">{{ obtenerCantidadEnCarrito(prod.id) }}</span>
+                    <button
+                      type="button"
+                      class="boton-stepper"
+                      [disabled]="obtenerCantidadEnCarrito(prod.id) >= prod.stock"
+                      (click)="incrementarEnCarrito(prod.id, $event)"
+                      title="Aumentar"
+                    >
+                      +
+                    </button>
+                  </div>
+                }
+              </div>
             </div>
           </article>
         } @empty {
@@ -189,4 +227,94 @@
       </div>
     }
   </section>
+
+  <!-- 5. Barra flotante de acceso rápido al Carrito -->
+  @if (!carrito.estaVacio()) {
+    <aside class="barra-flotante-carrito">
+      <div class="barra-flotante-carrito__contenido" (click)="abrirCarrito()">
+        <div class="barra-flotante-carrito__icono-grupo">
+          <span class="barra-flotante-carrito__icono">🛒</span>
+          <span class="barra-flotante-carrito__badge">{{ carrito.cantidadTotal() }}</span>
+        </div>
+        <div class="barra-flotante-carrito__textos">
+          <span class="barra-flotante-carrito__titulo">Mi Carrito Candy</span>
+          <span class="barra-flotante-carrito__subtotal">{{ formatearPrecio(carrito.subtotal()) }}</span>
+        </div>
+      </div>
+      <button type="button" class="barra-flotante-carrito__boton-pagar" (click)="irAlPago()">
+        Continuar al Pago →
+      </button>
+    </aside>
+  }
+
+  <!-- 6. Drawer / Panel Lateral del Carrito -->
+  @if (panelCarritoAbierto()) {
+    <div class="drawer-overlay" (click)="cerrarCarrito()"></div>
+    <aside class="drawer-carrito" role="dialog" aria-modal="true">
+      <header class="drawer-carrito__cabecera">
+        <div class="drawer-carrito__titulo-grupo">
+          <span class="drawer-carrito__icono">🍿</span>
+          <h2 class="drawer-carrito__titulo">Tu Carrito Candy</h2>
+          <span class="drawer-carrito__badge-total">{{ carrito.cantidadTotal() }} ítems</span>
+        </div>
+        <button type="button" class="drawer-carrito__boton-cerrar" (click)="cerrarCarrito()" title="Cerrar">✕</button>
+      </header>
+
+      @if (carrito.estaVacio()) {
+        <div class="drawer-carrito__vacio">
+          <span class="drawer-vacio-icono">🛒</span>
+          <p class="drawer-vacio-texto">Tu carrito está vacío</p>
+          <p class="drawer-vacio-subtexto">Explorá nuestro catálogo y sumá tus snacks o combos favoritos.</p>
+        </div>
+      } @else {
+        <div class="drawer-carrito__lista">
+          @for (item of carrito.items(); track item.producto.id) {
+            <div class="item-carrito">
+              <div class="item-carrito__img-contenedor">
+                @if (item.producto.imagenUrl) {
+                  <img [src]="item.producto.imagenUrl" [alt]="item.producto.nombre" class="item-carrito__img" />
+                } @else {
+                  <span class="item-carrito__placeholder-icono">{{ obtenerIconoCategoria(item.producto.categoria) }}</span>
+                }
+              </div>
+              <div class="item-carrito__detalles">
+                <h4 class="item-carrito__nombre">{{ item.producto.nombre }}</h4>
+                <div class="item-carrito__precios">
+                  <span class="item-carrito__unitario">{{ formatearPrecio(item.producto.precio) }} c/u</span>
+                  <span class="item-carrito__subtotal">{{ formatearPrecio(item.subtotal) }}</span>
+                </div>
+                <div class="item-carrito__acciones">
+                  <div class="item-carrito__stepper">
+                    <button type="button" class="boton-stepper" (click)="decrementarEnCarrito(item.producto.id)">-</button>
+                    <span class="stepper-valor">{{ item.cantidad }}</span>
+                    <button
+                      type="button"
+                      class="boton-stepper"
+                      [disabled]="item.cantidad >= item.producto.stock"
+                      (click)="incrementarEnCarrito(item.producto.id)"
+                      title="Aumentar"
+                    >+</button>
+                  </div>
+                  <button type="button" class="item-carrito__boton-eliminar" (click)="eliminarDelCarrito(item.producto.id)" title="Quitar producto">
+                    🗑
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <footer class="drawer-carrito__pie">
+          <div class="drawer-carrito__fila-total">
+            <span class="drawer-carrito__total-etiqueta">Total estimado</span>
+            <span class="drawer-carrito__total-monto">{{ formatearPrecio(carrito.subtotal()) }}</span>
+          </div>
+          <p class="drawer-carrito__aviso-stock">El stock final se valida y descuenta atómicamente al confirmar el pago.</p>
+          <button type="button" class="drawer-carrito__boton-checkout" (click)="irAlPago()">
+            Finalizar Compra Candy →
+          </button>
+        </footer>
+      }
+    </aside>
+  }
 </div>

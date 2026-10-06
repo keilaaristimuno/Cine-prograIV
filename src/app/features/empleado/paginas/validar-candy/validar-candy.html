@@ -1,0 +1,276 @@
+<section class="pagina-validacion-candy" aria-labelledby="titulo-pagina">
+  <header class="encabezado-seccion">
+    <span class="etiqueta-area">🍿 Mostrador de Candy Bar</span>
+    <h1 id="titulo-pagina" class="titulo-seccion">Validación de Retiro de Candy</h1>
+    <p class="subtitulo-seccion">
+      Escaneá el código QR del voucher digital o ingresá el código CD-XXXX-XXXX para autorizar y despachar los productos al cliente.
+    </p>
+  </header>
+
+  <!-- Pestañas de Selección de Modo (solo si no hay resultado desplegado) -->
+  @if (!resultado()) {
+    <div class="pestanas-ingreso" role="tablist" aria-label="Métodos de validación">
+      <button
+        type="button"
+        role="tab"
+        class="pestana"
+        [class.pestana--activa]="modoActual() === 'qr'"
+        [attr.aria-selected]="modoActual() === 'qr'"
+        (click)="cambiarModo('qr')"
+      >
+        <span class="icono-pestana" aria-hidden="true">📷</span>
+        <span>Escanear QR</span>
+      </button>
+
+      <button
+        type="button"
+        role="tab"
+        class="pestana"
+        [class.pestana--activa]="modoActual() === 'manual'"
+        [attr.aria-selected]="modoActual() === 'manual'"
+        (click)="cambiarModo('manual')"
+      >
+        <span class="icono-pestana" aria-hidden="true">⌨️</span>
+        <span>Ingreso Manual</span>
+      </button>
+    </div>
+
+    <!-- Contenedor Principal de Validación -->
+    <div class="contenedor-ingreso">
+      <!-- MODO 1: ESCANEAR QR MEDIANTE CÁMARA -->
+      @if (modoActual() === 'qr') {
+        <div class="caja-metodo caja-qr" role="region" aria-label="Lector QR de Candy">
+          @if (!camaraActiva()) {
+            <div class="estado-camara-apagada">
+              <div class="icono-camara-grande" aria-hidden="true">📷</div>
+              <p class="texto-camara-apagada">
+                La cámara se encuentra apagada. Pulsá el botón para comenzar a escanear el voucher de Candy.
+              </p>
+              <button
+                type="button"
+                class="boton-accion boton-accion--camara"
+                (click)="iniciarCamara()"
+                [disabled]="cargandoCamara() || cargandoValidacion()"
+              >
+                @if (cargandoCamara()) {
+                  <span class="spinner-boton"></span>
+                  Iniciando cámara...
+                } @else {
+                  <span>Activar Cámara</span>
+                }
+              </button>
+            </div>
+          } @else {
+            <div class="estado-camara-encendida">
+              <div class="visor-camara-caja">
+                <!-- Contenedor requerido por Html5Qrcode -->
+                <div [id]="elementoCamaraId" class="visor-camara-elemento"></div>
+                <div class="guia-enfoque" aria-hidden="true">
+                  <div class="esquina esquina--tl"></div>
+                  <div class="esquina esquina--tr"></div>
+                  <div class="esquina esquina--bl"></div>
+                  <div class="esquina esquina--br"></div>
+                  <span class="guia-texto">Enfocá el código QR de Candy</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                class="boton-accion boton-accion--detener"
+                (click)="detenerCamara()"
+              >
+                Detener cámara
+              </button>
+            </div>
+          }
+
+          @if (errorCamara()) {
+            <div class="alerta-error alerta-error--camara" role="alert">
+              <span class="icono-alerta">⚠️</span>
+              <span>{{ errorCamara() }}</span>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- MODO 2: INGRESO MANUAL DEL CÓDIGO -->
+      @if (modoActual() === 'manual') {
+        <div class="caja-metodo caja-manual" role="region" aria-label="Ingreso manual de código CD">
+          <form
+            [formGroup]="formularioManual"
+            (ngSubmit)="enviarCodigoManual()"
+            class="formulario-codigo"
+          >
+            <div class="campo-grupo">
+              <label for="input-codigo-candy" class="campo-label">
+                Código de Retiro Candy (CD-XXXX-XXXX)
+              </label>
+              <input
+                id="input-codigo-candy"
+                type="text"
+                formControlName="codigo"
+                class="campo-input campo-input--codigo"
+                placeholder="CD-XXXX-XXXX"
+                maxlength="12"
+                autocomplete="off"
+                autocapitalize="characters"
+                spellcheck="false"
+              />
+              <span class="campo-ayuda">
+                Ingresá el código alfanumérico visible en el voucher del cliente.
+              </span>
+            </div>
+
+            <button
+              type="submit"
+              class="boton-accion boton-accion--validar"
+              [disabled]="formularioManual.invalid || cargandoValidacion()"
+            >
+              @if (cargandoValidacion()) {
+                <span class="spinner-boton"></span>
+                Validando pedido...
+              } @else {
+                <span>Validar Entrega</span>
+              }
+            </button>
+          </form>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Spinner durante validación -->
+  @if (cargandoValidacion()) {
+    <div class="caja-cargando" role="status" aria-live="polite">
+      <div class="spinner-cine"></div>
+      <p>Validando pedido de Candy Bar en el sistema...</p>
+    </div>
+  }
+
+  <!-- RESULTADO DE LA VALIDACIÓN -->
+  @if (resultado(); as res) {
+    <article
+      class="tarjeta-resultado"
+      [class.tarjeta-resultado--autorizado]="res.estado_validacion === 'entrega_autorizada'"
+      [class.tarjeta-resultado--ya-utilizado]="res.estado_validacion === 'ya_entregado'"
+      [class.tarjeta-resultado--cancelado]="res.estado_validacion === 'pedido_cancelado'"
+      [class.tarjeta-resultado--invalido]="res.estado_validacion === 'codigo_invalido' || res.estado_validacion === 'codigo_inexistente' || res.estado_validacion === 'estado_invalido'"
+      role="region"
+      aria-label="Resultado de la validación del pedido"
+    >
+      <!-- Cabecera de Estado -->
+      <header class="resultado-cabecera">
+        @switch (res.estado_validacion) {
+          @case ('entrega_autorizada') {
+            <div class="insignia-estado insignia-estado--exito">
+              <span class="insignia-icono">✓</span>
+              <span>ENTREGA AUTORIZADA</span>
+            </div>
+            <h2 class="resultado-titulo">Despachar mercadería al cliente</h2>
+            <p class="resultado-subtitulo">{{ res.mensaje }}</p>
+          }
+          @case ('ya_entregado') {
+            <div class="insignia-estado insignia-estado--advertencia">
+              <span class="insignia-icono">⚠️</span>
+              <span>PEDIDO YA ENTREGADO</span>
+            </div>
+            <h2 class="resultado-titulo">Este código ya fue consumido</h2>
+            <p class="resultado-subtitulo">{{ res.mensaje }}</p>
+          }
+          @case ('pedido_cancelado') {
+            <div class="insignia-estado insignia-estado--peligro">
+              <span class="insignia-icono">✕</span>
+              <span>PEDIDO CANCELADO</span>
+            </div>
+            <h2 class="resultado-titulo">No despachar productos</h2>
+            <p class="resultado-subtitulo">{{ res.mensaje }}</p>
+          }
+          @default {
+            <div class="insignia-estado insignia-estado--peligro">
+              <span class="insignia-icono">✕</span>
+              <span>CÓDIGO NO VÁLIDO</span>
+            </div>
+            <h2 class="resultado-titulo">No se pudo autorizar el retiro</h2>
+            <p class="resultado-subtitulo">{{ res.mensaje }}</p>
+          }
+        }
+      </header>
+
+      <!-- Bloque Operativo de Productos y Cantidades (si existen) -->
+      @if (res.productos && res.productos.length > 0) {
+        <div class="bloque-despacho">
+          <div class="despacho-resumen">
+            <span class="despacho-etiqueta">📦 PRODUCTOS A ENTREGAR</span>
+            <span class="despacho-unidades">Total: {{ res.total_unidades ?? res.productos.length }} unidades</span>
+          </div>
+
+          <div class="tabla-despacho">
+            @for (prod of res.productos; track prod.nombre_producto) {
+              <div class="fila-producto">
+                <div class="cantidad-badge">
+                  {{ prod.cantidad }}x
+                </div>
+                <div class="detalle-producto">
+                  <strong class="nombre-producto">{{ prod.nombre_producto }}</strong>
+                  <span class="categoria-producto">{{ prod.categoria_producto }}</span>
+                </div>
+                <div class="subtotal-producto">
+                  {{ formatearPrecio(prod.subtotal) }}
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Metadatos de Auditoría y Control -->
+      <footer class="resultado-metadatos">
+        @if (res.codigo_alfanumerico) {
+          <div class="metadato-item">
+            <span class="metadato-label">Código:</span>
+            <code class="metadato-valor metadato-valor--codigo">{{ res.codigo_alfanumerico }}</code>
+          </div>
+        }
+
+        @if (res.total !== undefined) {
+          <div class="metadato-item">
+            <span class="metadato-label">Total pagado:</span>
+            <span class="metadato-valor">{{ formatearPrecio(res.total) }}</span>
+          </div>
+        }
+
+        @if (res.fecha_compra) {
+          <div class="metadato-item">
+            <span class="metadato-label">Fecha de compra:</span>
+            <span class="metadato-valor">{{ res.fecha_compra | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+        }
+
+        @if (res.entregado_en) {
+          <div class="metadato-item">
+            <span class="metadato-label">{{ res.estado_validacion === 'ya_entregado' ? 'Entregado previamente el:' : 'Entregado en:' }}</span>
+            <span class="metadato-valor">{{ res.entregado_en | date:'dd/MM/yyyy HH:mm:ss' }}</span>
+          </div>
+        }
+
+        @if (res.entregado_por_email) {
+          <div class="metadato-item">
+            <span class="metadato-label">{{ res.estado_validacion === 'ya_entregado' ? 'Entregado por:' : 'Validado por:' }}</span>
+            <span class="metadato-valor">{{ res.entregado_por_email }}</span>
+          </div>
+        }
+      </footer>
+
+      <!-- Botón de Reinicio -->
+      <div class="resultado-acciones">
+        <button
+          type="button"
+          class="boton-accion boton-accion--reiniciar"
+          (click)="validarOtro()"
+        >
+          <span>🔄 Validar Otro Pedido</span>
+        </button>
+      </div>
+    </article>
+  }
+</section>
