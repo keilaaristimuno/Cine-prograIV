@@ -62,7 +62,101 @@
     </section>
   }
 
-  <!-- 2. Sección: Películas Destacadas (hasta 3 títulos de la cartelera actual) -->
+  <!-- 2. Sección: Top 3 Películas Mejor Calificadas (M7) -->
+  <section id="ranking-top-3-seccion" class="cartelera-contenido seccion-ranking">
+    <div class="cartelera-contenido__cabecera">
+      <div class="cartelera-contenido__titulos">
+        <h2 class="cartelera-contenido__titulo">🏆 Top 3 Mejor Calificadas</h2>
+        <p class="cartelera-contenido__subtitulo">
+          Las películas preferidas de nuestra audiencia, calificadas por espectadores tras asistir a las salas.
+        </p>
+      </div>
+    </div>
+
+    @if (cargandoTop3()) {
+      <div class="estado-cartelera estado-cartelera--cargando">
+        <div class="spinner-cine"></div>
+        <p class="estado-cartelera__texto">Calculando ranking del público...</p>
+      </div>
+    } @else if (top3Peliculas().length === 0) {
+      <div class="estado-cartelera estado-cartelera--vacio ranking-vacio">
+        <span class="estado-cartelera__icono">⭐</span>
+        <h3 class="estado-cartelera__titulo">Todavía no hay películas calificadas.</h3>
+        <p class="estado-cartelera__texto">
+          A medida que los espectadores asistan a las funciones y dejen sus opiniones, se formará el podio.
+        </p>
+      </div>
+    } @else {
+      <div class="podio-ranking">
+        @for (pelicula of top3Peliculas(); track pelicula.id; let i = $index) {
+          <article class="tarjeta-podio" [class]="'tarjeta-podio--puesto-' + (i + 1)">
+            <!-- Medalla y Puesto -->
+            <div class="tarjeta-podio__medalla">
+              @if (i === 0) {
+                <span class="medalla-icono">🥇</span>
+                <span class="medalla-texto">#1 del Público</span>
+              } @else if (i === 1) {
+                <span class="medalla-icono">🥈</span>
+                <span class="medalla-texto">#2 del Público</span>
+              } @else {
+                <span class="medalla-icono">🥉</span>
+                <span class="medalla-texto">#3 del Público</span>
+              }
+            </div>
+
+            <!-- Póster con Badge de Calificación -->
+            <div class="tarjeta-podio__poster-wrapper">
+              @if (pelicula.imagenUrl) {
+                <img
+                  [src]="pelicula.imagenUrl"
+                  [alt]="pelicula.nombre"
+                  class="tarjeta-podio__poster"
+                  loading="lazy"
+                />
+              } @else {
+                <div class="tarjeta-podio__placeholder">
+                  <span>🎬</span>
+                </div>
+              }
+
+              <div class="tarjeta-podio__badge-calificacion">
+                <span class="estrella-dorada">★</span>
+                <strong class="promedio-valor">{{ pelicula.promedio }}</strong>
+                <span class="escala">/ 5</span>
+              </div>
+            </div>
+
+            <!-- Cuerpo de la tarjeta -->
+            <div class="tarjeta-podio__cuerpo">
+              <h3 class="tarjeta-podio__titulo" [title]="pelicula.nombre">
+                {{ pelicula.nombre }}
+              </h3>
+
+              <div class="tarjeta-podio__metadatos">
+                <span class="tarjeta-podio__conteo">
+                  💬 {{ pelicula.cantidadResenas }} {{ pelicula.cantidadResenas === 1 ? 'opinión' : 'opiniones' }}
+                </span>
+                <span class="tarjeta-podio__duracion">
+                  ⏱ {{ formatearDuracion(pelicula.duracionMinutos) }}
+                </span>
+              </div>
+
+              <div class="tarjeta-podio__acciones">
+                <a
+                  [routerLink]="['/pelicula', pelicula.id]"
+                  class="tarjeta-podio__boton-ver"
+                >
+                  Ver funciones y opiniones
+                </a>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </section>
+
+  <!-- 3. Sección: Películas Destacadas (hasta 3 títulos de la cartelera actual) -->
   @if (!cargando() && !mensajeError() && peliculasDestacadas().length > 0) {
     <section id="destacadas-seccion" class="cartelera-contenido seccion-destacadas">
       <div class="cartelera-contenido__cabecera">

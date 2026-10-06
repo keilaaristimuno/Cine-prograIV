@@ -413,3 +413,226 @@
     transform: rotate(360deg);
   }
 }
+
+/* ==========================================================================
+   ESTILOS DE RANKING TOP 3 MEJOR CALIFICADAS (M7)
+   ========================================================================== */
+.seccion-ranking {
+  background: radial-gradient(circle at 50% 0%, rgba(245, 196, 81, 0.08) 0%, transparent 70%);
+  padding-top: 1rem;
+}
+
+.podio-ranking {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 1rem;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.tarjeta-podio {
+  background: rgba(22, 18, 33, 0.75);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  position: relative;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Puestos especiales */
+  &--puesto-1 {
+    border-color: rgba(245, 196, 81, 0.5);
+    background: linear-gradient(180deg, rgba(245, 196, 81, 0.1) 0%, rgba(22, 18, 33, 0.85) 40%);
+    box-shadow: 0 8px 24px rgba(245, 196, 81, 0.15);
+
+    &:hover {
+      border-color: rgba(245, 196, 81, 0.8);
+      box-shadow: 0 14px 36px rgba(245, 196, 81, 0.25);
+    }
+
+    .tarjeta-podio__medalla {
+      background: linear-gradient(135deg, rgba(245, 196, 81, 0.9), rgba(217, 119, 6, 0.9));
+      color: #1a1002;
+    }
+  }
+
+  &--puesto-2 {
+    border-color: rgba(203, 213, 225, 0.4);
+    background: linear-gradient(180deg, rgba(203, 213, 225, 0.08) 0%, rgba(22, 18, 33, 0.85) 40%);
+
+    &:hover {
+      border-color: rgba(203, 213, 225, 0.7);
+      box-shadow: 0 12px 30px rgba(203, 213, 225, 0.2);
+    }
+
+    .tarjeta-podio__medalla {
+      background: linear-gradient(135deg, #cbd5e1, #94a3b8);
+      color: #0f172a;
+    }
+  }
+
+  &--puesto-3 {
+    border-color: rgba(217, 119, 6, 0.4);
+    background: linear-gradient(180deg, rgba(217, 119, 6, 0.08) 0%, rgba(22, 18, 33, 0.85) 40%);
+
+    &:hover {
+      border-color: rgba(217, 119, 6, 0.7);
+      box-shadow: 0 12px 30px rgba(217, 119, 6, 0.2);
+    }
+
+    .tarjeta-podio__medalla {
+      background: linear-gradient(135deg, #d97706, #92400e);
+      color: #fff;
+    }
+  }
+
+  &__medalla {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    font-weight: 800;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+
+    .medalla-icono {
+      font-size: 1.25rem;
+    }
+  }
+
+  &__poster-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: #0d0a14;
+  }
+
+  &__poster {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+
+    .tarjeta-podio:hover & {
+      transform: scale(1.04);
+    }
+  }
+
+  &__placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: #4b455c;
+  }
+
+  &__badge-calificacion {
+    position: absolute;
+    bottom: 0.75rem;
+    right: 0.75rem;
+    background: rgba(9, 7, 17, 0.85);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(245, 196, 81, 0.4);
+    padding: 0.35rem 0.75rem;
+    border-radius: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+
+    .estrella-dorada {
+      color: #f5c451;
+      font-size: 1.1rem;
+    }
+
+    .promedio-valor {
+      color: #f7f5fa;
+      font-size: 1.15rem;
+      font-weight: 800;
+    }
+
+    .escala {
+      color: #aaa4b5;
+      font-size: 0.75rem;
+    }
+  }
+
+  &__cuerpo {
+    padding: 1.25rem 1.4rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 0.85rem;
+  }
+
+  &__titulo {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #f7f5fa;
+    margin: 0;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__metadatos {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #c4b5fd;
+  }
+
+  &__conteo {
+    font-weight: 600;
+  }
+
+  &__duracion {
+    color: #aaa4b5;
+  }
+
+  &__acciones {
+    margin-top: auto;
+    padding-top: 0.5rem;
+  }
+
+  &__boton-ver {
+    display: block;
+    text-align: center;
+    padding: 0.65rem 1rem;
+    background: rgba(139, 92, 246, 0.2);
+    border: 1px solid rgba(139, 92, 246, 0.4);
+    color: #f7f5fa;
+    border-radius: 0.6rem;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #8b5cf6;
+      border-color: #8b5cf6;
+      transform: translateY(-1px);
+    }
+  }
+}
+
+.ranking-vacio {
+  margin: 1rem 0;
+}
+

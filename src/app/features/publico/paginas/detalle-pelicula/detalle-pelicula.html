@@ -113,6 +113,18 @@
             <span class="detalle-pelicula__dato">
               Clasificación: <strong>{{ p.clasificacionEdad }}</strong>
             </span>
+            @if (resumenResenas(); as resumen) {
+              <span class="detalle-pelicula__separador">•</span>
+              <span class="detalle-pelicula__dato detalle-pelicula__dato--calificacion">
+                @if (resumen.cantidadResenas > 0) {
+                  <span class="estrella-dorada">★</span>
+                  <strong>{{ resumen.promedio }}</strong> / 5
+                  <span class="conteo-opiniones">({{ resumen.cantidadResenas }} {{ resumen.cantidadResenas === 1 ? 'opinión' : 'opiniones' }})</span>
+                } @else {
+                  <span class="sin-calificaciones">☆ Sin opiniones aún</span>
+                }
+              </span>
+            }
           </div>
 
           <!-- Géneros -->
@@ -224,6 +236,226 @@
                 }
               </div>
             }
+          </section>
+
+          <!-- Sección: Reseñas y Calificaciones (M7) -->
+          <section class="seccion-resenas" id="seccion-resenas" aria-labelledby="titulo-seccion-resenas">
+            <div class="seccion-resenas__cabecera">
+              <div class="seccion-resenas__titulos">
+                <h2 id="titulo-seccion-resenas" class="seccion-resenas__titulo">
+                  Opiniones y Calificaciones
+                </h2>
+                <p class="seccion-resenas__subtitulo">
+                  Calificaciones compartidas por espectadores con asistencia confirmada.
+                </p>
+              </div>
+
+              @if (resumenResenas(); as r) {
+                @if (r.cantidadResenas > 0) {
+                  <div class="seccion-resenas__badge-resumen">
+                    <span class="badge-resumen__estrella">★</span>
+                    <div class="badge-resumen__numeros">
+                      <span class="badge-resumen__promedio">{{ r.promedio }}</span>
+                      <span class="badge-resumen__escala">/ 5</span>
+                    </div>
+                    <span class="badge-resumen__total">
+                      {{ r.cantidadResenas }} {{ r.cantidadResenas === 1 ? 'opinión verificada' : 'opiniones verificadas' }}
+                    </span>
+                  </div>
+                }
+              }
+            </div>
+
+            <!-- Bloque de Elegibilidad y Formulario de Calificación -->
+            <div class="seccion-resenas__zona-interaccion">
+              @if (cargandoElegibilidad()) {
+                <div class="aviso-elegibilidad aviso-elegibilidad--cargando">
+                  <div class="spinner-cine spinner-cine--pequeno"></div>
+                  <span>Comprobando permisos para calificar...</span>
+                </div>
+              } @else if (!servicioAuth.estaAutenticado()) {
+                <div class="aviso-elegibilidad aviso-elegibilidad--login">
+                  <span class="aviso-elegibilidad__icono">🔒</span>
+                  <div class="aviso-elegibilidad__info">
+                    <h4 class="aviso-elegibilidad__titulo">¿Querés calificar esta película?</h4>
+                    <p class="aviso-elegibilidad__texto">
+                      Iniciá sesión como cliente para compartir tu experiencia con la comunidad.
+                    </p>
+                  </div>
+                  <a routerLink="/login" class="aviso-elegibilidad__boton-accion">
+                    Iniciar sesión
+                  </a>
+                </div>
+              } @else if (!servicioAuth.esCliente()) {
+                <div class="aviso-elegibilidad aviso-elegibilidad--rol">
+                  <span class="aviso-elegibilidad__icono">ℹ️</span>
+                  <div class="aviso-elegibilidad__info">
+                    <h4 class="aviso-elegibilidad__titulo">Calificación de espectadores</h4>
+                    <p class="aviso-elegibilidad__texto">
+                      Solo las cuentas con perfil de cliente pueden calificar y opinar sobre las películas.
+                    </p>
+                  </div>
+                </div>
+              } @else if (elegibilidad(); as eleg) {
+                @if (!eleg.puedeResenar && eleg.motivo === 'sin_asistencia_validada') {
+                  <div class="aviso-elegibilidad aviso-elegibilidad--asistencia">
+                    <span class="aviso-elegibilidad__icono">🎟️</span>
+                    <div class="aviso-elegibilidad__info">
+                      <h4 class="aviso-elegibilidad__titulo">Calificación exclusiva para asistentes verificados</h4>
+                      <p class="aviso-elegibilidad__texto">{{ eleg.mensaje }}</p>
+                    </div>
+                  </div>
+                } @else if (eleg.puedeResenar) {
+                  <!-- Formulario de Calificación y Reseña -->
+                  <div class="formulario-resena">
+                    <div class="formulario-resena__cabecera">
+                      <h3 class="formulario-resena__titulo">
+                        {{ eleg.yaReseno ? '✏️ Modificar mi reseña' : '⭐ Calificar y opinar sobre la película' }}
+                      </h3>
+                      @if (eleg.yaReseno) {
+                        <span class="formulario-resena__badge-existente">
+                          Ya calificaste esta película
+                        </span>
+                      }
+                    </div>
+
+                    <!-- Selector interactivo de estrellas -->
+                    <div class="formulario-resena__campo">
+                      <label class="formulario-resena__label">Tu puntuación:</label>
+                      <div class="selector-estrellas" role="radiogroup" aria-label="Calificación de 1 a 5 estrellas">
+                        @for (estrella of [1, 2, 3, 4, 5]; track estrella) {
+                          <button
+                            type="button"
+                            class="selector-estrellas__boton"
+                            [class.selector-estrellas__boton--activa]="(puntuacionHover() || puntuacionForm()) >= estrella"
+                            (click)="seleccionarPuntuacion(estrella)"
+                            (mouseenter)="establecerHover(estrella)"
+                            (mouseleave)="limpiarHover()"
+                            [title]="estrella + ' de 5 estrellas'"
+                          >
+                            ★
+                          </button>
+                        }
+                        <span class="selector-estrellas__valor-texto">
+                          {{ puntuacionHover() || puntuacionForm() }} de 5 estrellas
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- Textarea de Comentario -->
+                    <div class="formulario-resena__campo">
+                      <label for="comentario-resena-input" class="formulario-resena__label">
+                        Tu reseña (mínimo 10 caracteres):
+                      </label>
+                      <textarea
+                        id="comentario-resena-input"
+                        class="formulario-resena__textarea"
+                        rows="4"
+                        maxlength="1000"
+                        [ngModel]="comentarioForm()"
+                        (ngModelChange)="comentarioForm.set($event)"
+                        placeholder="Compartí tu opinión sobre la película, las actuaciones, el guion o tu experiencia en la sala..."
+                      ></textarea>
+                      <div
+                        class="formulario-resena__contador"
+                        [class.formulario-resena__contador--valido]="comentarioForm().trim().length >= 10"
+                      >
+                        <span>{{ comentarioForm().trim().length }} / 1000 caracteres</span>
+                        @if (comentarioForm().trim().length < 10) {
+                          <span class="contador-minimo-aviso">
+                            (faltan {{ 10 - comentarioForm().trim().length }} caracteres)
+                          </span>
+                        }
+                      </div>
+                    </div>
+
+                    <!-- Alertas de error y éxito -->
+                    @if (errorFormResena()) {
+                      <div class="formulario-resena__alerta formulario-resena__alerta--error">
+                        <span>⚠️ {{ errorFormResena() }}</span>
+                      </div>
+                    }
+                    @if (exitoFormResena()) {
+                      <div class="formulario-resena__alerta formulario-resena__alerta--exito">
+                        <span>✓ {{ exitoFormResena() }}</span>
+                      </div>
+                    }
+
+                    <!-- Acciones -->
+                    <div class="formulario-resena__acciones">
+                      <button
+                        type="button"
+                        class="formulario-resena__boton-enviar"
+                        [disabled]="guardandoResena() || comentarioForm().trim().length < 10"
+                        (click)="enviarResena()"
+                      >
+                        @if (guardandoResena()) {
+                          <span>Guardando reseña...</span>
+                        } @else {
+                          <span>{{ eleg.yaReseno ? 'Actualizar mi reseña' : 'Publicar reseña' }}</span>
+                        }
+                      </button>
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+
+            <!-- Listado público de reseñas -->
+            <div class="seccion-resenas__listado">
+              @if (cargandoResenas()) {
+                <div class="resenas-estado resenas-estado--cargando">
+                  <div class="spinner-cine spinner-cine--pequeno"></div>
+                  <p>Cargando opiniones de los espectadores...</p>
+                </div>
+              } @else if (errorResenas()) {
+                <div class="resenas-estado resenas-estado--error">
+                  <p>{{ errorResenas() }}</p>
+                  <button
+                    type="button"
+                    class="boton-reintentar-resenas"
+                    (click)="cargarResenas(p.id)"
+                  >
+                    Reintentar opiniones
+                  </button>
+                </div>
+              } @else if (!resumenResenas() || resumenResenas()!.resenas.length === 0) {
+                <div class="resenas-estado resenas-estado--vacio">
+                  <span class="icono-vacio">💬</span>
+                  <p class="resenas-estado__titulo-vacio">Esta película todavía no tiene opiniones.</p>
+                  <p class="resenas-estado__subtitulo-vacio">
+                    Las calificaciones están habilitadas para los espectadores que asistan a las funciones.
+                  </p>
+                </div>
+              } @else {
+                <div class="grilla-resenas">
+                  @for (r of resumenResenas()!.resenas; track r.id) {
+                    <article class="tarjeta-resena">
+                      <header class="tarjeta-resena__cabecera">
+                        <div class="tarjeta-resena__autor">
+                          <span class="tarjeta-resena__avatar">{{ r.nombreAutor.charAt(0) }}</span>
+                          <div class="tarjeta-resena__datos-autor">
+                            <span class="tarjeta-resena__nombre">{{ r.nombreAutor }}</span>
+                            <span class="tarjeta-resena__fecha">{{ formatearFechaIso(r.creadoEn) }}</span>
+                          </div>
+                        </div>
+                        <div class="tarjeta-resena__estrellas" [title]="r.puntuacion + ' estrellas'">
+                          @for (estrella of [1, 2, 3, 4, 5]; track estrella) {
+                            <span
+                              class="tarjeta-resena__icono-estrella"
+                              [class.tarjeta-resena__icono-estrella--activa]="r.puntuacion >= estrella"
+                            >
+                              ★
+                            </span>
+                          }
+                        </div>
+                      </header>
+                      <p class="tarjeta-resena__comentario">{{ r.comentario }}</p>
+                    </article>
+                  }
+                </div>
+              }
+            </div>
           </section>
 
           <!-- Botón de retorno inferior -->

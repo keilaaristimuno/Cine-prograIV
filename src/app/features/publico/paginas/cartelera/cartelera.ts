@@ -1,16 +1,20 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { Pelicula } from '../../../../core/modelos/pelicula';
+import { PeliculaRanking } from '../../../../core/modelos/resena';
 import { ServicioPeliculas } from '../../../../core/servicios/servicio-peliculas';
+import { ServicioResenas } from '../../../../core/servicios/servicio-resenas';
 import { TarjetaPelicula } from '../../componentes/tarjeta-pelicula/tarjeta-pelicula';
 
 @Component({
   selector: 'app-cartelera',
-  imports: [TarjetaPelicula],
+  imports: [TarjetaPelicula, RouterLink],
   templateUrl: './cartelera.html',
   styleUrl: './cartelera.scss'
 })
 export class Cartelera implements OnInit {
   private readonly servicioPeliculas = inject(ServicioPeliculas);
+  private readonly servicioResenas = inject(ServicioResenas);
 
   /** Lista predefinida de géneros del sistema */
   readonly generosDisponibles: string[] = [
@@ -74,8 +78,30 @@ export class Cartelera implements OnInit {
     });
   });
 
+  // Signals del Ranking Top 3 (M7)
+  readonly top3Peliculas = signal<PeliculaRanking[]>([]);
+  readonly cargandoTop3 = signal(true);
+
   ngOnInit(): void {
     void this.cargarCartelera();
+    void this.cargarTop3();
+  }
+
+  /**
+   * Consulta a Supabase las 3 películas mejor calificadas por los espectadores
+   */
+  async cargarTop3(): Promise<void> {
+    this.cargandoTop3.set(true);
+
+    try {
+      const top3 = await this.servicioResenas.obtenerTop3Peliculas();
+      this.top3Peliculas.set(top3);
+    } catch (error) {
+      console.error('Error al cargar Top 3 de películas:', error);
+      this.top3Peliculas.set([]);
+    } finally {
+      this.cargandoTop3.set(false);
+    }
   }
 
   /**

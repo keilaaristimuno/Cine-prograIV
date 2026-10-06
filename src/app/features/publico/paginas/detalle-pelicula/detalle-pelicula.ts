@@ -1,9 +1,16 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FuncionConDetalle } from '../../../../core/modelos/funcion';
 import { Pelicula } from '../../../../core/modelos/pelicula';
+import {
+  ElegibilidadResena,
+  ResumenResenasPelicula
+} from '../../../../core/modelos/resena';
+import { ServicioAuth } from '../../../../core/servicios/servicio-auth';
 import { ServicioFunciones } from '../../../../core/servicios/servicio-funciones';
 import { ServicioPeliculas } from '../../../../core/servicios/servicio-peliculas';
+import { ServicioResenas } from '../../../../core/servicios/servicio-resenas';
 
 export interface GrupoFuncionesDia {
   fechaKey: string;
@@ -14,7 +21,7 @@ export interface GrupoFuncionesDia {
 
 @Component({
   selector: 'app-detalle-pelicula',
-  imports: [RouterLink],
+  imports: [RouterLink, FormsModule],
   templateUrl: './detalle-pelicula.html',
   styleUrl: './detalle-pelicula.scss'
 })
@@ -22,6 +29,8 @@ export class DetallePelicula implements OnInit {
   private readonly ruta = inject(ActivatedRoute);
   private readonly servicioPeliculas = inject(ServicioPeliculas);
   private readonly servicioFunciones = inject(ServicioFunciones);
+  readonly servicioAuth = inject(ServicioAuth);
+  private readonly servicioResenas = inject(ServicioResenas);
 
   /** ID de la película obtenido de la URL */
   private idPelicula: string | null = null;
@@ -35,6 +44,22 @@ export class DetallePelicula implements OnInit {
   readonly funciones = signal<FuncionConDetalle[]>([]);
   readonly cargandoFunciones = signal(true);
   readonly errorFunciones = signal('');
+
+  // 3. Signals de Reseñas y Calificaciones (M7)
+  readonly resumenResenas = signal<ResumenResenasPelicula | null>(null);
+  readonly cargandoResenas = signal(true);
+  readonly errorResenas = signal('');
+
+  readonly elegibilidad = signal<ElegibilidadResena | null>(null);
+  readonly cargandoElegibilidad = signal(false);
+
+  // Formulario interactivo de reseña
+  readonly puntuacionForm = signal<number>(5);
+  readonly puntuacionHover = signal<number>(0);
+  readonly comentarioForm = signal<string>('');
+  readonly guardandoResena = signal<boolean>(false);
+  readonly errorFormResena = signal<string>('');
+  readonly exitoFormResena = signal<string>('');
 
   // 3. Determina si la película es un próximo estreno según la fecha local (AAAA-MM-DD)
   readonly esProximamente = computed<boolean>(() => {
@@ -82,11 +107,14 @@ export class DetallePelicula implements OnInit {
     if (!this.idPelicula) {
       this.cargando.set(false);
       this.cargandoFunciones.set(false);
+      this.cargandoResenas.set(false);
       return;
     }
 
     void this.cargarPelicula(this.idPelicula);
     void this.cargarFunciones(this.idPelicula);
+    void this.cargarResenas(this.idPelicula);
+    void this.cargarElegibilidad(this.idPelicula);
   }
 
   /**
@@ -117,6 +145,8 @@ export class DetallePelicula implements OnInit {
     if (this.idPelicula) {
       void this.cargarPelicula(this.idPelicula);
       void this.cargarFunciones(this.idPelicula);
+      void this.cargarResenas(this.idPelicula);
+      void this.cargarElegibilidad(this.idPelicula);
     }
   }
 
@@ -242,5 +272,154 @@ export class DetallePelicula implements OnInit {
       return `${partes[2]}/${partes[1]}/${partes[0]}`;
     }
     return fechaIso;
+  }
+
+  /**
+   * Helper para formatear fecha ISO a formato local DD/MM/AAAA HH:MM
+   */
+  formatearFechaIso(fechaIso: string): string {
+    if (!fechaIso) return '';
+    const d = new Date(fechaIso);
+    return d.toLocaleDateString('es-AR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  }
+
+  /**
+   * Consulta a Supabase las reseñas y el promedio general de la película
+   */
+  async cargarResenas(id: string): Promise<void> {
+    this.cargandoResenas.set(true);
+    this.errorResenas.set('');
+
+    try {
+      const resumen = await this.servicioResenas.obtenerResenasPelicula(id);
+      this.resumenResenas.set(resumen);
+    } catch (error) {
+      console.error('Error al cargar reseñas:', error);
+      this.errorResenas.set('No pudimos cargar las opiniones de los espectadores.');
+    } finally {
+      this.cargandoResenas.set(false);
+    }
+  }
+
+  /**
+   * Verifica si el usuario actual cumple las condiciones para calificar
+   */
+  async cargarElegibilidad(id: string): Promise<void> {
+    this.cargandoElegibilidad.set(true);
+
+    try {
+      await this.servicioAuth.asegurarSesionLista();
+
+      if (!this.servicioAuth.estaAutenticado()) {
+        this.elegibilidad.set({
+          puedeResenar: false,
+          motivo: 'no_autenticado',
+          mensaje: 'Iniciá sesión como cliente para calificar y dejar tu opinión sobre esta película.',
+          yaReseno: false,
+          resenaExistente: null
+        });
+        return;
+      }
+
+      if (!this.servicioAuth.esCliente()) {
+        this.elegibilidad.set({
+          puedeResenar: false,
+          motivo: 'rol_no_autorizado',
+          mensaje: 'Solo los espectadores con perfil de cliente pueden calificar películas.',
+          yaReseno: false,
+          resenaExistente: null
+        });
+        return;
+      }
+
+      const res = await this.servicioResenas.verificarElegibilidad(id);
+      this.elegibilidad.set(res);
+
+      // Si el usuario ya contaba con una reseña previa, precargar los campos
+      if (res.resenaExistente) {
+        this.puntuacionForm.set(res.resenaExistente.puntuacion);
+        this.comentarioForm.set(res.resenaExistente.comentario);
+      }
+    } catch (error) {
+      console.error('Error al verificar elegibilidad de reseña:', error);
+    } finally {
+      this.cargandoElegibilidad.set(false);
+    }
+  }
+
+  /**
+   * Manejador del selector interactivo de estrellas
+   */
+  seleccionarPuntuacion(valor: number): void {
+    this.puntuacionForm.set(valor);
+    this.errorFormResena.set('');
+  }
+
+  establecerHover(valor: number): void {
+    this.puntuacionHover.set(valor);
+  }
+
+  limpiarHover(): void {
+    this.puntuacionHover.set(0);
+  }
+
+  /**
+   * Valida y envía la reseña mediante RPC transaccional
+   */
+  async enviarResena(): Promise<void> {
+    if (!this.idPelicula) return;
+
+    this.errorFormResena.set('');
+    this.exitoFormResena.set('');
+
+    const puntuacion = this.puntuacionForm();
+    const comentario = this.comentarioForm().trim();
+
+    if (puntuacion < 1 || puntuacion > 5) {
+      this.errorFormResena.set('Por favor seleccioná una puntuación de 1 a 5 estrellas.');
+      return;
+    }
+
+    if (comentario.length < 10) {
+      this.errorFormResena.set('El comentario debe contener al menos 10 caracteres.');
+      return;
+    }
+
+    if (comentario.length > 1000) {
+      this.errorFormResena.set('El comentario no puede superar los 1000 caracteres.');
+      return;
+    }
+
+    this.guardandoResena.set(true);
+
+    try {
+      const resultado = await this.servicioResenas.guardarResena({
+        peliculaId: this.idPelicula,
+        puntuacion,
+        comentario
+      });
+
+      if (!resultado.ok) {
+        this.errorFormResena.set(resultado.mensaje || 'No se pudo guardar la reseña.');
+        return;
+      }
+
+      this.exitoFormResena.set(resultado.mensaje);
+
+      // Recargar listado de reseñas y estado de elegibilidad
+      await this.cargarResenas(this.idPelicula);
+      await this.cargarElegibilidad(this.idPelicula);
+    } catch (error: any) {
+      console.error('Error al guardar reseña:', error);
+      this.errorFormResena.set(
+        error.message || 'Ocurrió un error inesperado al publicar tu reseña.'
+      );
+    } finally {
+      this.guardandoResena.set(false);
+    }
   }
 }
