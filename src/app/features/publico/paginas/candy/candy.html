@@ -1,0 +1,192 @@
+<div class="candy-base">
+  <!-- 1. Hero del Candy Bar -->
+  <section class="candy-hero">
+    <div class="candy-hero__degradado"></div>
+    <div class="candy-hero__contenido">
+      <span class="candy-hero__etiqueta">Candy Bar · Pantalla Mágica</span>
+      <h1 class="candy-hero__titulo">La película se disfruta más con algo rico</h1>
+      <p class="candy-hero__descripcion">
+        Descubrí nuestros combos exclusivos, pochoclos recién preparados, bebidas bien frías y los mejores snacks para acompañar tu función.
+      </p>
+    </div>
+  </section>
+
+  <!-- 2. Filtros y Búsqueda -->
+  <section class="candy-catalogo">
+    <div class="candy-catalogo__cabecera">
+      <div class="candy-catalogo__titulos">
+        <h2 class="candy-catalogo__titulo">Catálogo de Productos</h2>
+        <p class="candy-catalogo__subtitulo">
+          Elegí tu categoría preferida o buscá por nombre
+        </p>
+      </div>
+
+      <div class="barra-filtros">
+        <!-- Input de búsqueda -->
+        <div class="buscador">
+          <span class="buscador__icono">🔍</span>
+          <input
+            type="text"
+            [value]="textoBusqueda()"
+            (input)="actualizarBusqueda($any($event.target).value)"
+            placeholder="Buscar combos, pochoclos, bebidas..."
+            class="buscador__input"
+          />
+          @if (textoBusqueda()) {
+            <button
+              type="button"
+              class="buscador__boton-limpiar"
+              (click)="actualizarBusqueda('')"
+              title="Limpiar búsqueda"
+            >
+              ✕
+            </button>
+          }
+        </div>
+
+        <!-- Chips de categorías -->
+        <div class="chips-categorias">
+          <button
+            type="button"
+            class="chip-categoria"
+            [class.chip-categoria--activo]="categoriaSeleccionada() === 'todos'"
+            (click)="seleccionarCategoria('todos')"
+          >
+            🍿 Todos
+          </button>
+          @for (cat of categoriasDisponibles; track cat.valor) {
+            <button
+              type="button"
+              class="chip-categoria"
+              [class.chip-categoria--activo]="categoriaSeleccionada() === cat.valor"
+              (click)="seleccionarCategoria(cat.valor)"
+            >
+              {{ cat.icono }} {{ cat.etiqueta }}
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Estados de Carga y Error -->
+    @if (cargando()) {
+      <div class="estado-candy estado-candy--cargando">
+        <div class="spinner-cine"></div>
+        <p class="estado-candy__texto">Cargando productos del Candy Bar...</p>
+      </div>
+    } @else if (mensajeError()) {
+      <div class="estado-candy estado-candy--error">
+        <span class="estado-candy__icono">⚠️</span>
+        <p class="estado-candy__texto">{{ mensajeError() }}</p>
+        <button
+          type="button"
+          class="estado-candy__boton-reintentar"
+          (click)="cargarCatalogo()"
+        >
+          Reintentar carga
+        </button>
+      </div>
+    } @else {
+      <!-- 4. Grilla de Productos -->
+      <div class="grilla-productos">
+        @for (prod of productosFiltrados(); track prod.id) {
+          <article
+            class="tarjeta-candy"
+            [class.tarjeta-candy--destacado]="prod.esDestacado"
+            [class.tarjeta-candy--agotado]="prod.stock <= 0"
+          >
+            <!-- Badge Destacado -->
+            @if (prod.esDestacado) {
+              <div class="tarjeta-candy__badge-destacado">
+                ⭐ MÁS ELEGIDO
+              </div>
+            }
+
+            <!-- Imagen del producto -->
+            <div class="tarjeta-candy__imagen-contenedor">
+              @if (prod.imagenUrl) {
+                <img
+                  [src]="prod.imagenUrl"
+                  [alt]="prod.nombre"
+                  class="tarjeta-candy__imagen"
+                  loading="lazy"
+                />
+              } @else {
+                <div class="tarjeta-candy__placeholder">
+                  <span class="tarjeta-candy__icono-placeholder">
+                    {{ obtenerIconoCategoria(prod.categoria) }}
+                  </span>
+                </div>
+              }
+
+              <!-- Badge de categoría -->
+              <span class="tarjeta-candy__badge-categoria">
+                {{ prod.categoria }}
+              </span>
+
+              <!-- Badge si está agotado -->
+              @if (prod.stock <= 0) {
+                <span class="tarjeta-candy__badge-agotado">
+                  Agotado
+                </span>
+              }
+            </div>
+
+            <!-- Cuerpo de la tarjeta -->
+            <div class="tarjeta-candy__cuerpo">
+              <h3 class="tarjeta-candy__titulo" [title]="prod.nombre">
+                {{ prod.nombre }}
+              </h3>
+
+              <p class="tarjeta-candy__descripcion">
+                {{ prod.descripcion || 'El complemento perfecto para disfrutar tu función.' }}
+              </p>
+
+              <div class="tarjeta-candy__pie">
+                <div class="tarjeta-candy__precio-bloque">
+                  <span class="tarjeta-candy__precio-etiqueta">Precio</span>
+                  <span class="tarjeta-candy__precio-valor">
+                    {{ formatearPrecio(prod.precio) }}
+                  </span>
+                </div>
+
+                <div class="tarjeta-candy__disponibilidad">
+                  @if (prod.stock > 0) {
+                    <span class="badge-stock badge-stock--disponible">
+                      ✓ Disponible
+                    </span>
+                  } @else {
+                    <span class="badge-stock badge-stock--agotado">
+                      Sin stock
+                    </span>
+                  }
+                </div>
+              </div>
+            </div>
+          </article>
+        } @empty {
+          <div class="estado-candy estado-candy--vacio">
+            <span class="estado-candy__icono">🍿</span>
+            <h3 class="estado-candy__titulo-vacio">No se encontraron productos</h3>
+            @if (textoBusqueda() || categoriaSeleccionada() !== 'todos') {
+              <p class="estado-candy__texto">
+                No hay productos en el Candy Bar que coincidan con los filtros seleccionados.
+              </p>
+              <button
+                type="button"
+                class="estado-candy__boton-reintentar"
+                (click)="limpiarFiltros()"
+              >
+                Limpiar filtros
+              </button>
+            } @else {
+              <p class="estado-candy__texto">
+                Por el momento no hay productos disponibles en el catálogo de Candy.
+              </p>
+            }
+          </div>
+        }
+      </div>
+    }
+  </section>
+</div>

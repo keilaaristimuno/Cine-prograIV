@@ -1,0 +1,438 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: #090711;
+  color: #f7f5fa;
+}
+
+.candy-base {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1.5rem 4rem;
+}
+
+// 1. Hero del Candy Bar
+.candy-hero {
+  position: relative;
+  border-radius: 1.25rem;
+  margin-top: 1.5rem;
+  margin-bottom: 2.5rem;
+  padding: 3.5rem 2.5rem;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.25) 0%, rgba(22, 18, 33, 0.95) 70%, rgba(9, 7, 17, 1) 100%),
+              radial-gradient(circle at top right, rgba(245, 196, 81, 0.15), transparent 50%);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+
+  &__degradado {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at 15% 50%, rgba(217, 70, 239, 0.12), transparent 45%);
+  }
+
+  &__contenido {
+    position: relative;
+    max-width: 750px;
+    z-index: 1;
+  }
+
+  &__etiqueta {
+    display: inline-block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #f5c451;
+    margin-bottom: 0.75rem;
+    background-color: rgba(245, 196, 81, 0.12);
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(245, 196, 81, 0.3);
+  }
+
+  &__titulo {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    line-height: 1.15;
+    margin: 0 0 1rem;
+    color: #ffffff;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+  }
+
+  &__descripcion {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #aaa4b5;
+    margin: 0;
+  }
+}
+
+// 2. Cabecera y Filtros
+.candy-catalogo {
+  &__cabecera {
+    margin-bottom: 2rem;
+  }
+
+  &__titulos {
+    margin-bottom: 1.5rem;
+  }
+
+  &__titulo {
+    font-size: 1.85rem;
+    font-weight: 800;
+    margin: 0 0 0.4rem;
+    color: #ffffff;
+  }
+
+  &__subtitulo {
+    font-size: 0.95rem;
+    color: #aaa4b5;
+    margin: 0;
+  }
+}
+
+.barra-filtros {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.buscador {
+  position: relative;
+  min-width: 280px;
+  max-width: 360px;
+  flex: 1;
+
+  &__icono {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #aaa4b5;
+    font-size: 0.95rem;
+  }
+
+  &__input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.75rem 2.25rem 0.75rem 2.6rem;
+    background-color: #161221;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 0.75rem;
+    color: #f7f5fa;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+
+    &::placeholder {
+      color: #6b647d;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: #8b5cf6;
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25);
+    }
+  }
+
+  &__boton-limpiar {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #aaa4b5;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0.25rem;
+
+    &:hover {
+      color: #ffffff;
+    }
+  }
+}
+
+.chips-categorias {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chip-categoria {
+  background-color: #161221;
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  color: #aaa4b5;
+  padding: 0.6rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: rgba(139, 92, 246, 0.15);
+    color: #ffffff;
+    border-color: rgba(139, 92, 246, 0.45);
+  }
+
+  &--activo {
+    background-color: #8b5cf6 !important;
+    border-color: #8b5cf6 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);
+  }
+}
+
+// 3. Grilla de Productos
+.grilla-productos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.75rem;
+}
+
+.tarjeta-candy {
+  position: relative;
+  background-color: #161221;
+  border-radius: 1rem;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+    border-color: rgba(139, 92, 246, 0.5);
+  }
+
+  &--destacado {
+    border-color: rgba(245, 196, 81, 0.6);
+    box-shadow: 0 8px 24px rgba(245, 196, 81, 0.15);
+
+    &:hover {
+      border-color: #f5c451;
+      box-shadow: 0 14px 32px rgba(245, 196, 81, 0.25);
+    }
+  }
+
+  &--agotado {
+    opacity: 0.65;
+    filter: grayscale(40%);
+  }
+
+  &__badge-destacado {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 2;
+    background: linear-gradient(135deg, #f5c451, #eab308);
+    color: #090711;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 0.35rem 0.75rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    letter-spacing: 0.05em;
+  }
+
+  &__imagen-contenedor {
+    position: relative;
+    width: 100%;
+    height: 190px;
+    background-color: #0d0a14;
+    overflow: hidden;
+  }
+
+  &__imagen {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+
+    .tarjeta-candy:hover & {
+      transform: scale(1.05);
+    }
+  }
+
+  &__placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(22, 18, 33, 1) 0%, rgba(35, 27, 54, 1) 100%);
+  }
+
+  &__icono-placeholder {
+    font-size: 3.5rem;
+    opacity: 0.8;
+  }
+
+  &__badge-categoria {
+    position: absolute;
+    bottom: 0.65rem;
+    right: 0.65rem;
+    background-color: rgba(9, 7, 17, 0.85);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #aaa4b5;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    padding: 0.25rem 0.6rem;
+    border-radius: 0.4rem;
+  }
+
+  &__badge-agotado {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 2;
+    background-color: rgba(239, 68, 68, 0.9);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.3rem 0.65rem;
+    border-radius: 0.4rem;
+    text-transform: uppercase;
+  }
+
+  &__cuerpo {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  &__titulo {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 0.5rem;
+    line-height: 1.3;
+  }
+
+  &__descripcion {
+    font-size: 0.9rem;
+    color: #aaa4b5;
+    line-height: 1.5;
+    margin: 0 0 1.25rem;
+    flex: 1;
+  }
+
+  &__pie {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  &__precio-bloque {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__precio-etiqueta {
+    font-size: 0.75rem;
+    color: #aaa4b5;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__precio-valor {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #f5c451;
+  }
+}
+
+.badge-stock {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.3rem 0.65rem;
+  border-radius: 0.4rem;
+
+  &--disponible {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+
+  &--agotado {
+    background-color: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+}
+
+// Estados globales
+.estado-candy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  background-color: #161221;
+  border-radius: 1rem;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+
+  &__icono {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  &__titulo-vacio {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+    color: #ffffff;
+  }
+
+  &__texto {
+    font-size: 1rem;
+    color: #aaa4b5;
+    max-width: 480px;
+    margin: 0 0 1.5rem;
+  }
+
+  &__boton-reintentar {
+    background-color: #8b5cf6;
+    color: #ffffff;
+    border: none;
+    padding: 0.65rem 1.4rem;
+    border-radius: 0.6rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: #9d74f7;
+    }
+  }
+}
+
+.spinner-cine {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(139, 92, 246, 0.2);
+  border-top-color: #8b5cf6;
+  border-radius: 50%;
+  animation: girar 0.9s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}

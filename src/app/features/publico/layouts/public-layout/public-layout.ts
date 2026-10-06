@@ -15,6 +15,7 @@ export class PublicLayout {
   // Signals derivados reactivamente de ServicioAuth
   readonly estaAutenticado = this.servicioAuth.estaAutenticado;
   readonly esAdmin = this.servicioAuth.esAdmin;
+  readonly esEmpleado = this.servicioAuth.esEmpleado;
   readonly usuario = this.servicioAuth.usuarioActual;
   readonly perfil = this.servicioAuth.perfilActual;
 

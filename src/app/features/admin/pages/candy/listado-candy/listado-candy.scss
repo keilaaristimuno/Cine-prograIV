@@ -1,0 +1,463 @@
+:host {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.pagina-listado {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.encabezado-pagina {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+
+  &__seccion {
+    margin: 0 0 0.5rem;
+    color: #aaa3bd;
+    font-size: 0.95rem;
+  }
+
+  &__titulo {
+    margin: 0;
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    line-height: 1.1;
+    color: #ffffff;
+  }
+}
+
+.boton-primario {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem 1.35rem;
+  border-radius: 0.5rem;
+  background-color: #8457ee;
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 150ms ease, transform 150ms ease;
+
+  &:hover {
+    background-color: #966ff2;
+    transform: translateY(-1px);
+  }
+
+  &--sm {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+.boton-secundario {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.18);
+  }
+}
+
+.panel-filtros {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+
+  @media (min-width: 900px) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.buscador {
+  position: relative;
+  min-width: 280px;
+  max-width: 400px;
+  flex: 1;
+
+  &__icono {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #aaa3bd;
+  }
+
+  &__input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.75rem 2.25rem 0.75rem 2.6rem;
+    background-color: #1a1626;
+    border: 1px solid rgba(132, 87, 238, 0.25);
+    border-radius: 0.6rem;
+    color: #f7f5fa;
+    font-size: 0.95rem;
+
+    &:focus {
+      outline: none;
+      border-color: #8457ee;
+      box-shadow: 0 0 0 3px rgba(132, 87, 238, 0.2);
+    }
+  }
+
+  &__boton-limpiar {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #aaa3bd;
+    cursor: pointer;
+  }
+}
+
+.chips-categorias {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chip-filtro {
+  background-color: #1a1626;
+  border: 1px solid rgba(132, 87, 238, 0.25);
+  color: #aaa3bd;
+  padding: 0.55rem 0.9rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 150ms ease;
+
+  &:hover {
+    color: #ffffff;
+    border-color: rgba(132, 87, 238, 0.5);
+  }
+
+  &--activo {
+    background-color: #8457ee !important;
+    border-color: #8457ee !important;
+    color: #ffffff !important;
+  }
+}
+
+.contenedor-tabla {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  background-color: #151121;
+  border: 1px solid rgba(132, 87, 238, 0.2);
+  border-radius: 0.85rem;
+}
+
+.tabla-candy {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+
+  th {
+    background-color: #1a1529;
+    color: #aaa3bd;
+    font-weight: 700;
+    padding: 1rem 1.15rem;
+    border-bottom: 1px solid rgba(132, 87, 238, 0.2);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+  }
+
+  td {
+    padding: 1rem 1.15rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    vertical-align: middle;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  tr:hover td {
+    background-color: rgba(132, 87, 238, 0.04);
+  }
+}
+
+.fila-inactiva {
+  opacity: 0.6;
+}
+
+// Celdas específicas
+.col-imagen {
+  width: 70px;
+}
+
+.miniatura-producto {
+  width: 50px;
+  height: 50px;
+  border-radius: 0.5rem;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.miniatura-placeholder {
+  width: 50px;
+  height: 50px;
+  border-radius: 0.5rem;
+  background-color: #231c36;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.col-producto {
+  min-width: 220px;
+}
+
+.nombre-producto {
+  display: block;
+  font-weight: 700;
+  color: #ffffff;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.descripcion-producto {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: #aaa3bd;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.col-categoria {
+  width: 120px;
+}
+
+.badge-cat {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  border-radius: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+
+  &--combos {
+    background-color: rgba(245, 196, 81, 0.15);
+    color: #f5c451;
+    border: 1px solid rgba(245, 196, 81, 0.3);
+  }
+
+  &--pochoclos {
+    background-color: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+
+  &--bebidas {
+    background-color: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+  }
+
+  &--snacks {
+    background-color: rgba(217, 70, 239, 0.15);
+    color: #e879f9;
+    border: 1px solid rgba(217, 70, 239, 0.3);
+  }
+}
+
+.col-precio {
+  width: 120px;
+}
+
+.valor-precio {
+  font-weight: 800;
+  color: #f5c451;
+  font-size: 1.05rem;
+}
+
+.col-stock {
+  width: 90px;
+}
+
+.badge-stock {
+  font-weight: 600;
+  color: #10b981;
+
+  &--bajo {
+    color: #f59e0b;
+  }
+
+  &--alerta {
+    color: #ef4444;
+    font-weight: 700;
+  }
+}
+
+.col-destacado {
+  width: 100px;
+}
+
+.badge-destacado {
+  color: #f5c451;
+  font-weight: 700;
+}
+
+.texto-tenue {
+  color: #6b647d;
+}
+
+.col-estado {
+  width: 100px;
+}
+
+.badge-estado {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+
+  &--activo {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+  }
+
+  &--inactivo {
+    background-color: rgba(107, 114, 128, 0.2);
+    color: #9ca3af;
+  }
+}
+
+.col-acciones {
+  width: 170px;
+}
+
+.grupo-acciones {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.boton-accion {
+  padding: 0.45rem 0.75rem;
+  border-radius: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  transition: all 150ms ease;
+
+  &--editar {
+    background-color: rgba(132, 87, 238, 0.18);
+    color: #c4b5fd;
+    border: 1px solid rgba(132, 87, 238, 0.35);
+
+    &:hover {
+      background-color: #8457ee;
+      color: #ffffff;
+    }
+  }
+
+  &--desactivar {
+    background-color: rgba(239, 68, 68, 0.15);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+
+    &:hover {
+      background-color: #ef4444;
+      color: #ffffff;
+    }
+  }
+
+  &--activar {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: #6ee7b7;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+
+    &:hover {
+      background-color: #10b981;
+      color: #ffffff;
+    }
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// Estados
+.estado-admin {
+  padding: 4rem 2rem;
+  text-align: center;
+  background-color: #151121;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(132, 87, 238, 0.2);
+  color: #aaa3bd;
+
+  &__icono {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+}
+
+.spinner-admin {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(132, 87, 238, 0.2);
+  border-top-color: #8457ee;
+  border-radius: 50%;
+  animation: girar 0.9s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+.fila-vacia {
+  text-align: center;
+  padding: 4rem 1rem !important;
+}
+
+.mensaje-vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+
+  &__icono {
+    font-size: 3rem;
+  }
+
+  &__titulo {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+  }
+
+  &__subtitulo {
+    color: #aaa3bd;
+    margin: 0 0 1rem;
+  }
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}

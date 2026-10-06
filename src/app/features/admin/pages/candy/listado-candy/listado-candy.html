@@ -1,0 +1,214 @@
+<div class="pagina-listado">
+  <!-- Encabezado de la página -->
+  <header class="encabezado-pagina">
+    <div class="encabezado-pagina__info">
+      <p class="encabezado-pagina__seccion">Administración · Candy Bar</p>
+      <h1 class="encabezado-pagina__titulo">Gestión de Productos</h1>
+    </div>
+
+    <a routerLink="/admin/candy/nuevo" class="boton-primario">
+      + Nuevo Producto
+    </a>
+  </header>
+
+  <!-- Barra de Filtros y Búsqueda -->
+  <div class="panel-filtros">
+    <div class="buscador">
+      <span class="buscador__icono">🔍</span>
+      <input
+        type="text"
+        [value]="textoBusqueda()"
+        (input)="textoBusqueda.set($any($event.target).value)"
+        placeholder="Buscar por nombre o descripción..."
+        class="buscador__input"
+      />
+      @if (textoBusqueda()) {
+        <button
+          type="button"
+          class="buscador__boton-limpiar"
+          (click)="textoBusqueda.set('')"
+          title="Limpiar búsqueda"
+        >
+          ✕
+        </button>
+      }
+    </div>
+
+    <div class="chips-categorias">
+      <button
+        type="button"
+        class="chip-filtro"
+        [class.chip-filtro--activo]="categoriaFiltro() === 'todos'"
+        (click)="categoriaFiltro.set('todos')"
+      >
+        Todos ({{ productos().length }})
+      </button>
+      @for (cat of categoriasDisponibles; track cat.valor) {
+        <button
+          type="button"
+          class="chip-filtro"
+          [class.chip-filtro--activo]="categoriaFiltro() === cat.valor"
+          (click)="categoriaFiltro.set(cat.valor)"
+        >
+          {{ cat.icono }} {{ cat.etiqueta }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Contenido: Carga, Error o Tabla -->
+  @if (cargando()) {
+    <div class="estado-admin estado-admin--cargando">
+      <div class="spinner-admin"></div>
+      <p>Cargando catálogo de productos...</p>
+    </div>
+  } @else if (mensajeError()) {
+    <div class="estado-admin estado-admin--error">
+      <span class="estado-admin__icono">⚠️</span>
+      <p>{{ mensajeError() }}</p>
+      <button
+        type="button"
+        class="boton-secundario"
+        (click)="cargarProductos()"
+      >
+        Reintentar
+      </button>
+    </div>
+  } @else {
+    <div class="contenedor-tabla">
+      <table class="tabla-candy">
+        <thead>
+          <tr>
+            <th class="col-imagen">Imagen</th>
+            <th class="col-producto">Producto</th>
+            <th class="col-categoria">Categoría</th>
+            <th class="col-precio">Precio</th>
+            <th class="col-stock">Stock</th>
+            <th class="col-destacado">Destacado</th>
+            <th class="col-estado">Estado</th>
+            <th class="col-acciones">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (prod of productosFiltrados(); track prod.id) {
+            <tr [class.fila-inactiva]="!prod.estaActivo">
+              <!-- Imagen -->
+              <td class="col-imagen">
+                @if (prod.imagenUrl) {
+                  <img
+                    [src]="prod.imagenUrl"
+                    [alt]="prod.nombre"
+                    class="miniatura-producto"
+                  />
+                } @else {
+                  <div class="miniatura-placeholder">
+                    🍿
+                  </div>
+                }
+              </td>
+
+              <!-- Producto y Descripción -->
+              <td class="col-producto">
+                <span class="nombre-producto">{{ prod.nombre }}</span>
+                @if (prod.descripcion) {
+                  <span class="descripcion-producto">{{ prod.descripcion }}</span>
+                }
+              </td>
+
+              <!-- Categoría -->
+              <td class="col-categoria">
+                <span
+                  class="badge-cat"
+                  [class.badge-cat--combos]="prod.categoria === 'combos'"
+                  [class.badge-cat--pochoclos]="prod.categoria === 'pochoclos'"
+                  [class.badge-cat--bebidas]="prod.categoria === 'bebidas'"
+                  [class.badge-cat--snacks]="prod.categoria === 'snacks'"
+                >
+                  {{ prod.categoria }}
+                </span>
+              </td>
+
+              <!-- Precio -->
+              <td class="col-precio">
+                <span class="valor-precio">{{ formatearPrecio(prod.precio) }}</span>
+              </td>
+
+              <!-- Stock -->
+              <td class="col-stock">
+                <span
+                  class="badge-stock"
+                  [class.badge-stock--alerta]="prod.stock === 0"
+                  [class.badge-stock--bajo]="prod.stock > 0 && prod.stock <= 5"
+                >
+                  {{ prod.stock }} u.
+                </span>
+              </td>
+
+              <!-- Destacado -->
+              <td class="col-destacado">
+                @if (prod.esDestacado) {
+                  <span class="badge-destacado" title="Producto destacado">⭐ Sí</span>
+                } @else {
+                  <span class="texto-tenue">No</span>
+                }
+              </td>
+
+              <!-- Estado -->
+              <td class="col-estado">
+                @if (prod.estaActivo) {
+                  <span class="badge-estado badge-estado--activo">Activo</span>
+                } @else {
+                  <span class="badge-estado badge-estado--inactivo">Inactivo</span>
+                }
+              </td>
+
+              <!-- Acciones -->
+              <td class="col-acciones">
+                <div class="grupo-acciones">
+                  <a
+                    [routerLink]="['/admin/candy/editar', prod.id]"
+                    class="boton-accion boton-accion--editar"
+                    title="Editar producto"
+                  >
+                    Editar
+                  </a>
+
+                  <button
+                    type="button"
+                    class="boton-accion"
+                    [class.boton-accion--desactivar]="prod.estaActivo"
+                    [class.boton-accion--activar]="!prod.estaActivo"
+                    [disabled]="procesandoId() === prod.id"
+                    (click)="alternarEstado(prod)"
+                    [title]="prod.estaActivo ? 'Desactivar producto' : 'Activar producto'"
+                  >
+                    {{ prod.estaActivo ? 'Desactivar' : 'Activar' }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="8" class="fila-vacia">
+                <div class="mensaje-vacio">
+                  <span class="mensaje-vacio__icono">🍿</span>
+                  <p class="mensaje-vacio__titulo">No se encontraron productos</p>
+                  <p class="mensaje-vacio__subtitulo">
+                    @if (textoBusqueda() || categoriaFiltro() !== 'todos') {
+                      Ningún producto coincide con los filtros aplicados.
+                    } @else {
+                      Todavía no diste de alta productos en el Candy Bar.
+                    }
+                  </p>
+                  <a routerLink="/admin/candy/nuevo" class="boton-primario boton-primario--sm">
+                    Crear primer producto
+                  </a>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

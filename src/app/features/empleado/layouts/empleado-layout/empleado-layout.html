@@ -3,7 +3,7 @@
     <div class="barra-superior__seccion-marca">
       <div class="marca">
         <span class="marca__nombre">Pantalla Mágica</span>
-        <span class="marca__area">Control de Acceso</span>
+        <span class="marca__area">Sector Operativo</span>
       </div>
 
       <nav class="navegacion">
@@ -15,12 +15,15 @@
           Validar Entrada
         </a>
 
+        <!-- Preparado para M6.4: Validar Candy (/empleado/validar-candy) -->
+
         @if (esAdmin()) {
           <a
             routerLink="/admin"
             class="navegacion__enlace navegacion__enlace--admin"
+            title="Regresar al panel de administración"
           >
-            Panel Admin
+            ← Volver a Panel Admin
           </a>
         }
 

@@ -44,6 +44,13 @@ export const routes: Routes = [
           import(
             './features/publico/paginas/confirmacion-compra/confirmacion-compra'
           ).then(m => m.ConfirmacionCompra)
+      },
+      {
+        path: 'candy',
+        loadComponent: () =>
+          import(
+            './features/publico/paginas/candy/candy'
+          ).then(m => m.Candy)
       }
     ]
   },
@@ -134,6 +141,24 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/admin/pages/tarifas/gestion-tarifas/gestion-tarifas')
             .then(m => m.GestionTarifas)
+      },
+      {
+        path: 'candy',
+        loadComponent: () =>
+          import('./features/admin/pages/candy/listado-candy/listado-candy')
+            .then(m => m.ListadoCandy)
+      },
+      {
+        path: 'candy/nuevo',
+        loadComponent: () =>
+          import('./features/admin/pages/candy/formulario-candy/formulario-candy')
+            .then(m => m.FormularioCandy)
+      },
+      {
+        path: 'candy/editar/:id',
+        loadComponent: () =>
+          import('./features/admin/pages/candy/formulario-candy/formulario-candy')
+            .then(m => m.FormularioCandy)
       }
     ]
   },

@@ -1,0 +1,209 @@
+<div class="pagina-formulario">
+  <!-- Encabezado -->
+  <header class="encabezado-formulario">
+    <a routerLink="/admin/candy" class="enlace-volver">
+      ← Volver al listado
+    </a>
+    <h1 class="titulo-formulario">
+      {{ modoEdicion() ? 'Editar Producto de Candy' : 'Nuevo Producto de Candy' }}
+    </h1>
+    <p class="subtitulo-formulario">
+      Completá los datos del producto o combo para el Candy Bar
+    </p>
+  </header>
+
+  @if (cargandoProducto()) {
+    <div class="estado-cargando">
+      <div class="spinner-admin"></div>
+      <p>Cargando datos del producto...</p>
+    </div>
+  } @else {
+    <form [formGroup]="formulario" (ngSubmit)="guardar()" class="tarjeta-formulario">
+      <!-- Mensajes de Estado -->
+      @if (mensajeExito()) {
+        <div class="alerta alerta--exito">
+          ✓ {{ mensajeExito() }}
+        </div>
+      }
+
+      @if (mensajeError()) {
+        <div class="alerta alerta--error">
+          ⚠️ {{ mensajeError() }}
+        </div>
+      }
+
+      <div class="grilla-campos">
+        <!-- Nombre -->
+        <div class="campo campo--completo">
+          <label for="nombre" class="etiqueta">
+            Nombre del producto <span class="requerido">*</span>
+          </label>
+          <input
+            id="nombre"
+            type="text"
+            formControlName="nombre"
+            placeholder="Ej: Combo Pantalla Mágica, Pochoclos Grandes, Gaseosa 500ml"
+            class="control-input"
+            [class.control-input--invalido]="formulario.get('nombre')?.touched && formulario.get('nombre')?.invalid"
+          />
+          @if (formulario.get('nombre')?.touched && formulario.get('nombre')?.hasError('required')) {
+            <span class="error-texto">El nombre es obligatorio.</span>
+          }
+          @if (formulario.get('nombre')?.touched && formulario.get('nombre')?.hasError('minlength')) {
+            <span class="error-texto">El nombre debe tener al menos 2 caracteres.</span>
+          }
+        </div>
+
+        <!-- Categoría -->
+        <div class="campo">
+          <label for="categoria" class="etiqueta">
+            Categoría <span class="requerido">*</span>
+          </label>
+          <select
+            id="categoria"
+            formControlName="categoria"
+            class="control-select"
+          >
+            @for (cat of categoriasDisponibles; track cat.valor) {
+              <option [value]="cat.valor">
+                {{ cat.icono }} {{ cat.etiqueta }}
+              </option>
+            }
+          </select>
+        </div>
+
+        <!-- Precio -->
+        <div class="campo">
+          <label for="precio" class="etiqueta">
+            Precio ($ ARS) <span class="requerido">*</span>
+          </label>
+          <input
+            id="precio"
+            type="number"
+            formControlName="precio"
+            min="0"
+            step="100"
+            placeholder="Ej: 12900"
+            class="control-input"
+            [class.control-input--invalido]="formulario.get('precio')?.touched && formulario.get('precio')?.invalid"
+          />
+          @if (formulario.get('precio')?.touched && formulario.get('precio')?.invalid) {
+            <span class="error-texto">Ingresá un precio válido mayor o igual a 0.</span>
+          }
+        </div>
+
+        <!-- Stock -->
+        <div class="campo">
+          <label for="stock" class="etiqueta">
+            Stock disponible (unidades) <span class="requerido">*</span>
+          </label>
+          <input
+            id="stock"
+            type="number"
+            formControlName="stock"
+            min="0"
+            step="1"
+            placeholder="Ej: 50"
+            class="control-input"
+            [class.control-input--invalido]="formulario.get('stock')?.touched && formulario.get('stock')?.invalid"
+          />
+          @if (formulario.get('stock')?.touched && formulario.get('stock')?.invalid) {
+            <span class="error-texto">Ingresá una cantidad de stock válida (mínimo 0).</span>
+          }
+        </div>
+
+        <!-- Flags: Destacado y Activo -->
+        <div class="campo campo--checks">
+          <label class="etiqueta">Opciones de publicación</label>
+          <div class="grupo-checks">
+            <label class="check-etiqueta">
+              <input type="checkbox" formControlName="esDestacado" class="control-check" />
+              <span>⭐ Marcar como Destacado ("MÁS ELEGIDO")</span>
+            </label>
+
+            <label class="check-etiqueta">
+              <input type="checkbox" formControlName="estaActivo" class="control-check" />
+              <span>✓ Producto Activo (visible en catálogo público)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Descripción -->
+        <div class="campo campo--completo">
+          <label for="descripcion" class="etiqueta">
+            Descripción o componentes incluidos
+          </label>
+          <textarea
+            id="descripcion"
+            formControlName="descripcion"
+            rows="3"
+            placeholder="Ej: 1 balde de pochoclo grande recién preparado + 2 gaseosas medianas a elección."
+            class="control-textarea"
+          ></textarea>
+        </div>
+
+        <!-- Imagen del Producto -->
+        <div class="campo campo--completo">
+          <label class="etiqueta">
+            Imagen del producto (Subir a Supabase Storage)
+          </label>
+
+          <div class="contenedor-carga-imagen">
+            <div class="previsualizacion-imagen">
+              @if (vistaPreviaImagen()) {
+                <img [src]="vistaPreviaImagen()" alt="Vista previa nueva" class="img-preview" />
+                <span class="etiqueta-preview">Nueva imagen seleccionada</span>
+              } @else if (imagenUrlActual()) {
+                <img [src]="imagenUrlActual()!" alt="Imagen actual" class="img-preview" />
+                <span class="etiqueta-preview">Imagen actual guardada</span>
+              } @else {
+                <div class="placeholder-preview">
+                  🍿
+                  <span>Sin imagen asignada</span>
+                </div>
+              }
+            </div>
+
+            <div class="selector-archivo">
+              <input
+                type="file"
+                id="imagenInput"
+                (change)="onArchivoSeleccionado($event)"
+                accept="image/jpeg,image/png,image/webp"
+                class="input-file-oculto"
+              />
+              <label for="imagenInput" class="boton-subir-archivo">
+                📷 {{ imagenUrlActual() || vistaPreviaImagen() ? 'Cambiar imagen...' : 'Seleccionar imagen...' }}
+              </label>
+              <p class="ayuda-archivo">
+                Formatos permitidos: JPG, PNG, WebP. Tamaño máximo: 4 MB.
+              </p>
+              @if (errorImagen()) {
+                <span class="error-texto">{{ errorImagen() }}</span>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Acciones del Formulario -->
+      <div class="acciones-formulario">
+        <a routerLink="/admin/candy" class="boton-cancelar">
+          Cancelar
+        </a>
+
+        <button
+          type="submit"
+          class="boton-guardar"
+          [disabled]="guardando()"
+        >
+          @if (guardando()) {
+            Guardando...
+          } @else {
+            {{ modoEdicion() ? 'Guardar Cambios' : 'Crear Producto' }}
+          }
+        </button>
+      </div>
+    </form>
+  }
+</div>

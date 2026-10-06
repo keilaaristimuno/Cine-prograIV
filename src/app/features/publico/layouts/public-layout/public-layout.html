@@ -23,6 +23,13 @@
           >
             Cartelera
           </a>
+          <a
+            routerLink="/candy"
+            routerLinkActive="navegacion-publica__enlace--activo"
+            class="navegacion-publica__enlace"
+          >
+            Candy
+          </a>
         </nav>
       </div>
 
@@ -39,9 +46,16 @@
         } @else {
           <div class="bloque-autenticado">
             @if (esAdmin()) {
-              <a routerLink="/admin/peliculas" class="boton-panel-admin">
+              <a routerLink="/admin" class="boton-panel-admin">
                 <span class="icono-admin">⚙</span>
                 Panel Admin
+              </a>
+            }
+
+            @if (esEmpleado()) {
+              <a routerLink="/empleado/validar-entrada" class="boton-panel-empleado">
+                <span class="icono-empleado">🎟</span>
+                Validar Entradas
               </a>
             }
 
