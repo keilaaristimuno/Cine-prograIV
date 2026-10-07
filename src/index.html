@@ -1,11 +1,22 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="utf-8" />
-    <title>PantallaMagica</title>
+    <title>Pantalla Mágica Cinema</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Cine Pantalla Mágica — Cartelera, entradas digitales con QR, Candy Bar y fidelización" />
+    <meta name="theme-color" content="#14101e" />
+
+    <!-- Web App Manifest & Apple PWA Tags -->
+    <link rel="manifest" href="manifest.webmanifest" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png" />
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Pantalla Mágica" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -16,5 +27,10 @@
   </head>
   <body>
     <app-root></app-root>
+    <noscript>
+      <p style="padding: 2rem; color: #f5c451; background: #14101e; text-align: center;">
+        Pantalla Mágica requiere JavaScript habilitado en tu navegador para funcionar correctamente.
+      </p>
+    </noscript>
   </body>
 </html>

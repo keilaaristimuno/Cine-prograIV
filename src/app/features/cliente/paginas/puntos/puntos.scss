@@ -1,0 +1,528 @@
+.fidelizacion-base {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.fidelizacion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+  padding-bottom: 1.5rem;
+
+  &__titulo {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #f7f5fa;
+    margin: 0 0 0.5rem 0;
+  }
+
+  &__subtitulo {
+    font-size: 1rem;
+    color: #aaa4b5;
+    margin: 0;
+    max-width: 640px;
+    line-height: 1.5;
+  }
+
+  .boton-mis-cupones {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.4rem;
+    background: rgba(139, 92, 246, 0.2);
+    border: 1px solid rgba(139, 92, 246, 0.45);
+    color: #f7f5fa;
+    border-radius: 0.65rem;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #8b5cf6;
+      border-color: #8b5cf6;
+      transform: translateY(-2px);
+    }
+  }
+}
+
+/* Tarjeta principal de saldo */
+.tarjeta-saldo {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 2rem;
+  background: linear-gradient(135deg, rgba(22, 18, 33, 0.9) 0%, rgba(35, 23, 62, 0.9) 100%);
+  border: 1px solid rgba(245, 196, 81, 0.35);
+  border-radius: 1.25rem;
+  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+
+  &__etiqueta {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #f5c451;
+  }
+
+  &__valor {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin: 0.5rem 0;
+
+    .icono-estrella {
+      font-size: 2.5rem;
+    }
+
+    .numero {
+      font-size: 3.5rem;
+      font-weight: 900;
+      color: #f7f5fa;
+      line-height: 1;
+    }
+
+    .unidad {
+      font-size: 1.25rem;
+      color: #c4b5fd;
+      font-weight: 600;
+    }
+  }
+
+  &__equivalencia {
+    font-size: 0.95rem;
+    color: #aaa4b5;
+    margin: 0;
+
+    strong {
+      color: #f7f5fa;
+    }
+  }
+
+  &__banner-ayuda {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    background: rgba(139, 92, 246, 0.12);
+    border: 1px dashed rgba(139, 92, 246, 0.3);
+    border-radius: 0.85rem;
+    padding: 1.25rem;
+
+    .icono-info {
+      font-size: 1.8rem;
+    }
+
+    h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #f7f5fa;
+      margin: 0 0 0.3rem 0;
+    }
+
+    p {
+      font-size: 0.85rem;
+      color: #aaa4b5;
+      margin: 0;
+      line-height: 1.4;
+    }
+  }
+}
+
+/* Modal / Banner de éxito tras canje */
+.modal-exito-canje {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  border-radius: 1rem;
+  padding: 1.75rem;
+
+  &__contenido {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+
+    .icono-celebracion {
+      font-size: 2.5rem;
+    }
+
+    h3 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #34d399;
+      margin: 0;
+    }
+
+    p {
+      color: #f7f5fa;
+      margin: 0;
+    }
+  }
+
+  .caja-cupon-generado {
+    background: rgba(13, 10, 20, 0.85);
+    border: 2px dashed rgba(52, 211, 153, 0.5);
+    border-radius: 0.85rem;
+    padding: 1.25rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin: 0.5rem 0;
+
+    .etiqueta {
+      font-size: 0.8rem;
+      color: #aaa4b5;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .codigo {
+      font-size: 1.8rem;
+      font-family: monospace;
+      color: #34d399;
+      letter-spacing: 0.1em;
+    }
+
+    .beneficio {
+      font-weight: 600;
+      color: #f7f5fa;
+      font-size: 0.95rem;
+    }
+
+    .vencimiento {
+      font-size: 0.8rem;
+      color: #aaa4b5;
+    }
+  }
+
+  &__acciones {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+
+    .boton-ir-cupones {
+      padding: 0.65rem 1.4rem;
+      background: #10b981;
+      color: #022c22;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.9rem;
+      &:hover { background: #34d399; }
+    }
+
+    .boton-cerrar {
+      padding: 0.65rem 1.25rem;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #f7f5fa;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-weight: 600;
+      &:hover { background: rgba(255, 255, 255, 0.08); }
+    }
+  }
+}
+
+.alerta-error-canje {
+  padding: 1rem;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+  border-radius: 0.75rem;
+  font-weight: 600;
+}
+
+/* Catálogo de Recompensas */
+.seccion-recompensas {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  &__cabecera {
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #f7f5fa;
+      margin: 0 0 0.25rem 0;
+    }
+    p {
+      color: #aaa4b5;
+      font-size: 0.95rem;
+      margin: 0;
+    }
+  }
+}
+
+.grilla-recompensas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.tarjeta-recompensa {
+  background: rgba(22, 18, 33, 0.75);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: transform 0.2s, border-color 0.2s;
+
+  &:hover {
+    transform: translateY(-3px);
+    border-color: rgba(139, 92, 246, 0.5);
+  }
+
+  &--alcanza {
+    border-color: rgba(245, 196, 81, 0.4);
+    background: linear-gradient(180deg, rgba(245, 196, 81, 0.05) 0%, rgba(22, 18, 33, 0.85) 50%);
+  }
+
+  &__cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .badge-tipo {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #c4b5fd;
+      background: rgba(139, 92, 246, 0.15);
+      border: 1px solid rgba(139, 92, 246, 0.35);
+      padding: 0.2rem 0.6rem;
+      border-radius: 0.4rem;
+    }
+
+    .costo-puntos {
+      display: flex;
+      align-items: baseline;
+      gap: 0.2rem;
+      .numero { font-size: 1.4rem; font-weight: 800; color: #f5c451; }
+      .unidad { font-size: 0.8rem; color: #aaa4b5; font-weight: 600; }
+    }
+  }
+
+  &__cuerpo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  &__titulo {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #f7f5fa;
+    margin: 0;
+  }
+
+  &__descripcion {
+    font-size: 0.88rem;
+    color: #aaa4b5;
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  &__validez {
+    font-size: 0.8rem;
+    color: #8b8599;
+    margin-top: 0.4rem;
+  }
+
+  &__footer {
+    margin-top: auto;
+  }
+
+  .boton-canjear {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: #8b5cf6;
+    color: #f7f5fa;
+    border: none;
+    border-radius: 0.6rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background: #7c3aed;
+      transform: translateY(-1px);
+    }
+
+    &--deshabilitado {
+      background: rgba(139, 92, 246, 0.15);
+      color: #6d667c;
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      cursor: not-allowed;
+    }
+  }
+
+  .puntos-insuficientes {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    text-align: center;
+
+    .texto {
+      font-size: 0.8rem;
+      color: #f5c451;
+      font-weight: 600;
+    }
+  }
+}
+
+/* Historial de Movimientos */
+.seccion-movimientos {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+
+  &__cabecera {
+    h2 { font-size: 1.5rem; font-weight: 700; color: #f7f5fa; margin: 0 0 0.25rem 0; }
+    p { color: #aaa4b5; font-size: 0.95rem; margin: 0; }
+  }
+}
+
+.tabla-movimientos-wrapper {
+  overflow-x: auto;
+  background: rgba(22, 18, 33, 0.6);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 1rem;
+}
+
+.tabla-movimientos {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+
+  th, td {
+    padding: 0.9rem 1.2rem;
+    text-align: left;
+  }
+
+  th {
+    background: rgba(13, 10, 20, 0.7);
+    color: #c4b5fd;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+  }
+
+  tr:not(:last-child) td {
+    border-bottom: 1px solid rgba(139, 92, 246, 0.12);
+  }
+
+  .col-fecha { color: #aaa4b5; white-space: nowrap; font-size: 0.85rem; }
+  .col-motivo { color: #f7f5fa; }
+
+  .col-puntos {
+    font-weight: 800;
+    font-size: 1rem;
+    color: #34d399;
+    text-align: right;
+
+    &--negativo {
+      color: #f87171;
+    }
+  }
+
+  .col-saldo {
+    text-align: right;
+    color: #c4b5fd;
+    font-weight: 600;
+  }
+
+  .badge-movimiento {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.35rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+
+    &--credito {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    &--debito {
+      background: rgba(239, 68, 68, 0.15);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+  }
+}
+
+.catalogo-vacio, .movimientos-vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  background: rgba(22, 18, 33, 0.4);
+  border: 1px dashed rgba(139, 92, 246, 0.25);
+  border-radius: 1rem;
+  text-align: center;
+  gap: 0.75rem;
+
+  span { font-size: 2.5rem; }
+  p { color: #aaa4b5; margin: 0; font-size: 0.95rem; }
+}
+
+.estado-fidelizacion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 1.5rem;
+  gap: 1rem;
+  text-align: center;
+
+  &--error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 1rem;
+    .icono { font-size: 2.5rem; }
+    h2 { color: #f7f5fa; margin: 0; font-size: 1.3rem; }
+    p { color: #fca5a5; margin: 0; }
+  }
+
+  .boton-reintentar {
+    padding: 0.6rem 1.25rem;
+    background: #8b5cf6;
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-weight: 600;
+  }
+}
+
+.spinner-cine {
+  width: 44px;
+  height: 44px;
+  border: 3px solid rgba(139, 92, 246, 0.2);
+  border-top-color: #8b5cf6;
+  border-radius: 50%;
+  animation: girar 0.9s linear infinite;
+}
+
+@keyframes girar {
+  to { transform: rotate(360deg); }
+}

@@ -1,0 +1,287 @@
+<div class="entradas-contenedor">
+  <app-cabecera-cuenta
+    titulo="Mis Entradas"
+    subtitulo="Consultá tu historial de compras de cine, revisá tus códigos de acceso y descargá tus comprobantes."
+  />
+
+  <!-- Barra de controles y filtros -->
+  <div class="controles-entradas">
+    <div class="filtros-estado" role="tablist" aria-label="Filtrar por estado de acceso">
+      <button
+        type="button"
+        class="chip-filtro"
+        [class.chip-filtro--activo]="filtroAcceso() === 'todas'"
+        (click)="cambiarFiltro('todas')"
+      >
+        Todas ({{ compras().length }})
+      </button>
+      <button
+        type="button"
+        class="chip-filtro"
+        [class.chip-filtro--activo]="filtroAcceso() === 'pendientes'"
+        (click)="cambiarFiltro('pendientes')"
+      >
+        ⏳ Pendientes de Acceso
+      </button>
+      <button
+        type="button"
+        class="chip-filtro"
+        [class.chip-filtro--activo]="filtroAcceso() === 'validadas'"
+        (click)="cambiarFiltro('validadas')"
+      >
+        ✓ Validadas en Sala
+      </button>
+    </div>
+
+    <div class="barra-busqueda">
+      <span class="barra-busqueda__icono" aria-hidden="true">🔍</span>
+      <input
+        type="search"
+        class="barra-busqueda__input"
+        placeholder="Buscar por película, código TK o sala..."
+        [value]="terminoBusqueda()"
+        (input)="actualizarBusqueda($event)"
+      />
+    </div>
+  </div>
+
+  <!-- Estado de carga -->
+  @if (cargando()) {
+    <div class="estado-pantalla estado-pantalla--cargando">
+      <div class="spinner-cine"></div>
+      <p>Cargando tus entradas compradas...</p>
+    </div>
+  } @else if (error()) {
+    <div class="estado-pantalla estado-pantalla--error">
+      <span class="icono-alerta" aria-hidden="true">⚠️</span>
+      <h3>Inconveniente al cargar entradas</h3>
+      <p>{{ error() }}</p>
+      <button type="button" class="boton-reintentar" (click)="cargarCompras()">
+        Reintentar
+      </button>
+    </div>
+  } @else if (compras().length === 0) {
+    <!-- Estado vacío: Nunca compró -->
+    <div class="estado-vacio">
+      <div class="estado-vacio__icono" aria-hidden="true">🎟️</div>
+      <h3 class="estado-vacio__titulo">Aún no compraste entradas</h3>
+      <p class="estado-vacio__subtitulo">
+        Tus entradas compradas con tu cuenta registrada aparecerán acá para que puedas descargar el voucher o validar tu acceso con QR.
+      </p>
+      <a routerLink="/" class="boton-ir-cartelera">
+        🍿 Explorar Cartelera
+      </a>
+    </div>
+  } @else if (comprasFiltradas().length === 0) {
+    <!-- Estado sin coincidencias en filtros -->
+    <div class="estado-vacio estado-vacio--sin-resultados">
+      <span class="estado-vacio__icono" aria-hidden="true">🔎</span>
+      <h3 class="estado-vacio__titulo">No se encontraron entradas con ese criterio</h3>
+      <p class="estado-vacio__subtitulo">Probá cambiando el filtro o borrando el término de búsqueda.</p>
+      <button type="button" class="boton-limpiar-filtro" (click)="cambiarFiltro('todas')">
+        Mostrar todas
+      </button>
+    </div>
+  } @else {
+    <!-- Listado de compras de entradas -->
+    <div class="lista-compras">
+      @for (compra of comprasFiltradas(); track compra.compra_id) {
+        <article class="tarjeta-compra">
+          <!-- Cabecera de la compra -->
+          <div class="tarjeta-compra__cabecera">
+            <div class="tarjeta-compra__id-bloque">
+              <span class="tarjeta-compra__etiqueta">Código de Entrada</span>
+              <span class="tarjeta-compra__codigo font-mono">{{ compra.codigo_alfanumerico || 'TK-PENDIENTE' }}</span>
+            </div>
+
+            <div class="tarjeta-compra__badges">
+              @if (compra.acceso_sala_validado) {
+                <span class="badge-acceso badge-acceso--validado" title="El acceso a la sala fue validado por el personal del cine">
+                  ✓ Acceso validado
+                  @if (compra.acceso_sala_validado_en) {
+                    <small>({{ compra.acceso_sala_validado_en | date:'dd/MM HH:mm' }})</small>
+                  }
+                </span>
+              } @else {
+                <span class="badge-acceso badge-acceso--pendiente" title="Pendiente de ingreso a la sala de cine">
+                  ⏳ Pendiente de acceso
+                </span>
+              }
+
+              <span class="badge-estado badge-estado--{{ compra.estado }}">
+                {{ compra.estado }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Cuerpo principal: Película, Función, Butacas -->
+          <div class="tarjeta-compra__cuerpo">
+            <div class="tarjeta-compra__poster-col">
+              @if (compra.funcion.pelicula_imagen_url) {
+                <img
+                  [src]="compra.funcion.pelicula_imagen_url"
+                  [alt]="compra.funcion.pelicula_nombre"
+                  class="tarjeta-compra__poster"
+                  loading="lazy"
+                />
+              } @else {
+                <div class="tarjeta-compra__poster-placeholder" aria-hidden="true">🎬</div>
+              }
+            </div>
+
+            <div class="tarjeta-compra__detalles">
+              <div class="tarjeta-compra__pelicula-encabezado">
+                <h4 class="tarjeta-compra__titulo-pelicula">
+                  {{ compra.funcion.pelicula_nombre }}
+                </h4>
+                <div class="tarjeta-compra__chips-pelicula">
+                  <span class="chip-formato">{{ compra.funcion.formato }}</span>
+                  <span class="chip-clasificacion">{{ compra.funcion.clasificacion_edad }}</span>
+                </div>
+              </div>
+
+              <div class="tarjeta-compra__info-sala">
+                <div class="info-item">
+                  <span class="info-item__icono" aria-hidden="true">📅</span>
+                  <span>{{ compra.funcion.fecha_hora_inicio | date:'EEEE dd/MM/yyyy • HH:mm' }} hs</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-item__icono" aria-hidden="true">🏛️</span>
+                  <span>{{ compra.funcion.sala_nombre }} (Sala {{ compra.funcion.sala_numero }})</span>
+                </div>
+              </div>
+
+              <!-- Listado de butacas de esta compra -->
+              <div class="tarjeta-compra__butacas-seccion">
+                <span class="tarjeta-compra__butacas-label">
+                  Butacas adquiridas ({{ compra.butacas.length }}):
+                </span>
+                <div class="chips-butacas">
+                  @for (butaca of compra.butacas; track butaca.id) {
+                    <span class="chip-butaca">
+                      Fila {{ butaca.fila }} - Nº {{ butaca.numero }}
+                      <small>({{ butaca.tipo }})</small>
+                    </span>
+                  }
+                </div>
+              </div>
+
+              <!-- Desglose de totales y fecha de compra -->
+              <div class="tarjeta-compra__pie-info">
+                <span class="fecha-compra">
+                  Comprado el {{ compra.creado_en | date:'dd/MM/yyyy HH:mm' }}
+                </span>
+
+                <div class="monto-total">
+                  @if (compra.monto_descuento > 0) {
+                    <span class="monto-descuento">
+                      Desc. -${{ compra.monto_descuento | number:'1.2-2' }}
+                    </span>
+                  }
+                  <span class="total-valor">
+                    Total: ${{ compra.total | number:'1.2-2' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Acciones de la compra: Voucher y PDF -->
+          <div class="tarjeta-compra__acciones">
+            <button
+              type="button"
+              class="boton-voucher"
+              (click)="abrirVoucher(compra)"
+            >
+              📱 Ver Voucher Digital (QR)
+            </button>
+
+            <button
+              type="button"
+              class="boton-pdf"
+              [disabled]="descargandoPdfId() === compra.compra_id"
+              (click)="descargarPdf(compra)"
+            >
+              @if (descargandoPdfId() === compra.compra_id) {
+                <span class="spinner-boton" aria-hidden="true"></span>
+                Generando PDF...
+              } @else {
+                📥 Descargar Entrada (PDF)
+              }
+            </button>
+          </div>
+        </article>
+      }
+    </div>
+  }
+
+  <!-- Modal / Overlay de Voucher Digital con QR -->
+  @if (compraVoucher()) {
+    <div class="modal-overlay" (click)="cerrarVoucher()">
+      <div class="modal-voucher" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="modal-voucher-titulo">
+        <header class="modal-voucher__header">
+          <h3 id="modal-voucher-titulo" class="modal-voucher__titulo">
+            🎟️ Pase Digital de Acceso
+          </h3>
+          <button type="button" class="boton-cerrar-modal" (click)="cerrarVoucher()" aria-label="Cerrar voucher">
+            ✕
+          </button>
+        </header>
+
+        <div class="modal-voucher__contenido">
+          <p class="modal-voucher__pelicula">
+            {{ compraVoucher()?.funcion?.pelicula_nombre }}
+          </p>
+          <p class="modal-voucher__horario">
+            {{ compraVoucher()?.funcion?.fecha_hora_inicio | date:'dd/MM/yyyy • HH:mm' }} hs — {{ compraVoucher()?.funcion?.sala_nombre }}
+          </p>
+
+          <!-- Código QR generado con jsPDF / QRCode -->
+          <div class="modal-voucher__qr-caja">
+            @if (generandoQr()) {
+              <div class="spinner-cine"></div>
+              <p>Generando código QR seguro...</p>
+            } @else if (qrDataUrl()) {
+              <img [src]="qrDataUrl()" alt="Código QR de entrada al cine" class="modal-voucher__qr-img" />
+            }
+          </div>
+
+          <div class="modal-voucher__codigo-caja">
+            <span class="modal-voucher__codigo-label">Código de validación manual:</span>
+            <span class="modal-voucher__codigo-valor font-mono">
+              {{ compraVoucher()?.codigo_alfanumerico }}
+            </span>
+          </div>
+
+          <p class="modal-voucher__instrucciones">
+            Mostrá este código o QR al personal de sala para ingresar al cine.
+          </p>
+
+          <div class="modal-voucher__butacas-resumen">
+            <strong>Butacas:</strong>
+            @for (b of compraVoucher()?.butacas; track b.id) {
+              <span class="badge-butaca-modal">Fila {{ b.fila }}-{{ b.numero }}</span>
+            }
+          </div>
+        </div>
+
+        <footer class="modal-voucher__footer">
+          <button
+            type="button"
+            class="boton-descargar-modal"
+            (click)="compraVoucher() && descargarPdf(compraVoucher()!)"
+          >
+            📥 Descargar Comprobante PDF
+          </button>
+          <button
+            type="button"
+            class="boton-cerrar-accion"
+            (click)="cerrarVoucher()"
+          >
+            Cerrar
+          </button>
+        </footer>
+      </div>
+    </div>
+  }
+</div>

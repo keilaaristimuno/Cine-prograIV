@@ -1,0 +1,234 @@
+.cabecera-cuenta {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+
+  &__banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem 2rem;
+    background: linear-gradient(135deg, rgba(30, 24, 48, 0.95) 0%, rgba(18, 14, 30, 0.95) 100%);
+    border: 1px solid rgba(167, 139, 250, 0.2);
+    border-radius: 1rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 1.25rem;
+    }
+  }
+
+  &__usuario {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  &__avatar {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%);
+    border: 2px solid rgba(245, 196, 81, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    flex-shrink: 0;
+  }
+
+  &__datos {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  &__nombre-fila {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  &__nombre {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #f8fafc;
+    line-height: 1.2;
+  }
+
+  &__badge-rol {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: 9999px;
+    background: rgba(167, 139, 250, 0.2);
+    color: #c4b5fd;
+    border: 1px solid rgba(167, 139, 250, 0.3);
+
+    &--admin {
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    &--empleado {
+      background: rgba(59, 130, 246, 0.2);
+      color: #93c5fd;
+      border-color: rgba(59, 130, 246, 0.3);
+    }
+  }
+
+  &__email {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #94a3b8;
+  }
+
+  &__balances {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+
+    @media (max-width: 768px) {
+      width: 100%;
+    }
+  }
+}
+
+.tarjeta-balance {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  text-decoration: none;
+  transition: all 0.2s ease;
+
+  @media (max-width: 768px) {
+    flex: 1;
+    min-width: 140px;
+  }
+
+  &--puntos {
+    border-color: rgba(245, 196, 81, 0.3);
+    background: rgba(245, 196, 81, 0.06);
+
+    &:hover {
+      background: rgba(245, 196, 81, 0.12);
+      border-color: rgba(245, 196, 81, 0.5);
+      transform: translateY(-2px);
+    }
+  }
+
+  &--credito {
+    border-color: rgba(56, 189, 248, 0.25);
+    background: rgba(56, 189, 248, 0.05);
+  }
+
+  &__icono {
+    font-size: 1.5rem;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__etiqueta {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  &__valor {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #f8fafc;
+
+    small {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #f5c451;
+      margin-left: 2px;
+    }
+  }
+}
+
+.cabecera-cuenta__nav {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(167, 139, 250, 0.3);
+    border-radius: 2px;
+  }
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #94a3b8;
+  text-decoration: none;
+  border-radius: 0.5rem 0.5rem 0 0;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+
+  &__icono {
+    font-size: 1.1rem;
+  }
+
+  &:hover {
+    color: #f8fafc;
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  &--activa {
+    color: #f5c451;
+    font-weight: 600;
+    background: rgba(245, 196, 81, 0.06);
+    border-bottom: 2px solid #f5c451;
+  }
+}
+
+.cabecera-cuenta__seccion-info {
+  margin-top: 0.5rem;
+}
+
+.cabecera-cuenta__titulo-seccion {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.cabecera-cuenta__subtitulo-seccion {
+  margin: 0.35rem 0 0 0;
+  font-size: 0.9rem;
+  color: #94a3b8;
+}

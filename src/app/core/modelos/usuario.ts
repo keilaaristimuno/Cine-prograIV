@@ -21,6 +21,7 @@ export interface PerfilUsuario {
   diasVacaciones: number;
   rol: RolUsuario;
   credito: number;
+  saldoPuntos?: number;
   creadoEn?: string;
 }
 

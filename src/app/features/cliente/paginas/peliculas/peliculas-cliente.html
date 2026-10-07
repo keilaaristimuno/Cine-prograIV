@@ -1,0 +1,172 @@
+<div class="peliculas-contenedor">
+  <app-cabecera-cuenta
+    titulo="Mis Películas"
+    subtitulo="Catálogo unificado de películas para las que compraste entradas. Consultá tu historial y dejá tu reseña tras asistir."
+  />
+
+  <!-- Controles y filtros -->
+  <div class="controles-peliculas">
+    <div class="filtros-asistencia" role="tablist" aria-label="Filtrar por asistencia">
+      <button
+        type="button"
+        class="chip-filtro"
+        [class.chip-filtro--activo]="filtroAsistencia() === 'todas'"
+        (click)="cambiarFiltro('todas')"
+      >
+        Todas ({{ peliculas().length }})
+      </button>
+      <button
+        type="button"
+        class="chip-filtro"
+        [class.chip-filtro--activo]="filtroAsistencia() === 'validadas'"
+        (click)="cambiarFiltro('validadas')"
+      >
+        ⭐ Listas para Calificar
+      </button>
+      <button
+        type="button"
+        class="chip-filtro"
+        [class.chip-filtro--activo]="filtroAsistencia() === 'pendientes'"
+        (click)="cambiarFiltro('pendientes')"
+      >
+        ⏳ Pendientes de Asistencia
+      </button>
+    </div>
+
+    <div class="barra-busqueda">
+      <span class="barra-busqueda__icono" aria-hidden="true">🔍</span>
+      <input
+        type="search"
+        class="barra-busqueda__input"
+        placeholder="Buscar por título o género..."
+        [value]="terminoBusqueda()"
+        (input)="actualizarBusqueda($event)"
+      />
+    </div>
+  </div>
+
+  <!-- Estado de carga -->
+  @if (cargando()) {
+    <div class="estado-pantalla estado-pantalla--cargando">
+      <div class="spinner-cine"></div>
+      <p>Cargando tus películas vistas y por ver...</p>
+    </div>
+  } @else if (error()) {
+    <div class="estado-pantalla estado-pantalla--error">
+      <span class="icono-alerta" aria-hidden="true">⚠️</span>
+      <h3>Inconveniente al cargar películas</h3>
+      <p>{{ error() }}</p>
+      <button type="button" class="boton-reintentar" (click)="cargarPeliculas()">
+        Reintentar
+      </button>
+    </div>
+  } @else if (peliculas().length === 0) {
+    <!-- Estado vacío: Nunca compró -->
+    <div class="estado-vacio">
+      <div class="estado-vacio__icono" aria-hidden="true">🎬</div>
+      <h3 class="estado-vacio__titulo">Aún no compraste entradas para ninguna película</h3>
+      <p class="estado-vacio__subtitulo">
+        Cuando adquieras tickets para una función, la película se guardará automáticamente en este catálogo personal para que puedas dejar tu reseña una vez que asistas a la sala.
+      </p>
+      <a routerLink="/" class="boton-ir-cartelera">
+        🍿 Ver Cartelera de Películas
+      </a>
+    </div>
+  } @else if (peliculasFiltradas().length === 0) {
+    <!-- Estado sin coincidencias en filtros -->
+    <div class="estado-vacio estado-vacio--sin-resultados">
+      <span class="estado-vacio__icono" aria-hidden="true">🔎</span>
+      <h3 class="estado-vacio__titulo">No se encontraron películas para este filtro</h3>
+      <p class="estado-vacio__subtitulo">Probá cambiando el filtro o limpiando el campo de búsqueda.</p>
+      <button type="button" class="boton-limpiar-filtro" (click)="cambiarFiltro('todas')">
+        Mostrar todas
+      </button>
+    </div>
+  } @else {
+    <!-- Rejilla de películas adquiridas -->
+    <div class="grid-peliculas">
+      @for (pelicula of peliculasFiltradas(); track pelicula.peliculaId) {
+        <article class="tarjeta-pelicula">
+          <div class="tarjeta-pelicula__poster-wrapper">
+            @if (pelicula.imagenUrl) {
+              <img
+                [src]="pelicula.imagenUrl"
+                [alt]="pelicula.nombre"
+                class="tarjeta-pelicula__poster"
+                loading="lazy"
+              />
+            } @else {
+              <div class="tarjeta-pelicula__poster-placeholder" aria-hidden="true">🎬</div>
+            }
+
+            <span class="tarjeta-pelicula__clasificacion">
+              {{ pelicula.clasificacionEdad }}
+            </span>
+          </div>
+
+          <div class="tarjeta-pelicula__contenido">
+            <h3 class="tarjeta-pelicula__titulo">{{ pelicula.nombre }}</h3>
+
+            @if (pelicula.generos.length > 0) {
+              <div class="tarjeta-pelicula__generos">
+                @for (genero of pelicula.generos; track genero) {
+                  <span class="chip-genero">{{ genero }}</span>
+                }
+              </div>
+            }
+
+            <!-- Indicador de elegibilidad de reseña M7 -->
+            <div class="tarjeta-pelicula__estado-asistencia">
+              @if (pelicula.asistenciaValidada) {
+                <div class="alerta-elegibilidad alerta-elegibilidad--aprobada">
+                  <span class="alerta-elegibilidad__icono">⭐</span>
+                  <div>
+                    <strong>Asistencia validada</strong>
+                    <p>Podés calificarla y dejar tu reseña.</p>
+                  </div>
+                </div>
+              } @else {
+                <div class="alerta-elegibilidad alerta-elegibilidad--pendiente">
+                  <span class="alerta-elegibilidad__icono">⏳</span>
+                  <div>
+                    <strong>Pendiente de ingreso</strong>
+                    <p>Habilitará tu reseña al validar tu entrada en sala.</p>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Resumen de compras y función -->
+            <div class="tarjeta-pelicula__meta">
+              <div class="meta-item">
+                <span class="meta-item__label">Entradas compradas:</span>
+                <span class="meta-item__valor">{{ pelicula.totalEntradas }}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-item__label">Última función:</span>
+                <span class="meta-item__valor">
+                  {{ pelicula.ultimaFechaFuncion | date:'dd/MM/yyyy HH:mm' }} hs
+                </span>
+              </div>
+            </div>
+
+            <!-- Botón de acción hacia la ficha pública -->
+            <div class="tarjeta-pelicula__acciones">
+              <a
+                [routerLink]="['/pelicula', pelicula.peliculaId]"
+                class="boton-accion-pelicula"
+                [class.boton-accion-pelicula--calificar]="pelicula.asistenciaValidada"
+              >
+                @if (pelicula.asistenciaValidada) {
+                  ⭐ Calificar o Ver Reseñas
+                } @else {
+                  🎬 Ver Ficha de la Película
+                }
+              </a>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</div>

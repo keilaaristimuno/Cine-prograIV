@@ -1,0 +1,352 @@
+<div class="pagina-gestion-fidelizacion">
+  <!-- Encabezado de la página -->
+  <header class="encabezado-pagina">
+    <div class="encabezado-pagina__info">
+      <p class="encabezado-pagina__seccion">Administración · Fidelización</p>
+      <h1 class="encabezado-pagina__titulo">Sistema de Puntos y Recompensas</h1>
+    </div>
+
+    <div class="encabezado-pagina__acciones">
+      <a routerLink="/admin/cupones" class="boton-secundario">
+        🎟 Ver Cupones Emitidos
+      </a>
+      <button type="button" class="boton-primario" (click)="abrirModalNuevo()">
+        + Nueva Recompensa
+      </button>
+    </div>
+  </header>
+
+  <!-- Bloque 1: Configuración Comercial -->
+  <section class="tarjeta-admin seccion-config">
+    <div class="seccion-config__header">
+      <div>
+        <h2 class="seccion-config__titulo">⚙️ Reglas Comerciales del Programa</h2>
+        <p class="seccion-config__bajada">
+          Configure la tasa de conversión en pesos por punto ganado y el estado global del sistema de fidelización.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="boton-primario"
+        [disabled]="guardandoConfig()"
+        (click)="guardarConfiguracion()"
+      >
+        @if (guardandoConfig()) {
+          Guardando...
+        } @else {
+          Guardar Cambios
+        }
+      </button>
+    </div>
+
+    @if (mensajeConfig()) {
+      <div class="alerta alerta--exito">
+        ✓ {{ mensajeConfig() }}
+      </div>
+    }
+    @if (errorConfig()) {
+      <div class="alerta alerta--error">
+        ⚠️ {{ errorConfig() }}
+      </div>
+    }
+
+    <div class="rejilla-config">
+      <div class="campo-admin">
+        <label for="pesosPorPunto">
+          <strong>Equivalencia de acumulación:</strong>
+          <span class="subetiqueta">¿Cuántos pesos gastados equivalen a 1 punto?</span>
+        </label>
+        <div class="input-con-sufijo">
+          <input
+            id="pesosPorPunto"
+            type="number"
+            min="0.01"
+            step="1"
+            [ngModel]="pesosPorPunto()"
+            (ngModelChange)="pesosPorPunto.set($event)"
+            class="input-admin"
+          />
+          <span class="sufijo">$ = 1 punto</span>
+        </div>
+        <p class="ayuda-campo">
+          Ejemplo: Si se configura 1, un gasto de $5.000 acumula 5.000 puntos. Si se configura 10, acumula 500 puntos.
+        </p>
+      </div>
+
+      <div class="campo-admin campo-admin--switch">
+        <label>
+          <strong>Estado global de fidelización:</strong>
+          <span class="subetiqueta">Habilita o deshabilita la acumulación y los canjes en toda la plataforma.</span>
+        </label>
+        <label class="switch-control">
+          <input
+            type="checkbox"
+            [ngModel]="fidelizacionActiva()"
+            (ngModelChange)="fidelizacionActiva.set($event)"
+          />
+          <span class="switch-slider"></span>
+          <span class="switch-texto">
+            {{ fidelizacionActiva() ? 'Programa Activo' : 'Programa Desactivado' }}
+          </span>
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bloque 2: Catálogo de Recompensas -->
+  <section class="tarjeta-admin seccion-catalogo">
+    <div class="seccion-catalogo__header">
+      <div>
+        <h2 class="seccion-catalogo__titulo">🎁 Catálogo de Recompensas</h2>
+        <p class="seccion-catalogo__bajada">
+          Premios y cupones que los clientes pueden canjear utilizando sus puntos acumulados.
+        </p>
+      </div>
+      <span class="contador-recompensas">
+        {{ recompensas().length }} {{ recompensas().length === 1 ? 'recompensa' : 'recompensas' }}
+      </span>
+    </div>
+
+    @if (cargando()) {
+      <div class="estado-admin estado-admin--cargando">
+        <div class="spinner-admin"></div>
+        <p>Cargando catálogo de recompensas...</p>
+      </div>
+    } @else if (error()) {
+      <div class="estado-admin estado-admin--error">
+        <span class="estado-admin__icono">⚠️</span>
+        <p>{{ error() }}</p>
+        <button type="button" class="boton-secundario" (click)="cargarDatos()">Reintentar</button>
+      </div>
+    } @else if (recompensas().length === 0) {
+      <div class="estado-vacio">
+        <span class="estado-vacio__icono">🎁</span>
+        <h3>No hay recompensas creadas todavía</h3>
+        <p>Cree la primera recompensa para que los clientes comiencen a canjear sus puntos.</p>
+        <button type="button" class="boton-primario" (click)="abrirModalNuevo()">
+          + Crear Recompensa
+        </button>
+      </div>
+    } @else {
+      <div class="contenedor-tabla">
+        <table class="tabla-admin">
+          <thead>
+            <tr>
+              <th>Recompensa</th>
+              <th>Tipo de Beneficio</th>
+              <th>Valor</th>
+              <th>Costo</th>
+              <th>Validez</th>
+              <th>Estado</th>
+              <th class="col-acciones">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (rec of recompensas(); track rec.id) {
+              <tr [class.fila-inactiva]="!rec.activa">
+                <td>
+                  <strong class="nombre-recompensa">{{ rec.nombre }}</strong>
+                  @if (rec.descripcion) {
+                    <p class="desc-recompensa">{{ rec.descripcion }}</p>
+                  }
+                </td>
+                <td>
+                  <span class="badge-tipo">
+                    {{ obtenerEtiquetaTipo(rec.tipo) }}
+                  </span>
+                </td>
+                <td>
+                  @if (rec.tipo === 'descuento_porcentual') {
+                    <span class="valor-beneficio">{{ rec.valorBeneficio }}%</span>
+                  } @else if (rec.tipo === 'descuento_monto_fijo') {
+                    <span class="valor-beneficio">${{ rec.valorBeneficio | number:'1.0-2' }}</span>
+                  } @else if (rec.tipo === 'entrada_gratis') {
+                    <span class="valor-beneficio">{{ rec.valorBeneficio }} Entrada(s)</span>
+                  } @else {
+                    <span class="valor-beneficio">{{ rec.valorBeneficio }}</span>
+                  }
+                </td>
+                <td>
+                  <span class="badge-puntos">
+                    ★ {{ rec.costoPuntos | number:'1.0-0' }} pts
+                  </span>
+                </td>
+                <td>
+                  {{ rec.diasValidez }} días
+                </td>
+                <td>
+                  <button
+                    type="button"
+                    class="badge-estado"
+                    [class.badge-estado--activo]="rec.activa"
+                    [class.badge-estado--inactivo]="!rec.activa"
+                    (click)="alternarEstado(rec)"
+                    [title]="rec.activa ? 'Haga clic para pausar' : 'Haga clic para activar'"
+                  >
+                    {{ rec.activa ? '● Activa' : '○ Pausada' }}
+                  </button>
+                </td>
+                <td class="col-acciones">
+                  <button
+                    type="button"
+                    class="boton-accion boton-accion--editar"
+                    (click)="abrirModalEditar(rec)"
+                    title="Editar recompensa"
+                  >
+                    ✏️ Editar
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <!-- Modal Creación / Edición -->
+  @if (modalAbierto()) {
+    <div class="modal-overlay" (click)="cerrarModal()">
+      <div class="modal-contenido" (click)="$event.stopPropagation()">
+        <header class="modal-header">
+          <h3>{{ recompensaEditandoId() ? 'Editar Recompensa' : 'Nueva Recompensa' }}</h3>
+          <button type="button" class="boton-cerrar" (click)="cerrarModal()">✕</button>
+        </header>
+
+        @if (errorModal()) {
+          <div class="alerta alerta--error">
+            ⚠️ {{ errorModal() }}
+          </div>
+        }
+
+        <form (ngSubmit)="guardarModalRecompensa()" class="modal-formulario">
+          <div class="campo-admin">
+            <label for="formNombre">Nombre de la recompensa *</label>
+            <input
+              id="formNombre"
+              type="text"
+              name="formNombre"
+              [(ngModel)]="formNombre"
+              required
+              class="input-admin"
+              placeholder="Ej: Entrada 2D Gratis, 20% en Candy Bar..."
+            />
+          </div>
+
+          <div class="campo-admin">
+            <label for="formDescripcion">Descripción</label>
+            <textarea
+              id="formDescripcion"
+              name="formDescripcion"
+              [(ngModel)]="formDescripcion"
+              rows="2"
+              class="input-admin"
+              placeholder="Detalles y condiciones del cupón..."
+            ></textarea>
+          </div>
+
+          <div class="rejilla-modal-2">
+            <div class="campo-admin">
+              <label for="formTipo">Tipo de Beneficio *</label>
+              <select
+                id="formTipo"
+                name="formTipo"
+                [(ngModel)]="formTipo"
+                class="input-admin select-admin"
+              >
+                <option value="entrada_gratis">🎟 Entrada Gratis</option>
+                <option value="descuento_porcentual">🏷 Descuento Porcentual (%)</option>
+                <option value="descuento_monto_fijo">💵 Descuento Monto Fijo ($)</option>
+                <option value="producto_candy">🍿 Producto Candy Bar</option>
+              </select>
+            </div>
+
+            <div class="campo-admin">
+              <label for="formValorBeneficio">Valor del Beneficio *</label>
+              <input
+                id="formValorBeneficio"
+                type="number"
+                name="formValorBeneficio"
+                min="1"
+                step="any"
+                [(ngModel)]="formValorBeneficio"
+                required
+                class="input-admin"
+              />
+              <span class="ayuda-campo">
+                @if (formTipo === 'descuento_porcentual') { Porcentaje de descuento (ej: 20 para 20%) }
+                @else if (formTipo === 'descuento_monto_fijo') { Monto en pesos (ej: 1500) }
+                @else { Cantidad de unidades (ej: 1) }
+              </span>
+            </div>
+          </div>
+
+          <div class="rejilla-modal-2">
+            <div class="campo-admin">
+              <label for="formCostoPuntos">Costo en Puntos *</label>
+              <input
+                id="formCostoPuntos"
+                type="number"
+                name="formCostoPuntos"
+                min="1"
+                step="10"
+                [(ngModel)]="formCostoPuntos"
+                required
+                class="input-admin"
+              />
+            </div>
+
+            <div class="campo-admin">
+              <label for="formDiasValidez">Días de Validez del Cupón *</label>
+              <input
+                id="formDiasValidez"
+                type="number"
+                name="formDiasValidez"
+                min="1"
+                step="1"
+                [(ngModel)]="formDiasValidez"
+                required
+                class="input-admin"
+              />
+              <span class="ayuda-campo">Días tras el canje antes de expirar.</span>
+            </div>
+          </div>
+
+          <div class="campo-admin campo-admin--checkbox">
+            <label class="checkbox-etiqueta">
+              <input
+                type="checkbox"
+                name="formActiva"
+                [(ngModel)]="formActiva"
+              />
+              <span>Recompensa activa y visible para canjear en el catálogo</span>
+            </label>
+          </div>
+
+          <footer class="modal-footer">
+            <button
+              type="button"
+              class="boton-secundario"
+              (click)="cerrarModal()"
+              [disabled]="guardandoRecompensa()"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              class="boton-primario"
+              [disabled]="guardandoRecompensa()"
+            >
+              @if (guardandoRecompensa()) {
+                Guardando...
+              } @else {
+                {{ recompensaEditandoId() ? 'Guardar Cambios' : 'Crear Recompensa' }}
+              }
+            </button>
+          </footer>
+        </form>
+      </div>
+    </div>
+  }
+</div>

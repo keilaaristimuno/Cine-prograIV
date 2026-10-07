@@ -117,7 +117,7 @@ export class ServicioCompras {
             id,
             fecha_hora_inicio,
             formato,
-            pelicula:peliculas ( nombre, clasificacion_edad, imagen_url ),
+            pelicula:peliculas ( id, nombre, clasificacion_edad, imagen_url, generos ),
             sala:salas ( numero, nombre )
           )
         )
@@ -149,13 +149,15 @@ export class ServicioCompras {
       acceso_sala_validado_en: data.acceso_sala_validado_en || null,
       funcion: {
         id: funcionData?.id || '',
+        pelicula_id: funcionData?.pelicula?.id || '',
         pelicula_nombre: funcionData?.pelicula?.nombre || 'Película',
         clasificacion_edad: funcionData?.pelicula?.clasificacion_edad || 'ATP',
         fecha_hora_inicio: funcionData?.fecha_hora_inicio || '',
         formato: funcionData?.formato || '',
         sala_numero: funcionData?.sala?.numero || 1,
         sala_nombre: funcionData?.sala?.nombre || '',
-        pelicula_imagen_url: funcionData?.pelicula?.imagen_url || null
+        pelicula_imagen_url: funcionData?.pelicula?.imagen_url || null,
+        pelicula_generos: Array.isArray(funcionData?.pelicula?.generos) ? funcionData.pelicula.generos : []
       },
       butacas: (data.entradas as any[]).map(e => ({
         id: e.butaca.id,
@@ -167,6 +169,104 @@ export class ServicioCompras {
         precioUnitario: e.precio_unitario != null ? Number(e.precio_unitario) : undefined
       }))
     };
+  }
+
+  /**
+   * Obtiene el listado histórico de compras del usuario autenticado.
+   * Supabase RLS garantiza que solo se consulten las compras propias.
+   */
+  async obtenerMisCompras(): Promise<ResultadoCompra[]> {
+    const cliente = this.servicioSupabase.cliente;
+
+    const { data, error } = await cliente
+      .from('compras')
+      .select(`
+        id,
+        usuario_id,
+        email_contacto,
+        estado,
+        creado_en,
+        subtotal,
+        porcentaje_descuento_aplicado,
+        monto_descuento,
+        tipo_descuento_aplicado,
+        es_primera_compra,
+        total,
+        codigo_alfanumerico,
+        acceso_sala_validado,
+        acceso_sala_validado_en,
+        entradas (
+          id,
+          funcion_id,
+          estado,
+          precio_unitario,
+          butaca:butacas (
+            id,
+            fila,
+            numero,
+            bloque,
+            tipo
+          ),
+          funcion:funciones (
+            id,
+            fecha_hora_inicio,
+            formato,
+            pelicula:peliculas ( id, nombre, clasificacion_edad, imagen_url, generos ),
+            sala:salas ( numero, nombre )
+          )
+        )
+      `)
+      .order('creado_en', { ascending: false });
+
+    if (error || !data) {
+      if (error) {
+        console.error('Error al obtener mis compras:', error);
+      }
+      return [];
+    }
+
+    return (data as any[]).map(compra => {
+      const primerDetalle = compra.entradas?.[0];
+      const funcionData = primerDetalle?.funcion;
+
+      return {
+        compra_id: compra.id,
+        usuario_id: compra.usuario_id,
+        email_contacto: compra.email_contacto,
+        estado: compra.estado,
+        creado_en: compra.creado_en,
+        subtotal: Number(compra.subtotal ?? compra.total ?? 0),
+        porcentaje_descuento_aplicado: Number(compra.porcentaje_descuento_aplicado ?? 0),
+        monto_descuento: Number(compra.monto_descuento ?? 0),
+        tipo_descuento_aplicado: compra.tipo_descuento_aplicado ?? 'ninguno',
+        es_primera_compra: Boolean(compra.es_primera_compra ?? false),
+        total: Number(compra.total ?? 0),
+        codigo_alfanumerico: compra.codigo_alfanumerico || undefined,
+        acceso_sala_validado: Boolean(compra.acceso_sala_validado ?? false),
+        acceso_sala_validado_en: compra.acceso_sala_validado_en || null,
+        funcion: {
+          id: funcionData?.id || '',
+          pelicula_id: funcionData?.pelicula?.id || '',
+          pelicula_nombre: funcionData?.pelicula?.nombre || 'Película',
+          clasificacion_edad: funcionData?.pelicula?.clasificacion_edad || 'ATP',
+          fecha_hora_inicio: funcionData?.fecha_hora_inicio || '',
+          formato: funcionData?.formato || '',
+          sala_numero: funcionData?.sala?.numero || 1,
+          sala_nombre: funcionData?.sala?.nombre || '',
+          pelicula_imagen_url: funcionData?.pelicula?.imagen_url || null,
+          pelicula_generos: Array.isArray(funcionData?.pelicula?.generos) ? funcionData.pelicula.generos : []
+        },
+        butacas: (compra.entradas || []).map((e: any) => ({
+          id: e.butaca?.id || e.id,
+          fila: e.butaca?.fila || '',
+          numero: e.butaca?.numero || 0,
+          bloque: e.butaca?.bloque || '',
+          tipo: e.butaca?.tipo || '',
+          precio_unitario: e.precio_unitario != null ? Number(e.precio_unitario) : null,
+          precioUnitario: e.precio_unitario != null ? Number(e.precio_unitario) : undefined
+        }))
+      };
+    });
   }
 
   /**

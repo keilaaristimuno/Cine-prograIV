@@ -1,0 +1,180 @@
+<div class="pagina-listado-cupones">
+  <!-- Encabezado de la página -->
+  <header class="encabezado-pagina">
+    <div class="encabezado-pagina__info">
+      <p class="encabezado-pagina__seccion">Administración · Fidelización</p>
+      <h1 class="encabezado-pagina__titulo">Cupones Emitidos a Clientes</h1>
+    </div>
+
+    <div class="encabezado-pagina__acciones">
+      <a routerLink="/admin/fidelizacion" class="boton-secundario">
+        ← Volver a Fidelización
+      </a>
+      <button type="button" class="boton-primario" (click)="cargarCupones()">
+        🔄 Actualizar
+      </button>
+    </div>
+  </header>
+
+  <!-- Barra de Filtros y Búsqueda -->
+  <div class="panel-filtros">
+    <div class="buscador">
+      <span class="buscador__icono">🔍</span>
+      <input
+        type="text"
+        [value]="textoBusqueda()"
+        (input)="textoBusqueda.set($any($event.target).value)"
+        placeholder="Buscar por código (CP-...), recompensa o cliente..."
+        class="buscador__input"
+      />
+      @if (textoBusqueda()) {
+        <button
+          type="button"
+          class="buscador__boton-limpiar"
+          (click)="textoBusqueda.set('')"
+          title="Limpiar búsqueda"
+        >
+          ✕
+        </button>
+      }
+    </div>
+
+    <div class="chips-filtros">
+      <button
+        type="button"
+        class="chip-filtro"
+        [class.chip-filtro--activo]="filtroEstado() === 'todos'"
+        (click)="filtroEstado.set('todos')"
+      >
+        Todos ({{ conteoPorEstado().todos }})
+      </button>
+      <button
+        type="button"
+        class="chip-filtro chip-filtro--disponible"
+        [class.chip-filtro--activo]="filtroEstado() === 'disponible'"
+        (click)="filtroEstado.set('disponible')"
+      >
+        Disponibles ({{ conteoPorEstado().disponibles }})
+      </button>
+      <button
+        type="button"
+        class="chip-filtro chip-filtro--utilizado"
+        [class.chip-filtro--activo]="filtroEstado() === 'utilizado'"
+        (click)="filtroEstado.set('utilizado')"
+      >
+        Utilizados ({{ conteoPorEstado().utilizados }})
+      </button>
+      <button
+        type="button"
+        class="chip-filtro chip-filtro--vencido"
+        [class.chip-filtro--activo]="filtroEstado() === 'vencido'"
+        (click)="filtroEstado.set('vencido')"
+      >
+        Vencidos ({{ conteoPorEstado().vencidos }})
+      </button>
+    </div>
+  </div>
+
+  <!-- Contenido: Carga, Error o Tabla -->
+  @if (cargando()) {
+    <div class="estado-admin estado-admin--cargando">
+      <div class="spinner-admin"></div>
+      <p>Cargando registros de cupones...</p>
+    </div>
+  } @else if (error()) {
+    <div class="estado-admin estado-admin--error">
+      <span class="estado-admin__icono">⚠️</span>
+      <p>{{ error() }}</p>
+      <button type="button" class="boton-secundario" (click)="cargarCupones()">Reintentar</button>
+    </div>
+  } @else if (cuponesFiltrados().length === 0) {
+    <div class="estado-vacio">
+      <span class="estado-vacio__icono">🎟</span>
+      <h3>No se encontraron cupones</h3>
+      <p>
+        @if (textoBusqueda() || filtroEstado() !== 'todos') {
+          Ningún cupón coincide con los filtros aplicados.
+        } @else {
+          Ningún cliente ha canjeado cupones todavía.
+        }
+      </p>
+      @if (textoBusqueda() || filtroEstado() !== 'todos') {
+        <button
+          type="button"
+          class="boton-secundario"
+          (click)="textoBusqueda.set(''); filtroEstado.set('todos')"
+        >
+          Limpiar Filtros
+        </button>
+      }
+    </div>
+  } @else {
+    <div class="contenedor-tabla">
+      <table class="tabla-admin">
+        <thead>
+          <tr>
+            <th>Código de Cupón</th>
+            <th>Recompensa Canjeada</th>
+            <th>Tipo / Beneficio</th>
+            <th>Fecha de Emisión</th>
+            <th>Fecha de Vencimiento</th>
+            <th>Estado</th>
+            <th>Cliente (ID)</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (cup of cuponesFiltrados(); track cup.id) {
+            <tr>
+              <td>
+                <div class="codigo-wrapper">
+                  <span class="codigo-texto">{{ cup.codigoCupon }}</span>
+                  <button
+                    type="button"
+                    class="boton-copiar"
+                    (click)="copiarCodigo(cup.codigoCupon)"
+                    [title]="codigoCopiado() === cup.codigoCupon ? '¡Copiado!' : 'Copiar código'"
+                  >
+                    {{ codigoCopiado() === cup.codigoCupon ? '✓' : '📋' }}
+                  </button>
+                </div>
+              </td>
+              <td>
+                <strong class="nombre-recompensa">{{ cup.descripcion }}</strong>
+              </td>
+              <td>
+                <span class="badge-tipo">
+                  {{ obtenerEtiquetaTipo(cup.tipo) }}
+                </span>
+                <span class="valor-beneficio">
+                  @if (cup.tipo === 'descuento_porcentual') { {{ cup.valorBeneficio }}% }
+                  @else if (cup.tipo === 'descuento_monto_fijo') { ${{ cup.valorBeneficio | number:'1.0-2' }} }
+                  @else if (cup.tipo === 'entrada_gratis') { {{ cup.valorBeneficio }} Entrada(s) }
+                  @else { {{ cup.valorBeneficio }} }
+                </span>
+              </td>
+              <td class="col-fecha">
+                {{ cup.creadoEn | date:'dd/MM/yyyy HH:mm' }}
+              </td>
+              <td class="col-fecha">
+                {{ cup.venceEn | date:'dd/MM/yyyy' }}
+              </td>
+              <td>
+                <span
+                  class="badge-estado"
+                  [class]="obtenerEstadoVisual(cup).clase"
+                >
+                  {{ obtenerEstadoVisual(cup).etiqueta }}
+                </span>
+              </td>
+              <td class="col-usuario">
+                <span class="usuario-id" [title]="cup.usuarioId">
+                  {{ cup.usuarioId | slice:0:8 }}...
+                </span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

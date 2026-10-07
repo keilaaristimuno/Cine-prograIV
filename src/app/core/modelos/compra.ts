@@ -47,6 +47,7 @@ export interface ResultadoCompra {
   acceso_sala_validado_en?: string | null;
   funcion: {
     id: string;
+    pelicula_id?: string;
     pelicula_nombre: string;
     clasificacion_edad: string;
     fecha_hora_inicio: string;
@@ -54,6 +55,7 @@ export interface ResultadoCompra {
     sala_numero: number;
     sala_nombre: string;
     pelicula_imagen_url?: string | null;
+    pelicula_generos?: string[];
   };
   butacas: ButacaCompradaResumen[];
 }

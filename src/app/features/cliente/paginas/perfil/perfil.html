@@ -1,0 +1,260 @@
+<div class="perfil-contenedor">
+  <app-cabecera-cuenta
+    titulo="Mi Perfil"
+    subtitulo="Administrá tus datos personales y revisá la información general de tu cuenta."
+  />
+
+  @if (mensajeExito()) {
+    <div class="alerta alerta--exito" role="status">
+      <span class="alerta__icono">✓</span>
+      <div class="alerta__contenido">
+        <strong>¡Cambios guardados!</strong>
+        <p>{{ mensajeExito() }}</p>
+      </div>
+    </div>
+  }
+
+  @if (mensajeError()) {
+    <div class="alerta alerta--error" role="alert">
+      <span class="alerta__icono">⚠</span>
+      <div class="alerta__contenido">
+        <strong>Atención</strong>
+        <p>{{ mensajeError() }}</p>
+      </div>
+    </div>
+  }
+
+  <div class="perfil-layout">
+    <!-- Columna 1: Formulario de edición de datos personales -->
+    <section class="tarjeta-perfil tarjeta-perfil--formulario">
+      <div class="tarjeta-perfil__header">
+        <h3 class="tarjeta-perfil__titulo">👤 Datos Personales</h3>
+        <p class="tarjeta-perfil__bajada">
+          Campos editables de tu perfil en Pantalla Mágica.
+        </p>
+      </div>
+
+      <form [formGroup]="perfilForm" (ngSubmit)="guardarPerfil()" class="formulario-perfil">
+        <div class="grid-campos">
+          <!-- Nombre -->
+          <div class="campo">
+            <label for="nombre" class="campo__label">Nombre *</label>
+            <input
+              id="nombre"
+              type="text"
+              class="campo__input"
+              formControlName="nombre"
+              placeholder="Ej. Juan"
+              [class.campo__input--invalido]="perfilForm.get('nombre')?.invalid && perfilForm.get('nombre')?.touched"
+            />
+            @if (perfilForm.get('nombre')?.invalid && perfilForm.get('nombre')?.touched) {
+              <span class="campo__error">El nombre es obligatorio (mínimo 2 letras).</span>
+            }
+          </div>
+
+          <!-- Apellido -->
+          <div class="campo">
+            <label for="apellido" class="campo__label">Apellido *</label>
+            <input
+              id="apellido"
+              type="text"
+              class="campo__input"
+              formControlName="apellido"
+              placeholder="Ej. Pérez"
+              [class.campo__input--invalido]="perfilForm.get('apellido')?.invalid && perfilForm.get('apellido')?.touched"
+            />
+            @if (perfilForm.get('apellido')?.invalid && perfilForm.get('apellido')?.touched) {
+              <span class="campo__error">El apellido es obligatorio (mínimo 2 letras).</span>
+            }
+          </div>
+
+          <!-- Fecha de Nacimiento -->
+          <div class="campo">
+            <label for="fechaNacimiento" class="campo__label">Fecha de Nacimiento *</label>
+            <input
+              id="fechaNacimiento"
+              type="date"
+              class="campo__input"
+              formControlName="fechaNacimiento"
+              [max]="fechaMaximaHoy"
+              [class.campo__input--invalido]="perfilForm.get('fechaNacimiento')?.invalid && perfilForm.get('fechaNacimiento')?.touched"
+            />
+            @if (perfilForm.get('fechaNacimiento')?.invalid && perfilForm.get('fechaNacimiento')?.touched) {
+              <span class="campo__error">Indicá una fecha de nacimiento válida.</span>
+            }
+          </div>
+
+          <!-- Tipo de Sangre -->
+          <div class="campo">
+            <label for="tipoSangre" class="campo__label">Grupo Sanguíneo *</label>
+            <select
+              id="tipoSangre"
+              class="campo__select"
+              formControlName="tipoSangre"
+            >
+              @for (tipo of tiposSangre; track tipo) {
+                <option [value]="tipo">{{ tipo }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Color de Ojos -->
+          <div class="campo">
+            <label for="colorOjos" class="campo__label">Color de Ojos *</label>
+            <input
+              id="colorOjos"
+              type="text"
+              class="campo__input"
+              formControlName="colorOjos"
+              placeholder="Ej. Marrones, Verdes, Celestes"
+              [class.campo__input--invalido]="perfilForm.get('colorOjos')?.invalid && perfilForm.get('colorOjos')?.touched"
+            />
+            @if (perfilForm.get('colorOjos')?.invalid && perfilForm.get('colorOjos')?.touched) {
+              <span class="campo__error">El color de ojos es obligatorio.</span>
+            }
+          </div>
+
+          <!-- Días de Vacaciones -->
+          <div class="campo">
+            <label for="diasVacaciones" class="campo__label">Días de Vacaciones al Año *</label>
+            <input
+              id="diasVacaciones"
+              type="number"
+              min="0"
+              max="365"
+              class="campo__input"
+              formControlName="diasVacaciones"
+              placeholder="Ej. 14"
+              [class.campo__input--invalido]="perfilForm.get('diasVacaciones')?.invalid && perfilForm.get('diasVacaciones')?.touched"
+            />
+            @if (perfilForm.get('diasVacaciones')?.invalid && perfilForm.get('diasVacaciones')?.touched) {
+              <span class="campo__error">Ingresá una cantidad de días válida (0 a 365).</span>
+            }
+          </div>
+        </div>
+
+        <div class="formulario-perfil__acciones">
+          <button
+            type="submit"
+            class="boton-primario"
+            [disabled]="guardando() || perfilForm.invalid || perfilForm.pristine"
+          >
+            @if (guardando()) {
+              <span class="spinner-inline"></span>
+              Guardando...
+            } @else {
+              💾 Guardar Cambios
+            }
+          </button>
+
+          <button
+            type="button"
+            class="boton-secundario"
+            (click)="restablecer()"
+            [disabled]="guardando() || perfilForm.pristine"
+          >
+            ↺ Deshacer Cambios
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Columna 2: Información inmutable y de auditoría de la cuenta -->
+    <section class="tarjeta-perfil tarjeta-perfil--info">
+      <div class="tarjeta-perfil__header">
+        <h3 class="tarjeta-perfil__titulo">🔒 Datos de Seguridad y Cuenta</h3>
+        <p class="tarjeta-perfil__bajada">
+          Valores protegidos por el sistema gestionados exclusivamente por la plataforma.
+        </p>
+      </div>
+
+      <div class="lista-detalles-cuenta">
+        <div class="item-detalle">
+          <span class="item-detalle__etiqueta">Correo Electrónico</span>
+          <span class="item-detalle__valor font-mono">{{ usuario()?.email ?? 'No disponible' }}</span>
+          <span class="item-detalle__aclaracion">Gestionado por Supabase Auth</span>
+        </div>
+
+        <div class="item-detalle">
+          <span class="item-detalle__etiqueta">Rol de Acceso</span>
+          <span class="item-detalle__valor">
+            <span class="badge-rol badge-rol--{{ perfil()?.rol }}">
+              {{ perfil()?.rol ?? 'cliente' }}
+            </span>
+          </span>
+          <span class="item-detalle__aclaracion">Asignado por administración del cine</span>
+        </div>
+
+        <div class="item-detalle">
+          <span class="item-detalle__etiqueta">Saldo de Puntos</span>
+          <span class="item-detalle__valor texto-dorado font-bold">
+            ⭐ {{ perfil()?.saldoPuntos ?? 0 }} puntos
+          </span>
+          <span class="item-detalle__aclaracion">Acumulado por compras registradas</span>
+        </div>
+
+        <div class="item-detalle">
+          <span class="item-detalle__etiqueta">Crédito en Cuenta</span>
+          <span class="item-detalle__valor texto-celeste font-bold">
+            ${{ (perfil()?.credito ?? 0) | number:'1.2-2' }}
+          </span>
+          <span class="item-detalle__aclaracion">Informativo • Próximamente reintegros</span>
+        </div>
+
+        <div class="item-detalle">
+          <span class="item-detalle__etiqueta">Identificador Único (UUID)</span>
+          <span class="item-detalle__valor font-mono texto-chico">{{ perfil()?.usuarioId }}</span>
+          <span class="item-detalle__aclaracion">Clave primaria inmutable</span>
+        </div>
+
+        @if (perfil()?.creadoEn) {
+          <div class="item-detalle">
+            <span class="item-detalle__etiqueta">Miembro Desde</span>
+            <span class="item-detalle__valor">{{ perfil()?.creadoEn | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+        }
+      </div>
+
+      <!-- Sección discreta: Aplicación PWA -->
+      <div class="seccion-pwa">
+        <h4 class="seccion-pwa__titulo">📱 Aplicación Pantalla Mágica</h4>
+        @if (estaInstaladaPwa()) {
+          <div class="pwa-estado pwa-estado--instalada">
+            <span class="pwa-estado__icono">✓</span>
+            <div>
+              <strong>Aplicación instalada</strong>
+              <p>Estás utilizando Pantalla Mágica como aplicación en este dispositivo.</p>
+            </div>
+          </div>
+        } @else if (puedeInstalarPwa()) {
+          <div class="pwa-accion-instalacion">
+            <p class="pwa-texto">
+              Instalá Pantalla Mágica en tu dispositivo para ingresar rápidamente a tus entradas y cartelera.
+            </p>
+            <button
+              type="button"
+              class="boton-instalar-pwa"
+              (click)="instalarPwa()"
+              [disabled]="instalandoPwa()"
+            >
+              @if (instalandoPwa()) {
+                <span class="spinner-inline"></span>
+                Iniciando...
+              } @else {
+                📲 Instalar Pantalla Mágica
+              }
+            </button>
+          </div>
+        } @else {
+          <div class="pwa-estado pwa-estado--info">
+            <span class="pwa-estado__icono">ℹ️</span>
+            <div>
+              <strong>Aplicación web progresiva lista</strong>
+              <p>Podés agregarla a tu pantalla de inicio desde el menú de tu navegador compatible.</p>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  </div>
+</div>

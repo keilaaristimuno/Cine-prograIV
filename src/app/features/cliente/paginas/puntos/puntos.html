@@ -1,0 +1,195 @@
+<div class="fidelizacion-base">
+  <app-cabecera-cuenta
+    titulo="Mis Puntos y Recompensas"
+    subtitulo="Sumá puntos con tus compras en el cine y canjealos por entradas, descuentos y combos del Candy Bar."
+  />
+
+  <!-- Estado de carga -->
+  @if (cargando()) {
+    <div class="estado-fidelizacion estado-fidelizacion--cargando">
+      <div class="spinner-cine"></div>
+      <p>Cargando tus puntos y catálogo de recompensas...</p>
+    </div>
+  } @else if (error()) {
+    <div class="estado-fidelizacion estado-fidelizacion--error">
+      <span class="icono">⚠️</span>
+      <h2>Ocurrió un inconveniente</h2>
+      <p>{{ error() }}</p>
+      <button type="button" class="boton-reintentar" (click)="cargarDatos()">
+        Reintentar
+      </button>
+    </div>
+  } @else {
+    <!-- 1. Tarjeta principal de saldo y equivalencia -->
+    <section class="tarjeta-saldo">
+      <div class="tarjeta-saldo__info">
+        <span class="tarjeta-saldo__etiqueta">Puntos Disponibles</span>
+        <div class="tarjeta-saldo__valor">
+          <span class="icono-estrella">⭐</span>
+          <span class="numero">{{ saldoActual() }}</span>
+          <span class="unidad">puntos</span>
+        </div>
+        <p class="tarjeta-saldo__equivalencia">
+          Equivalencia vigente: <strong>${{ panel()?.pesosPorPunto }} gastado = 1 punto</strong> acumulado.
+        </p>
+      </div>
+
+      <div class="tarjeta-saldo__banner-ayuda">
+        <span class="icono-info">💡</span>
+        <div>
+          <h4>¿Cómo acumular más puntos?</h4>
+          <p>Comprá tus entradas y combos iniciando sesión. Los puntos se acreditan automáticamente al pagar.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Alerta de error durante canje -->
+    @if (errorCanje()) {
+      <div class="alerta-error-canje">
+        <span>⚠️ {{ errorCanje() }}</span>
+      </div>
+    }
+
+    <!-- Modal / Banner de éxito tras canje -->
+    @if (resultadoCanje(); as res) {
+      <div class="modal-exito-canje">
+        <div class="modal-exito-canje__contenido">
+          <span class="icono-celebracion">🎉</span>
+          <h3>¡Canje exitoso!</h3>
+          <p>{{ res.mensaje }}</p>
+
+          @if (res.cupon; as c) {
+            <div class="caja-cupon-generado">
+              <span class="etiqueta">Tu código de cupón:</span>
+              <strong class="codigo">{{ c.codigoCupon }}</strong>
+              <span class="beneficio">{{ c.descripcion }}</span>
+              <span class="vencimiento">Válido hasta: {{ formatearFecha(c.venceEn) }}</span>
+            </div>
+          }
+
+          <div class="modal-exito-canje__acciones">
+            <a routerLink="/mi-cuenta/cupones" class="boton-ir-cupones">
+              Ir a Mis Cupones
+            </a>
+            <button type="button" class="boton-cerrar" (click)="cerrarModalExito()">
+              Entendido
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- 2. Catálogo de Recompensas Canjeables -->
+    <section class="seccion-recompensas">
+      <div class="seccion-recompensas__cabecera">
+        <h2>🎁 Catálogo de Recompensas</h2>
+        <p>Elegí la recompensa que más te guste y canjeala con un clic.</p>
+      </div>
+
+      @if (recompensas().length === 0) {
+        <div class="catalogo-vacio">
+          <span>🎬</span>
+          <p>Por el momento no hay recompensas activas disponibles en el catálogo.</p>
+        </div>
+      } @else {
+        <div class="grilla-recompensas">
+          @for (rec of recompensas(); track rec.id) {
+            <article class="tarjeta-recompensa" [class.tarjeta-recompensa--alcanza]="saldoActual() >= rec.costoPuntos">
+              <header class="tarjeta-recompensa__cabecera">
+                <span class="badge-tipo">{{ obtenerEtiquetaTipo(rec.tipo) }}</span>
+                <div class="costo-puntos">
+                  <span class="numero">{{ rec.costoPuntos }}</span>
+                  <span class="unidad">pts</span>
+                </div>
+              </header>
+
+              <div class="tarjeta-recompensa__cuerpo">
+                <h3 class="tarjeta-recompensa__titulo">{{ rec.nombre }}</h3>
+                <p class="tarjeta-recompensa__descripcion">{{ rec.descripcion }}</p>
+                <span class="tarjeta-recompensa__validez">
+                  ⏱ Vigencia: {{ rec.diasValidez }} días tras el canje
+                </span>
+              </div>
+
+              <footer class="tarjeta-recompensa__footer">
+                @if (saldoActual() >= rec.costoPuntos) {
+                  <button
+                    type="button"
+                    class="boton-canjear"
+                    [disabled]="canjeandoId() === rec.id"
+                    (click)="ejecutarCanje(rec)"
+                  >
+                    @if (canjeandoId() === rec.id) {
+                      <span>Canjeando...</span>
+                    } @else {
+                      <span>Canjear por {{ rec.costoPuntos }} pts</span>
+                    }
+                  </button>
+                } @else {
+                  <div class="puntos-insuficientes">
+                    <span class="texto">Te faltan {{ rec.costoPuntos - saldoActual() }} puntos</span>
+                    <button type="button" class="boton-canjear boton-canjear--deshabilitado" disabled>
+                      Puntos insuficientes
+                    </button>
+                  </div>
+                }
+              </footer>
+            </article>
+          }
+        </div>
+      }
+    </section>
+
+    <!-- 3. Historial de Movimientos de Puntos -->
+    <section class="seccion-movimientos">
+      <div class="seccion-movimientos__cabecera">
+        <h2>📜 Historial de Movimientos</h2>
+        <p>Registro transparente y auditable de todos tus puntos acreditados y canjeados.</p>
+      </div>
+
+      @if (movimientos().length === 0) {
+        <div class="movimientos-vacio">
+          <span>⭐</span>
+          <p>Aún no registrás movimientos de puntos. Realizá tu primera compra para empezar a acumular.</p>
+        </div>
+      } @else {
+        <div class="tabla-movimientos-wrapper">
+          <table class="tabla-movimientos">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Concepto / Motivo</th>
+                <th>Tipo</th>
+                <th class="col-puntos">Puntos</th>
+                <th class="col-saldo">Saldo</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (m of movimientos(); track m.id) {
+                <tr>
+                  <td class="col-fecha">{{ formatearFecha(m.creadoEn) }}</td>
+                  <td class="col-motivo">
+                    <strong>{{ m.motivo }}</strong>
+                  </td>
+                  <td>
+                    @if (m.tipoMovimiento === 'debito_canje') {
+                      <span class="badge-movimiento badge-movimiento--debito">Canje</span>
+                    } @else if (m.tipoMovimiento === 'acreditacion_compra_cine') {
+                      <span class="badge-movimiento badge-movimiento--credito">Compra Cine</span>
+                    } @else {
+                      <span class="badge-movimiento badge-movimiento--credito">Compra Candy</span>
+                    }
+                  </td>
+                  <td class="col-puntos" [class.col-puntos--negativo]="m.tipoMovimiento === 'debito_canje'">
+                    {{ m.tipoMovimiento === 'debito_canje' ? '-' : '+' }}{{ m.puntos }}
+                  </td>
+                  <td class="col-saldo">{{ m.saldoResultante }} pts</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  }
+</div>

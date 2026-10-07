@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { adminGuard } from './core/guards/admin.guard';
+import { authGuard } from './core/guards/auth.guard';
 import { empleadoGuard } from './core/guards/empleado.guard';
 
 export const routes: Routes = [
@@ -65,6 +66,51 @@ export const routes: Routes = [
           import(
             './features/publico/paginas/candy/confirmacion-candy/confirmacion-candy'
           ).then(m => m.ConfirmacionCandy)
+      },
+      {
+        path: 'mi-cuenta',
+        pathMatch: 'full',
+        redirectTo: 'mi-cuenta/perfil'
+      },
+      {
+        path: 'mi-cuenta/perfil',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import(
+            './features/cliente/paginas/perfil/perfil'
+          ).then(m => m.Perfil)
+      },
+      {
+        path: 'mi-cuenta/entradas',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import(
+            './features/cliente/paginas/entradas/entradas'
+          ).then(m => m.Entradas)
+      },
+      {
+        path: 'mi-cuenta/peliculas',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import(
+            './features/cliente/paginas/peliculas/peliculas-cliente'
+          ).then(m => m.PeliculasCliente)
+      },
+      {
+        path: 'mi-cuenta/puntos',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import(
+            './features/cliente/paginas/puntos/puntos'
+          ).then(m => m.Puntos)
+      },
+      {
+        path: 'mi-cuenta/cupones',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import(
+            './features/cliente/paginas/cupones/cupones'
+          ).then(m => m.Cupones)
       }
     ]
   },
@@ -173,6 +219,20 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/admin/pages/candy/formulario-candy/formulario-candy')
             .then(m => m.FormularioCandy)
+      },
+      {
+        path: 'fidelizacion',
+        loadComponent: () =>
+          import(
+            './features/admin/pages/fidelizacion/gestion-fidelizacion/gestion-fidelizacion'
+          ).then(m => m.GestionFidelizacion)
+      },
+      {
+        path: 'cupones',
+        loadComponent: () =>
+          import(
+            './features/admin/pages/cupones/listado-cupones/listado-cupones'
+          ).then(m => m.ListadoCupones)
       }
     ]
   },

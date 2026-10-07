@@ -1,0 +1,104 @@
+<header class="cabecera-cuenta">
+  <!-- Banner de bienvenida e información del cliente -->
+  <div class="cabecera-cuenta__banner">
+    <div class="cabecera-cuenta__usuario">
+      <div class="cabecera-cuenta__avatar" aria-hidden="true">
+        <span>👤</span>
+      </div>
+      <div class="cabecera-cuenta__datos">
+        <div class="cabecera-cuenta__nombre-fila">
+          <h1 class="cabecera-cuenta__nombre">
+            {{ perfil()?.nombre ? (perfil()?.nombre + ' ' + perfil()?.apellido) : (usuario()?.email ?? 'Mi Cuenta') }}
+          </h1>
+          <span
+            class="cabecera-cuenta__badge-rol"
+            [class.cabecera-cuenta__badge-rol--admin]="esAdmin()"
+            [class.cabecera-cuenta__badge-rol--empleado]="esEmpleado()"
+          >
+            {{ perfil()?.rol ?? 'cliente' }}
+          </span>
+        </div>
+        <p class="cabecera-cuenta__email">
+          {{ usuario()?.email }}
+        </p>
+      </div>
+    </div>
+
+    <div class="cabecera-cuenta__balances">
+      <!-- Puntos de fidelización -->
+      <a routerLink="/mi-cuenta/puntos" class="tarjeta-balance tarjeta-balance--puntos" title="Ver detalle de Mis Puntos">
+        <span class="tarjeta-balance__icono" aria-hidden="true">⭐</span>
+        <div class="tarjeta-balance__info">
+          <span class="tarjeta-balance__etiqueta">Mis Puntos</span>
+          <span class="tarjeta-balance__valor">{{ perfil()?.saldoPuntos ?? 0 }} <small>pts</small></span>
+        </div>
+      </a>
+
+      <!-- Crédito acumulado -->
+      <div class="tarjeta-balance tarjeta-balance--credito" title="Crédito a favor para compras (Informativo)">
+        <span class="tarjeta-balance__icono" aria-hidden="true">💳</span>
+        <div class="tarjeta-balance__info">
+          <span class="tarjeta-balance__etiqueta">Crédito a favor</span>
+          <span class="tarjeta-balance__valor">${{ (perfil()?.credito ?? 0) | number:'1.2-2' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pestañas de navegación de Mi Cuenta -->
+  <nav class="cabecera-cuenta__nav" aria-label="Secciones de Mi Cuenta">
+    <a
+      routerLink="/mi-cuenta/perfil"
+      routerLinkActive="tab--activa"
+      class="tab"
+    >
+      <span class="tab__icono">👤</span>
+      <span class="tab__texto">Mi Perfil</span>
+    </a>
+
+    <a
+      routerLink="/mi-cuenta/entradas"
+      routerLinkActive="tab--activa"
+      class="tab"
+    >
+      <span class="tab__icono">🎟️</span>
+      <span class="tab__texto">Mis Entradas</span>
+    </a>
+
+    <a
+      routerLink="/mi-cuenta/peliculas"
+      routerLinkActive="tab--activa"
+      class="tab"
+    >
+      <span class="tab__icono">🎬</span>
+      <span class="tab__texto">Mis Películas</span>
+    </a>
+
+    <a
+      routerLink="/mi-cuenta/puntos"
+      routerLinkActive="tab--activa"
+      class="tab"
+    >
+      <span class="tab__icono">⭐</span>
+      <span class="tab__texto">Mis Puntos</span>
+    </a>
+
+    <a
+      routerLink="/mi-cuenta/cupones"
+      routerLinkActive="tab--activa"
+      class="tab"
+    >
+      <span class="tab__icono">🏷️</span>
+      <span class="tab__texto">Mis Cupones</span>
+    </a>
+  </nav>
+
+  @if (titulo || subtitulo) {
+    <div class="cabecera-cuenta__seccion-info">
+      <h2 class="cabecera-cuenta__titulo-seccion">{{ titulo }}</h2>
+      @if (subtitulo) {
+        <p class="cabecera-cuenta__subtitulo-seccion">{{ subtitulo }}</p>
+      }
+    </div>
+  }
+</header>

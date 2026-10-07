@@ -59,7 +59,11 @@
               </a>
             }
 
-            <div class="datos-perfil">
+            <a
+              routerLink="/mi-cuenta/perfil"
+              class="datos-perfil"
+              title="Administrar Mi Perfil"
+            >
               <span class="datos-perfil__nombre">
                 {{ perfil()?.nombre ? (perfil()?.nombre + ' ' + perfil()?.apellido) : (usuario()?.email ?? 'Usuario') }}
               </span>
@@ -69,7 +73,7 @@
               >
                 {{ perfil()?.rol ?? 'cliente' }}
               </span>
-            </div>
+            </a>
 
             <button
               type="button"

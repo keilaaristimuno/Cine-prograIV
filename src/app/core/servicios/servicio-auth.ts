@@ -127,6 +127,7 @@ export class ServicioAuth {
         diasVacaciones: Number(data.dias_vacaciones ?? 0),
         rol: (data.rol ?? 'cliente') as RolUsuario,
         credito: Number(data.credito ?? 0),
+        saldoPuntos: Number(data.saldo_puntos ?? 0),
         creadoEn: data.creado_en
       };
 
@@ -202,6 +203,47 @@ export class ServicioAuth {
     }
 
     return { sesionIniciada: false };
+  }
+
+  /**
+   * Actualiza los datos editables del perfil del usuario en sesión.
+   * Campos inmutables/protegidos (usuarioId, rol, saldoPuntos, credito) nunca se modifican.
+   */
+  async actualizarPerfil(datos: {
+    nombre: string;
+    apellido: string;
+    fechaNacimiento: string;
+    tipoSangre: TipoSangre;
+    colorOjos: string;
+    diasVacaciones: number;
+  }): Promise<PerfilUsuario> {
+    const usuario = this.usuarioActual();
+    if (!usuario) {
+      throw new Error('No hay una sesión de usuario activa.');
+    }
+
+    const cliente = this.servicioSupabase.cliente;
+
+    // Actualización segura y atómica exclusivamente a través de la función RPC
+    const { error } = await cliente.rpc('actualizar_mi_perfil', {
+      p_nombre: datos.nombre.trim(),
+      p_apellido: datos.apellido.trim(),
+      p_fecha_nacimiento: datos.fechaNacimiento,
+      p_tipo_sangre: datos.tipoSangre,
+      p_color_ojos: datos.colorOjos.trim(),
+      p_dias_vacaciones: Number(datos.diasVacaciones)
+    });
+
+    if (error) {
+      console.error('Error al actualizar perfil mediante RPC:', error);
+      throw new Error(error.message || 'No se pudo actualizar el perfil.');
+    }
+
+    const perfilActualizado = await this.cargarPerfil(usuario.id, usuario.email);
+    if (!perfilActualizado) {
+      throw new Error('El perfil se guardó pero no se pudo recargar el estado local.');
+    }
+    return perfilActualizado;
   }
 
   /**

@@ -1,0 +1,135 @@
+<div class="cupones-base">
+  <app-cabecera-cuenta
+    titulo="Mis Cupones y Beneficios"
+    subtitulo="Revisá todos tus cupones activos obtenidos por canjes de puntos o cortesías exclusivas."
+  />
+
+  <!-- Filtros de estado -->
+  <nav class="barra-filtros-cupones">
+    <button
+      type="button"
+      class="chip-filtro"
+      [class.chip-filtro--activo]="filtroSeleccionado() === 'todos'"
+      (click)="cambiarFiltro('todos')"
+    >
+      Todos ({{ cupones().length }})
+    </button>
+    <button
+      type="button"
+      class="chip-filtro"
+      [class.chip-filtro--activo]="filtroSeleccionado() === 'disponible'"
+      (click)="cambiarFiltro('disponible')"
+    >
+      Disponibles
+    </button>
+    <button
+      type="button"
+      class="chip-filtro"
+      [class.chip-filtro--activo]="filtroSeleccionado() === 'utilizado'"
+      (click)="cambiarFiltro('utilizado')"
+    >
+      Utilizados
+    </button>
+    <button
+      type="button"
+      class="chip-filtro"
+      [class.chip-filtro--activo]="filtroSeleccionado() === 'vencido'"
+      (click)="cambiarFiltro('vencido')"
+    >
+      Vencidos
+    </button>
+  </nav>
+
+  <!-- Estados de carga y error -->
+  @if (cargando()) {
+    <div class="estado-cupones estado-cupones--cargando">
+      <div class="spinner-cine"></div>
+      <p>Cargando tus cupones...</p>
+    </div>
+  } @else if (error()) {
+    <div class="estado-cupones estado-cupones--error">
+      <span class="icono">⚠️</span>
+      <h2>No pudimos cargar tus cupones</h2>
+      <p>{{ error() }}</p>
+      <button type="button" class="boton-reintentar" (click)="cargarCupones()">
+        Reintentar
+      </button>
+    </div>
+  } @else if (cuponesFiltrados().length === 0) {
+    <div class="cupones-vacio">
+      <span class="icono">🎟</span>
+      <h3>No se encontraron cupones</h3>
+      @if (filtroSeleccionado() === 'todos') {
+        <p>Aún no tenés cupones emitidos. Podés canjear tus puntos en la sección de Recompensas.</p>
+        <a routerLink="/mi-cuenta/puntos" class="boton-ir-catalogo">
+          Ver Catálogo de Recompensas
+        </a>
+      } @else {
+        <p>No tenés cupones que coincidan con el filtro seleccionado.</p>
+        <button type="button" class="boton-limpiar-filtro" (click)="cambiarFiltro('todos')">
+          Ver todos los cupones
+        </button>
+      }
+    </div>
+  } @else {
+    <!-- Grilla de cupones con estilo de ticket -->
+    <div class="grilla-cupones">
+      @for (c of cuponesFiltrados(); track c.id) {
+        @let estadoReal = obtenerEstadoEfectivo(c);
+        <article
+          class="tarjeta-ticket"
+          [class.tarjeta-ticket--disponible]="estadoReal === 'disponible'"
+          [class.tarjeta-ticket--utilizado]="estadoReal === 'utilizado'"
+          [class.tarjeta-ticket--vencido]="estadoReal === 'vencido'"
+        >
+          <!-- Borde perforado decorativo -->
+          <div class="tarjeta-ticket__recorte tarjeta-ticket__recorte--izq"></div>
+          <div class="tarjeta-ticket__recorte tarjeta-ticket__recorte--der"></div>
+
+          <header class="tarjeta-ticket__cabecera">
+            <span class="tarjeta-ticket__origen">
+              {{ c.origen === 'canje_puntos' ? 'Canje de Fidelización' : 'Beneficio Exclusivo' }}
+            </span>
+
+            <!-- Badge de estado -->
+            @if (estadoReal === 'disponible') {
+              <span class="badge-estado badge-estado--disponible">● Disponible</span>
+            } @else if (estadoReal === 'utilizado') {
+              <span class="badge-estado badge-estado--utilizado">✓ Utilizado</span>
+            } @else {
+              <span class="badge-estado badge-estado--vencido">✕ Vencido</span>
+            }
+          </header>
+
+          <div class="tarjeta-ticket__cuerpo">
+            <h3 class="tarjeta-ticket__descripcion">{{ c.descripcion }}</h3>
+
+            <!-- Caja con código alfanumérico seguro -->
+            <div class="tarjeta-ticket__caja-codigo">
+              <span class="codigo-texto">{{ c.codigoCupon }}</span>
+              @if (estadoReal === 'disponible') {
+                <button
+                  type="button"
+                  class="boton-copiar"
+                  (click)="copiarCodigo(c.codigoCupon)"
+                  [title]="codigoCopiado() === c.codigoCupon ? '¡Copiado!' : 'Copiar código'"
+                >
+                  {{ codigoCopiado() === c.codigoCupon ? '✓ Copiado' : '📋 Copiar' }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <footer class="tarjeta-ticket__footer">
+            <div class="fechas-info">
+              <span>Emitido: {{ formatearFecha(c.creadoEn) }}</span>
+              <span [class.texto-urgente]="estadoReal === 'disponible'">
+                Vence: {{ formatearFecha(c.venceEn) }}
+              </span>
+            </div>
+          </footer>
+        </article>
+      }
+    </div>
+  }
+</div>
