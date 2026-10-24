@@ -6,7 +6,7 @@
 
 Aplicación desarrollada con Angular y Supabase que centraliza la cartelera, selección interactiva de butacas en tiempo real, venta de entradas y Candy Bar, control de acceso mediante QR, reseñas de espectadores, programa de fidelización y soporte PWA instalable.
 
-[Ver aplicación desplegada](https://pantallamagica-25cb8.web.app) · [Repositorio en GitHub](https://github.com/keilaaristimuno/Cine-prograIV.git)
+**[🌐 Ver aplicación desplegada](https://pantallamagica-25cb8.web.app)**
 
 ![Angular](https://img.shields.io/badge/Angular-22.1.6-DD0031?logo=angular&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-3178C6?logo=typescript&logoColor=white)
@@ -270,7 +270,7 @@ npm run build
 
 ---
 
-## ⚠️ Funcionalidades Pendientes / Próximos Pasos
+## 🚀 Próximos Pasos
 
 Para mantener total transparencia académica y fidelidad con el estado real del repositorio, las siguientes funcionalidades del alcance de la materia se encuentran **pendientes de implementación** y no deben considerarse operativas:
 
@@ -310,7 +310,7 @@ Para mantener total transparencia académica y fidelidad con el estado real del 
 1. **Clonar el repositorio:**
    ```bash
    git clone https://github.com/keilaaristimuno/Cine-prograIV.git
-   cd pantalla-magica
+   cd Cine-prograIV
    ```
 
 2. **Instalar dependencias:**
@@ -339,3 +339,7 @@ Para mantener total transparencia académica y fidelidad con el estado real del 
 ## 👩‍💻 Autoría
 
 Proyecto desarrollado por **Keila Aristimuño** para la carrera **Tecnicatura Universitaria en Programación (UTN)** — Cátedra de **Programación IV** (2025/2026).
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/keila-aristimu%C3%B1o-327184211/) [![GitHub](https://img.shields.io/badge/GitHub-keilaaristimuno-181717?logo=github&logoColor=white)](https://github.com/keilaaristimuno)
+
+¿Tenés sugerencias o encontraste un error? ¡Abrí un *issue*, todo feedback es bienvenido!
